@@ -58,6 +58,7 @@
         <!--Specific Libraries-->
         <version.lombok>1.18.42</version.lombok>
         <version.junit>6.0.3</version.junit>
+        <version.postgresql>42.7.10</version.postgresql>
 
     </properties>
 
@@ -77,6 +78,14 @@
             <artifactId>junit-jupiter-api</artifactId>
             <version>${version.junit}</version>
             <scope>test</scope>
+        </dependency>
+
+        <!--PostgreSQL-->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${version.postgresql}</version>
+            <scope>runtime</scope>
         </dependency>
 
     </dependencies>
