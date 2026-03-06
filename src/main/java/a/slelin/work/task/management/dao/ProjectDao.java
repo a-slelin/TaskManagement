@@ -116,11 +116,17 @@ public class ProjectDao implements Dao<Project, Long> {
     public void delete(@NotNull Project project) {
         try {
             em.getTransaction().begin();
-            em.remove(project);
+            em.remove(em.merge(project));
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
             throw new RuntimeException("ProjectDao.delete() failed.", e);
         }
+    }
+
+    @Override
+    public void delete(Long id) {
+        Project project = findById(id);
+        delete(project);
     }
 }

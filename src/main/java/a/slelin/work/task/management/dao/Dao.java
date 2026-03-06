@@ -18,4 +18,6 @@ public interface Dao<E, ID extends Serializable> {
     E update(@NotNull E e);
 
     void delete(@NotNull E e);
+
+    void delete(@NotNull ID id);
 }

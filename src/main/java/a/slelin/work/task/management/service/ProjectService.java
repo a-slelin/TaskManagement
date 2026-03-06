@@ -1,7 +1,8 @@
 package a.slelin.work.task.management.service;
 
 import a.slelin.work.task.management.dao.ProjectDao;
-import a.slelin.work.task.management.dto.ProjectDto;
+import a.slelin.work.task.management.dto.ProjectRD;
+import a.slelin.work.task.management.dto.ProjectWD;
 import a.slelin.work.task.management.dto.mapper.ProjectMapper;
 import a.slelin.work.task.management.entity.Project;
 import lombok.AccessLevel;
@@ -12,7 +13,7 @@ import org.mapstruct.factory.Mappers;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ProjectService implements Service<Long, ProjectDto> {
+public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
 
     @Getter
     private final static ProjectService instance = new ProjectService();
@@ -22,26 +23,26 @@ public class ProjectService implements Service<Long, ProjectDto> {
     private final static ProjectDao repository = ProjectDao.getInstance();
 
     @Override
-    public List<ProjectDto> getAll() {
-        return repository.getAll().stream()
+    public List<ProjectRD> getAll() {
+        return repository.findAll().stream()
                 .map(mapper::toDto)
                 .toList();
     }
 
     @Override
-    public ProjectDto getById(Long id) {
-        return mapper.toDto(repository.getById(id));
+    public ProjectRD getById(Long id) {
+        return mapper.toDto(repository.findById(id));
     }
 
     @Override
-    public Long create(ProjectDto dto) {
+    public ProjectRD create(ProjectWD dto) {
         Project project = mapper.toEntity(dto);
         project = repository.create(project);
-        return project.getId();
+        return mapper.toDto(project);
     }
 
     @Override
-    public ProjectDto update(ProjectDto dto) {
+    public ProjectRD update(Long id, ProjectWD dto) {
         Project project = mapper.toEntity(dto);
         project = repository.update(project);
         return mapper.toDto(project);

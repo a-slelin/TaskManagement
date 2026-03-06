@@ -131,11 +131,17 @@ public class UserDao implements Dao<User, UUID> {
     public void delete(@NotNull User user) {
         try {
             em.getTransaction().begin();
-            em.remove(user);
+            em.remove(em.merge(user));
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
             throw new RuntimeException("UserDao.delete() failed.", e);
         }
+    }
+
+    @Override
+    public void delete(UUID id) {
+        User user = findById(id);
+        delete(user);
     }
 }

@@ -114,11 +114,17 @@ public class TaskDao implements Dao<Task, Long> {
     public void delete(@NotNull Task task) {
         try {
             em.getTransaction().begin();
-            em.remove(task);
+            em.remove(em.merge(task));
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
             throw new RuntimeException("TaskDao.delete() failed.", e);
         }
+    }
+
+    @Override
+    public void delete(Long id) {
+        Task task = findById(id);
+        delete(task);
     }
 }
