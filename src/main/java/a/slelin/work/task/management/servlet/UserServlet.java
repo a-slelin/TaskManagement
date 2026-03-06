@@ -1,6 +1,7 @@
 package a.slelin.work.task.management.servlet;
 
-import a.slelin.work.task.management.dto.UserDto;
+import a.slelin.work.task.management.dto.UserRD;
+import a.slelin.work.task.management.dto.UserWD;
 import a.slelin.work.task.management.service.UserService;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -41,12 +42,16 @@ public class UserServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
+            resp.setContentType("application/json");
+            resp.setCharacterEncoding(StandardCharsets.UTF_8.name());
             resp.setStatus(HttpServletResponse.SC_CREATED);
 
-            UserDto user = mapper.readValue(req.getReader(), UserDto.class);
-            UUID id = service.create(user);
+            UserWD user = mapper.readValue(req.getReader(), UserWD.class);
+            UserRD savedUser = service.create(user);
 
-            resp.setHeader("Location", "http://localhost:8080/TaskManagementSystem/users/" + id.toString());
+            resp.getWriter().write(mapper.writeValueAsString(savedUser));
+
+            resp.setHeader("Location", "http://localhost:8080/TaskManagementSystem/users/" + savedUser.toString());
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());
         }
@@ -59,10 +64,12 @@ public class UserServlet extends HttpServlet {
             resp.setCharacterEncoding(StandardCharsets.UTF_8.name());
             resp.setStatus(HttpServletResponse.SC_OK);
 
-            UserDto user = mapper.readValue(req.getReader(), UserDto.class);
-            user = service.update(user);
+            UUID id = UUID.fromString(req.getPathInfo().substring(1));
 
-            resp.getWriter().write(mapper.writeValueAsString(user));
+            UserWD user = mapper.readValue(req.getReader(), UserWD.class);
+            UserRD savedUser = service.update(id, user);
+
+            resp.getWriter().write(mapper.writeValueAsString(savedUser));
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());
         }
@@ -74,6 +81,7 @@ public class UserServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
 
             UUID id = UUID.fromString(req.getPathInfo().substring(1));
+
             service.delete(id);
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());

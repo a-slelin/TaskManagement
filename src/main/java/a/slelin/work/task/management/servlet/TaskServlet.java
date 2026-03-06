@@ -1,6 +1,7 @@
 package a.slelin.work.task.management.servlet;
 
-import a.slelin.work.task.management.dto.TaskDto;
+import a.slelin.work.task.management.dto.TaskRD;
+import a.slelin.work.task.management.dto.TaskWD;
 import a.slelin.work.task.management.service.TaskService;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -40,12 +41,15 @@ public class TaskServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
+            resp.setContentType("application/json");
+            resp.setCharacterEncoding(StandardCharsets.UTF_8.name());
             resp.setStatus(HttpServletResponse.SC_CREATED);
 
-            TaskDto task = mapper.readValue(req.getReader(), TaskDto.class);
-            Long id = service.create(task);
+            TaskWD task = mapper.readValue(req.getReader(), TaskWD.class);
+            TaskRD savedTask = service.create(task);
+            resp.getWriter().write(mapper.writeValueAsString(savedTask));
 
-            resp.setHeader("Location", "http://localhost:8080/TaskManagementSystem/tasks/" + id.toString());
+            resp.setHeader("Location", "http://localhost:8080/TaskManagementSystem/tasks/" + savedTask.toString());
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());
         }
@@ -58,10 +62,12 @@ public class TaskServlet extends HttpServlet {
             resp.setCharacterEncoding(StandardCharsets.UTF_8.name());
             resp.setStatus(HttpServletResponse.SC_OK);
 
-            TaskDto task = mapper.readValue(req.getReader(), TaskDto.class);
-            task = service.update(task);
+            Long id = Long.parseLong(req.getPathInfo().substring(1));
 
-            resp.getWriter().write(mapper.writeValueAsString(task));
+            TaskWD task = mapper.readValue(req.getReader(), TaskWD.class);
+            TaskRD savedTask = service.update(id, task);
+
+            resp.getWriter().write(mapper.writeValueAsString(savedTask));
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());
         }
@@ -73,6 +79,7 @@ public class TaskServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
 
             Long id = Long.parseLong(req.getPathInfo().substring(1));
+
             service.delete(id);
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());

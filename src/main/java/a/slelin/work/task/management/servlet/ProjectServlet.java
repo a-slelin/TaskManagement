@@ -1,6 +1,7 @@
 package a.slelin.work.task.management.servlet;
 
-import a.slelin.work.task.management.dto.ProjectDto;
+import a.slelin.work.task.management.dto.ProjectRD;
+import a.slelin.work.task.management.dto.ProjectWD;
 import a.slelin.work.task.management.service.ProjectService;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -40,12 +41,15 @@ public class ProjectServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
+            resp.setContentType("application/json");
+            resp.setCharacterEncoding(StandardCharsets.UTF_8.name());
             resp.setStatus(HttpServletResponse.SC_CREATED);
 
-            ProjectDto project = mapper.readValue(req.getReader(), ProjectDto.class);
-            Long id = service.create(project);
+            ProjectWD project = mapper.readValue(req.getReader(), ProjectWD.class);
+            ProjectRD savedProject = service.create(project);
+            resp.getWriter().write(mapper.writeValueAsString(savedProject));
 
-            resp.setHeader("Location", "http://localhost:8080/TaskManagementSystem/projects/" + id.toString());
+            resp.setHeader("Location", "http://localhost:8080/TaskManagementSystem/projects/" + savedProject.toString());
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());
         }
@@ -58,10 +62,12 @@ public class ProjectServlet extends HttpServlet {
             resp.setCharacterEncoding(StandardCharsets.UTF_8.name());
             resp.setStatus(HttpServletResponse.SC_OK);
 
-            ProjectDto project = mapper.readValue(req.getReader(), ProjectDto.class);
-            project = service.update(project);
+            Long id = Long.parseLong(req.getPathInfo().substring(1));
 
-            resp.getWriter().write(mapper.writeValueAsString(project));
+            ProjectWD project = mapper.readValue(req.getReader(), ProjectWD.class);
+            ProjectRD savedProject = service.update(id, project);
+
+            resp.getWriter().write(mapper.writeValueAsString(savedProject));
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());
         }
@@ -73,6 +79,7 @@ public class ProjectServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
 
             Long id = Long.parseLong(req.getPathInfo().substring(1));
+
             service.delete(id);
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());
