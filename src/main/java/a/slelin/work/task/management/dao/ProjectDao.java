@@ -91,6 +91,8 @@ public class ProjectDao implements Dao<Project, Long> {
             statement.setString(2, entity.getDescription());
             statement.setLong(3, entity.getId());
 
+            statement.executeUpdate();
+
             return entity;
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при обновлении проекта.", e);

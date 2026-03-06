@@ -5,5 +5,6 @@ import lombok.Builder;
 @Builder
 public record ProjectDto(Long id,
                          String name,
-                         String description) implements Dto {
+                         String description,
+                         String user) implements Dto {
 }

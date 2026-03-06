@@ -1,6 +1,7 @@
 package a.slelin.work.task.management.dao.mapper;
 
 import a.slelin.work.task.management.entity.Project;
+import a.slelin.work.task.management.entity.User;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProjectDaoMapper implements DaoMapper<Project, Long> {
@@ -26,6 +28,12 @@ public class ProjectDaoMapper implements DaoMapper<Project, Long> {
                     .name(rs.getString("name"))
                     .description(rs.getString("description"))
                     .build();
+
+            User user = User.builder()
+                    .id(rs.getObject("owner_id", UUID.class))
+                    .build();
+            project.setUser(user);
+
             result.add(project);
         }
 
