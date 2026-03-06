@@ -76,6 +76,7 @@
         <version.jackson>3.1.0</version.jackson>
         <version.hibernate.orm>7.2.6.Final</version.hibernate.orm>
         <version.hibernate.validator>9.1.0.Final</version.hibernate.validator>
+        <version.bcrypt>0.3</version.bcrypt>
 
     </properties>
 
@@ -147,6 +148,13 @@
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>${version.hibernate.validator}</version>
+        </dependency>
+
+        <!--Bcrypt-->
+        <dependency>
+            <groupId>org.mindrot.bcrypt</groupId>
+            <artifactId>bcrypt</artifactId>
+            <version>${version.bcrypt}</version>
         </dependency>
 
     </dependencies>
