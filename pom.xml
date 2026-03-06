@@ -60,6 +60,7 @@
         <version.junit>6.0.3</version.junit>
         <version.postgresql>42.7.10</version.postgresql>
         <version.h2>2.4.240</version.h2>
+        <version.mapstruct>1.6.3</version.mapstruct>
 
     </properties>
 
@@ -97,6 +98,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!--MapStruct-->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${version.mapstruct}</version>
+        </dependency>
+
     </dependencies>
 
 
@@ -125,6 +133,11 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>${version.lombok}</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${version.mapstruct}</version>
                         </path>
                     </annotationProcessorPaths>
                     <compilerArgs>
