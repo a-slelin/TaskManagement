@@ -35,7 +35,7 @@ public interface TaskMapper {
 
     @Mapping(target = "status", qualifiedByName = "takeStatus")
     @Mapping(target = "project", qualifiedByName = "takeProject")
-    @Mapping(target = "user", qualifiedByName = "takeUser")
+    @Mapping(target = "user", source = ".", qualifiedByName = "takeUser")
     TaskRD toDto(Task task);
 
     @Named("takeStatus")
