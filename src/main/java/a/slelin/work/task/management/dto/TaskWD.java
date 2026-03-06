@@ -1,11 +1,11 @@
 package a.slelin.work.task.management.dto;
 
+import jakarta.validation.constraints.Min;
 import lombok.Builder;
 
 @Builder
-public record TaskDto(Long id,
-                      String title,
+public record TaskWD (String title,
                       String description,
                       String status,
-                      Long project) implements Dto {
+                      @Min(1) Long project) implements WriteDto {
 }
