@@ -6,5 +6,6 @@ import lombok.Builder;
 public record TaskDto(Long id,
                       String title,
                       String description,
-                      String status) implements Dto {
+                      String status,
+                      Long project) implements Dto {
 }

@@ -1,5 +1,6 @@
 package a.slelin.work.task.management.dao.mapper;
 
+import a.slelin.work.task.management.entity.Project;
 import a.slelin.work.task.management.entity.Status;
 import a.slelin.work.task.management.entity.Task;
 import lombok.AccessLevel;
@@ -28,6 +29,12 @@ public class TaskDaoMapper implements DaoMapper<Task, Long> {
                     .description(rs.getString("description"))
                     .status(Status.of(rs.getString("status")))
                     .build();
+
+            Project project = Project.builder()
+                    .id(rs.getLong("project_id"))
+                    .build();
+            task.setProject(project);
+
             result.add(task);
         }
 

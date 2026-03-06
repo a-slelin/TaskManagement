@@ -95,6 +95,8 @@ public class TaskDao implements Dao<Task, Long> {
                     : entity.getStatus().getDisplayName());
             statement.setLong(4, entity.getId());
 
+            statement.executeUpdate();
+
             return entity;
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при обновлении задачи.", e);
