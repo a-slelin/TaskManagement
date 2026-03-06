@@ -13,4 +13,20 @@ public enum Gender {
     private final String displayName;
 
     private final String shortName;
+
+    public static Gender of(String key) {
+        if (key == null) {
+            return null;
+        }
+
+        for (Gender value : Gender.values()) {
+            if (key.equalsIgnoreCase(value.name()) ||
+                    key.equalsIgnoreCase(value.displayName) ||
+                    key.equalsIgnoreCase(value.shortName)) {
+                return value;
+            }
+        }
+
+        throw new IllegalArgumentException(key + " is not a valid gender.");
+    }
 }

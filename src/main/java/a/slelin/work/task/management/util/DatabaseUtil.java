@@ -19,22 +19,43 @@ public final class DatabaseUtil {
     public static final String KEY_DB_USERNAME;
     public static final String KEY_DB_PASSWORD;
 
+    private static boolean isForTest = false;
+
+    public static void setTestMode() {
+        isForTest = true;
+    }
+
+    public static void resetTestMode() {
+        isForTest = false;
+    }
+
     public static Connection getConnection() {
         Connection connection;
         try {
-            String url = "jdbc:%s://%s:%s/%s".formatted(
-                    get(KEY_DB_DRIVER),
-                    get(KEY_DB_HOST),
-                    get(KEY_DB_PORT),
-                    get(KEY_DB_NAME));
+            if (isForTest) {
+                connection = DriverManager.getConnection(
+                        "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;" +
+                                "INIT=RUNSCRIPT FROM './src/main/resources/db/schema.sql'\\;" +
+                                "RUNSCRIPT FROM './src/main/resources/db/data.sql'",
+                        "sa",
+                        ""
+                );
+            } else {
 
-            connection = DriverManager.getConnection(
-                    url,
-                    get(KEY_DB_USERNAME),
-                    get(KEY_DB_PASSWORD)
-            );
+                String url = "jdbc:%s://%s:%s/%s".formatted(
+                        get(KEY_DB_DRIVER),
+                        get(KEY_DB_HOST),
+                        get(KEY_DB_PORT),
+                        get(KEY_DB_NAME));
+
+                connection = DriverManager.getConnection(
+                        url,
+                        get(KEY_DB_USERNAME),
+                        get(KEY_DB_PASSWORD)
+                );
+            }
         } catch (SQLException e) {
-            throw new RuntimeException("Не удалось открывать соединение с базой данных.", e);
+            throw new RuntimeException("Не удалось открыть соединение с базой данных.", e);
         }
 
         return connection;

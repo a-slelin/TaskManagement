@@ -12,7 +12,7 @@ import java.util.UUID;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class User implements Entity {
 
     private UUID id;
 

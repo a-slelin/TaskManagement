@@ -59,6 +59,7 @@
         <version.lombok>1.18.42</version.lombok>
         <version.junit>6.0.3</version.junit>
         <version.postgresql>42.7.10</version.postgresql>
+        <version.h2>2.4.240</version.h2>
 
     </properties>
 
@@ -86,6 +87,14 @@
             <artifactId>postgresql</artifactId>
             <version>${version.postgresql}</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <!--H2-->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${version.h2}</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

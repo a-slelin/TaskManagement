@@ -1,4 +1,4 @@
-package a.slelin.work.task.management.test;
+package a.slelin.work.task.management.test.db;
 
 import a.slelin.work.task.management.util.DatabaseUtil;
 import org.junit.jupiter.api.Assertions;
