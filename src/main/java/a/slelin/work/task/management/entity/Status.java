@@ -1,0 +1,34 @@
+package a.slelin.work.task.management.entity;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public enum Status {
+    BEGIN("begin", "b"),
+    END("end", "e"),
+    IN_PROGRESS("in_progress", "p"),
+    CANCELLED("canceled", "c"),
+    ON_HOLD("on_hold", "h");
+
+    private final String displayName;
+
+    private final String shortName;
+
+    public static Status of(String key) {
+        if (key == null) {
+            return null;
+        }
+
+        for (Status status : Status.values()) {
+            if (key.equalsIgnoreCase(status.name()) ||
+                    key.equalsIgnoreCase(status.displayName) ||
+                    key.equalsIgnoreCase(status.shortName)) {
+                return status;
+            }
+        }
+
+        throw new IllegalArgumentException(key + " is not a valid status.");
+    }
+}
