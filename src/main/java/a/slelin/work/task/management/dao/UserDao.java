@@ -104,7 +104,7 @@ public class UserDao implements Dao<User, UUID> {
     }
 
     @Override
-    public void delete(User entity) {
+    public void delete(UUID id) {
         String sql = """
                 DELETE FROM users
                 WHERE id = ?
@@ -112,10 +112,10 @@ public class UserDao implements Dao<User, UUID> {
 
         try (var connection = DatabaseUtil.getConnection();
              var statement = connection.prepareStatement(sql)) {
-            statement.setString(1, entity.getId().toString());
+            statement.setObject(1, id);
             statement.executeUpdate();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при удалении пользователя id = %s.".formatted(entity.getId()), e);
+            throw new RuntimeException("Ошибка при удалении пользователя id = %s.".formatted(id), e);
         }
     }
 }

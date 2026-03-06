@@ -102,7 +102,7 @@ public class TaskDao implements Dao<Task, Long> {
     }
 
     @Override
-    public void delete(Task entity) {
+    public void delete(Long id) {
         String sql = """
                 DELETE FROM task
                 WHERE id = ?
@@ -110,10 +110,10 @@ public class TaskDao implements Dao<Task, Long> {
 
         try (var connection = DatabaseUtil.getConnection();
              var statement = connection.prepareStatement(sql)) {
-            statement.setLong(1, entity.getId());
+            statement.setLong(1, id);
             statement.executeUpdate();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при удалении задачи id = %d.".formatted(entity.getId()), e);
+            throw new RuntimeException("Ошибка при удалении задачи id = %d.".formatted(id), e);
         }
     }
 }

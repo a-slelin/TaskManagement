@@ -5,7 +5,7 @@ import a.slelin.work.task.management.entity.Entity;
 import java.io.Serializable;
 import java.util.List;
 
-public interface Dao<E extends Entity, ID extends Serializable> {
+public interface Dao<E extends Entity<ID>, ID extends Serializable> {
 
     List<E> getAll();
 
@@ -15,5 +15,9 @@ public interface Dao<E extends Entity, ID extends Serializable> {
 
     E update(E entity);
 
-    void delete(E entity);
+    void delete(ID id);
+
+    default void delete(E entity) {
+        delete(entity.getId());
+    }
 }

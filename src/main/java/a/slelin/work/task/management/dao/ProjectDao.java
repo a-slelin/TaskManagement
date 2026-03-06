@@ -98,7 +98,7 @@ public class ProjectDao implements Dao<Project, Long> {
     }
 
     @Override
-    public void delete(Project entity) {
+    public void delete(Long id) {
         String sql = """
                 DELETE FROM project
                 WHERE id = ?
@@ -106,10 +106,10 @@ public class ProjectDao implements Dao<Project, Long> {
 
         try (var connection = DatabaseUtil.getConnection();
              var statement = connection.prepareStatement(sql)) {
-            statement.setLong(1, entity.getId());
+            statement.setLong(1, id);
             statement.executeUpdate();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при удалении проекта id = %d.".formatted(entity.getId()), e);
+            throw new RuntimeException("Ошибка при удалении проекта id = %d.".formatted(id), e);
         }
     }
 }

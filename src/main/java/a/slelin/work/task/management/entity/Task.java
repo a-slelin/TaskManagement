@@ -9,7 +9,7 @@ import lombok.*;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class Task implements Entity {
+public class Task implements Entity<Long> {
 
     private Long id;
 

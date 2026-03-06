@@ -11,7 +11,7 @@ import java.util.List;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class Project implements Entity {
+public class Project implements Entity<Long> {
 
     private Long id;
 
