@@ -35,6 +35,11 @@
             <url>https://repo1.maven.org/maven2/</url>
         </repository>
 
+        <repository>
+            <id>bedatadriven</id>
+            <url>https://nexus.bedatadriven.com/content/groups/public/</url>
+        </repository>
+
     </repositories>
 
     <properties>
@@ -69,6 +74,8 @@
         <version.mapstruct>1.6.3</version.mapstruct>
         <version.jakarta.servlet-api>6.1.0</version.jakarta.servlet-api>
         <version.jackson>3.1.0</version.jackson>
+        <version.hibernate.orm>7.2.6.Final</version.hibernate.orm>
+        <version.hibernate.validator>9.1.0.Final</version.hibernate.validator>
 
     </properties>
 
@@ -126,6 +133,20 @@
             <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${version.jackson}</version>
+        </dependency>
+
+        <!--Hibernate ORM-->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${version.hibernate.orm}</version>
+        </dependency>
+
+        <!--Hibernate Validator-->
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${version.hibernate.validator}</version>
         </dependency>
 
     </dependencies>
