@@ -22,4 +22,11 @@ public class Task implements Entity<Long> {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Project project;
+
+    @SuppressWarnings("unused")
+    public static Task byId(Long id) {
+        Task task = new Task();
+        task.setId(id);
+        return task;
+    }
 }

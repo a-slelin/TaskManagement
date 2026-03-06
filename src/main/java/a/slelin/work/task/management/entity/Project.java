@@ -26,4 +26,10 @@ public class Project implements Entity<Long> {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Task> tasks;
+
+    public static Project byId(Long id) {
+        Project project = new Project();
+        project.setId(id);
+        return project;
+    }
 }

@@ -28,22 +28,13 @@ public class TaskDaoMapper implements DaoMapper<Task, Long> {
                     .title(rs.getString("title"))
                     .description(rs.getString("description"))
                     .status(Status.of(rs.getString("status")))
+                    .project(Project.byId(rs.getLong("project_id")))
                     .build();
-
-            Project project = Project.builder()
-                    .id(rs.getLong("project_id"))
-                    .build();
-            task.setProject(project);
 
             result.add(task);
         }
 
         return result;
-    }
-
-    @Override
-    public Task mapOne(ResultSet rs) throws SQLException {
-        return map(rs).getFirst();
     }
 
     @Override

@@ -38,11 +38,6 @@ public class UserDaoMapper implements DaoMapper<User, UUID> {
     }
 
     @Override
-    public User mapOne(ResultSet rs) throws SQLException {
-        return map(rs).getFirst();
-    }
-
-    @Override
     public UUID mapId(ResultSet rs) throws SQLException {
         List<UUID> result = new ArrayList<>();
 

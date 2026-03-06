@@ -27,22 +27,13 @@ public class ProjectDaoMapper implements DaoMapper<Project, Long> {
                     .id(rs.getLong("id"))
                     .name(rs.getString("name"))
                     .description(rs.getString("description"))
+                    .user(User.byId(rs.getObject("owner_id", UUID.class)))
                     .build();
-
-            User user = User.builder()
-                    .id(rs.getObject("owner_id", UUID.class))
-                    .build();
-            project.setUser(user);
 
             result.add(project);
         }
 
         return result;
-    }
-
-    @Override
-    public Project mapOne(ResultSet rs) throws SQLException {
-        return map(rs).getFirst();
     }
 
     @Override

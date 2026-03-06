@@ -29,4 +29,15 @@ public class User implements Entity<UUID> {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Project> projects;
+
+    @SuppressWarnings("unused")
+    public static User byId(String id) {
+        return byId(UUID.fromString(id));
+    }
+
+    public static User byId(UUID id) {
+        User user = new User();
+        user.setId(id);
+        return user;
+    }
 }
