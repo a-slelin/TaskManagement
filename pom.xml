@@ -46,12 +46,18 @@
         <java.version>25</java.version>
         <skipTests>false</skipTests>
 
+        <!--Tomcat settings-->
+        <tomcat.url>http://localhost:8080/manager/text</tomcat.url>
+        <tomcat.username>root</tomcat.username>
+        <tomcat.password>root</tomcat.password>
+
         <!--Plugins-->
         <version.plugin.clean>3.5.0</version.plugin.clean>
         <version.plugin.compile>3.15.0</version.plugin.compile>
         <version.plugin.surefire>3.5.5</version.plugin.surefire>
         <version.plugin.war>3.5.1</version.plugin.war>
         <version.plugin.install>3.1.4</version.plugin.install>
+        <version.plugin.tomcat>2.2</version.plugin.tomcat>
 
         <!--Libraries-->
 
@@ -61,6 +67,8 @@
         <version.postgresql>42.7.10</version.postgresql>
         <version.h2>2.4.240</version.h2>
         <version.mapstruct>1.6.3</version.mapstruct>
+        <version.jakarta.servlet-api>6.1.0</version.jakarta.servlet-api>
+        <version.jackson>3.1.0</version.jackson>
 
     </properties>
 
@@ -103,6 +111,21 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>${version.mapstruct}</version>
+        </dependency>
+
+        <!--Jakarta Servlet Api-->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>${version.jakarta.servlet-api}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--Jackson Json-->
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${version.jackson}</version>
         </dependency>
 
     </dependencies>
@@ -165,6 +188,27 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
                 <version>${version.plugin.install}</version>
+            </plugin>
+
+            <!--Tomcat plugin-->
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>${version.plugin.tomcat}</version>
+                <configuration>
+                    <url>${tomcat.url}</url>
+                    <path>/${project.build.finalName}</path>
+                    <username>${tomcat.username}</username>
+                    <password>${tomcat.password}</password>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>redeploy</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
         </plugins>

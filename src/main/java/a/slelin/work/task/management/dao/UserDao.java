@@ -92,10 +92,13 @@ public class UserDao implements Dao<User, UUID> {
 
             statement.setString(1, entity.getUsername());
             statement.setString(2, entity.getPassword());
-            statement.setString(3, entity.getGender().getDisplayName());
+            statement.setString(3, entity.getGender() == null ? null
+                    : entity.getGender().getDisplayName());
             statement.setString(4, entity.getPhone());
             statement.setString(5, entity.getEmail());
-            statement.setString(6, UUID.randomUUID().toString());
+            statement.setObject(6, entity.getId());
+
+            statement.executeUpdate();
 
             return entity;
         } catch (Exception e) {

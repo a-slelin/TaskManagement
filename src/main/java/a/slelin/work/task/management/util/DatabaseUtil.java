@@ -68,5 +68,11 @@ public final class DatabaseUtil {
         KEY_DB_DRIVER = "db.driver";
         KEY_DB_USERNAME = "db.username";
         KEY_DB_PASSWORD = "db.password";
+
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
