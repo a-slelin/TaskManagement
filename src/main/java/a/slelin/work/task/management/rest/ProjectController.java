@@ -2,7 +2,10 @@ package a.slelin.work.task.management.rest;
 
 import a.slelin.work.task.management.dto.ProjectRD;
 import a.slelin.work.task.management.dto.ProjectWD;
+import a.slelin.work.task.management.dto.TaskRD;
+import a.slelin.work.task.management.dto.TaskWD;
 import a.slelin.work.task.management.service.ProjectService;
+import a.slelin.work.task.management.service.TaskService;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -16,6 +19,8 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class ProjectController {
+
+    private final static TaskService taskService = TaskService.getInstance();
 
     private final static ProjectService service = ProjectService.getInstance();
 
@@ -31,6 +36,12 @@ public class ProjectController {
         return service.getById(id);
     }
 
+    @GET
+    @Path("/{id}/tasks")
+    public List<TaskRD> getTasks(@PathParam("id") Long id) {
+        return service.getProjectTasks(id);
+    }
+
     @POST
     public Response createProject(ProjectWD project, @Context UriInfo uriInfo) {
         ProjectRD savedProject = service.create(project);
@@ -39,6 +50,26 @@ public class ProjectController {
                 .build();
         return Response.created(location)
                 .entity(savedProject)
+                .build();
+    }
+
+    @POST
+    @Path("/{id}/tasks")
+    public Response createTask(@PathParam("id") Long id,
+                               TaskWD task,
+                               @Context UriInfo uriInfo) {
+        TaskWD newTask = TaskWD.intercept(task)
+                .project(id)
+                .build();
+
+        TaskRD savedTask = taskService.create(newTask);
+        URI location = uriInfo.getBaseUriBuilder()
+                .path(TaskController.class)
+                .path(savedTask.id().toString())
+                .build();
+
+        return Response.created(location)
+                .entity(savedTask)
                 .build();
     }
 
@@ -54,6 +85,15 @@ public class ProjectController {
     @Produces(MediaType.WILDCARD)
     public Response deleteProject(@PathParam("id") Long id) {
         service.delete(id);
+        return Response.noContent().build();
+    }
+
+    @DELETE
+    @Path("/{id}/tasks")
+    @Consumes(MediaType.WILDCARD)
+    @Produces(MediaType.WILDCARD)
+    public Response deleteTask(@PathParam("id") Long id) {
+        service.deleteTasks(id);
         return Response.noContent().build();
     }
 }

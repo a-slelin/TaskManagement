@@ -60,6 +60,28 @@ public class TaskDao implements Dao<Task, Long> {
         return task;
     }
 
+    public List<Task> findByProject(@NotNull Long id) {
+        List<Task> tasks;
+
+        try {
+            em.getTransaction().begin();
+            tasks = em.createQuery("""
+                            SELECT t
+                            FROM Task t
+                            WHERE t.project.id = :id
+                            ORDER BY t.id
+                            """, Task.class)
+                    .setParameter("id", id)
+                    .getResultList();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        }
+
+        return tasks;
+    }
+
     @Override
     public boolean existsById(@NotNull Long id) {
         long count;
@@ -126,5 +148,22 @@ public class TaskDao implements Dao<Task, Long> {
     public void delete(Long id) {
         Task task = findById(id);
         delete(task);
+    }
+
+    public void deleteByProject(@NotNull Long id) {
+        try {
+            em.getTransaction().begin();
+            em.createQuery("""
+                            DELETE
+                            FROM Task t
+                            WHERE t.project.id = :id
+                            """)
+                    .setParameter("id", id)
+                    .executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        }
     }
 }
