@@ -45,6 +45,10 @@ public interface UserMapper {
 
     @Named("takeProjects")
     default List<ProjectRD> takeProjects(List<Project> projects) {
+        if (projects == null) {
+            return List.of();
+        }
+
         return projects.stream()
                 .map(Mappers.getMapper(ProjectMapper.class)::toDto)
                 .toList();

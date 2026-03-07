@@ -39,6 +39,10 @@ public interface ProjectMapper {
 
     @Named("takeTasks")
     default List<TaskRD> takeTasks(List<Task> tasks) {
+        if (tasks == null) {
+            return List.of();
+        }
+
         return tasks.stream()
                 .map(Mappers.getMapper(TaskMapper.class)::toDto)
                 .toList();

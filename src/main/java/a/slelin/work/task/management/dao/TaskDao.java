@@ -28,7 +28,7 @@ public class TaskDao implements Dao<Task, Long> {
             tasks = em.createQuery("""
                             SELECT t
                             FROM Task t
-                            ORDER BY t.id DESC
+                            ORDER BY t.id
                             """, Task.class)
                     .getResultList();
             em.getTransaction().commit();
@@ -62,7 +62,7 @@ public class TaskDao implements Dao<Task, Long> {
 
     @Override
     public boolean existsById(@NotNull Long id) {
-        int count;
+        long count;
 
         try {
             em.getTransaction().begin();
@@ -70,7 +70,7 @@ public class TaskDao implements Dao<Task, Long> {
                             SELECT COUNT(t)
                             FROM Task t
                             WHERE t.id = :id
-                            """, Integer.class)
+                            """, Long.class)
                     .setParameter("id", id)
                     .getSingleResult();
             em.getTransaction().commit();

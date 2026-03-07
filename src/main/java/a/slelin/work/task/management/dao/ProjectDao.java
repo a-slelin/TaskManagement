@@ -28,7 +28,7 @@ public class ProjectDao implements Dao<Project, Long> {
             em.getTransaction().begin();
             projects = em.createQuery("""
                     SELECT p
-                    FROM Project p JOIN Task t
+                    FROM Project p LEFT OUTER JOIN Task t
                     ON p.id = t.project.id
                     """, Project.class).getResultList();
             em.getTransaction().commit();
@@ -54,6 +54,8 @@ public class ProjectDao implements Dao<Project, Long> {
 
             Hibernate.initialize(project.getTasks());
             em.getTransaction().commit();
+        } catch (EntityNotFoundByIdException e) {
+            throw e;
         } catch (Exception e) {
             em.getTransaction().rollback();
             throw new RuntimeException("ProjectDao.findById() failed.", e);
@@ -64,15 +66,17 @@ public class ProjectDao implements Dao<Project, Long> {
 
     @Override
     public boolean existsById(@NotNull Long id) {
-        int count;
+        long count;
 
         try {
             em.getTransaction().begin();
             count = em.createQuery("""
-                    SELECT COUNT(p)
-                    FROM Project p
-                    WHERE p.id = :id
-                    """, Integer.class).setParameter("id", id).getSingleResult();
+                            SELECT COUNT(p)
+                            FROM Project p
+                            WHERE p.id = :id
+                            """, Long.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
@@ -116,7 +120,7 @@ public class ProjectDao implements Dao<Project, Long> {
     public void delete(@NotNull Project project) {
         try {
             em.getTransaction().begin();
-            em.remove(em.merge(project));
+            em.remove(project);
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();

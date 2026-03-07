@@ -51,7 +51,7 @@ public class UserServlet extends HttpServlet {
 
             resp.getWriter().write(mapper.writeValueAsString(savedUser));
 
-            resp.setHeader("Location", "http://localhost:8080/TaskManagementSystem/users/" + savedUser.toString());
+            resp.setHeader("Location", "http://localhost:8080/TaskManagementSystem/users/" + savedUser.id());
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());
         }

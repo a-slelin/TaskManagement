@@ -36,8 +36,9 @@ public class UserService implements Service<UUID, UserRD, UserWD> {
     }
 
     @Override
-    public UserRD update(UUID uuid, UserWD dto) {
+    public UserRD update(UUID id, UserWD dto) {
         User user = mapper.toEntity(dto);
+        user.setId(id);
         user = repository.update(user);
         return mapper.toDto(user);
     }

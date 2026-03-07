@@ -49,7 +49,7 @@ public class ProjectServlet extends HttpServlet {
             ProjectRD savedProject = service.create(project);
             resp.getWriter().write(mapper.writeValueAsString(savedProject));
 
-            resp.setHeader("Location", "http://localhost:8080/TaskManagementSystem/projects/" + savedProject.toString());
+            resp.setHeader("Location", "http://localhost:8080/TaskManagementSystem/projects/" + savedProject.id().toString());
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());
         }

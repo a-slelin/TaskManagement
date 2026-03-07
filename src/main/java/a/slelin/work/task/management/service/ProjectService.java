@@ -44,6 +44,7 @@ public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
     @Override
     public ProjectRD update(Long id, ProjectWD dto) {
         Project project = mapper.toEntity(dto);
+        project.setId(id);
         project = repository.update(project);
         return mapper.toDto(project);
     }

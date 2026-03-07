@@ -29,8 +29,8 @@ public class UserDao implements Dao<User, UUID> {
             em.getTransaction().begin();
             users = em.createQuery("""
                             SELECT u
-                            FROM User u JOIN Project p
-                            ON u.id = p.user.id JOIN Task t
+                            FROM User u LEFT OUTER JOIN Project p
+                            ON u.id = p.user.id LEFT OUTER JOIN Task t
                             ON p.id = t.project.id
                             """, User.class)
                     .getResultList();
@@ -60,9 +60,14 @@ public class UserDao implements Dao<User, UUID> {
             }
 
             Hibernate.initialize(user.getProjects());
-            user.getProjects()
-                    .forEach(project -> Hibernate.initialize(project.getTasks()));
+            if (user.getProjects() != null) {
+                user.getProjects()
+                        .forEach(project -> Hibernate.initialize(project.getTasks()));
+            }
+
             em.getTransaction().commit();
+        } catch (EntityNotFoundByIdException e) {
+            throw e;
         } catch (Exception e) {
             em.getTransaction().rollback();
             throw new RuntimeException("UserDao.findById() failed.", e);
@@ -99,12 +104,14 @@ public class UserDao implements Dao<User, UUID> {
             em.getTransaction().begin();
             em.persist(user);
             Hibernate.initialize(user.getProjects());
-            user.getProjects()
-                    .forEach(project -> Hibernate.initialize(project.getTasks()));
+            if (user.getProjects() != null) {
+                user.getProjects()
+                        .forEach(project -> Hibernate.initialize(project.getTasks()));
+            }
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("UserDao.create() failed.", e);
+            throw new RuntimeException("UserDao.create() failed. " + e.getMessage(), e);
         }
 
         return user;
@@ -116,8 +123,10 @@ public class UserDao implements Dao<User, UUID> {
             em.getTransaction().begin();
             user = em.merge(user);
             Hibernate.initialize(user.getProjects());
-            user.getProjects()
-                    .forEach(project -> Hibernate.initialize(project.getTasks()));
+            if (user.getProjects() != null) {
+                user.getProjects()
+                        .forEach(project -> Hibernate.initialize(project.getTasks()));
+            }
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
@@ -131,7 +140,7 @@ public class UserDao implements Dao<User, UUID> {
     public void delete(@NotNull User user) {
         try {
             em.getTransaction().begin();
-            em.remove(em.merge(user));
+            em.remove(user);
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
