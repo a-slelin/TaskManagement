@@ -49,7 +49,8 @@ public class TaskServlet extends HttpServlet {
             TaskRD savedTask = service.create(task);
             resp.getWriter().write(mapper.writeValueAsString(savedTask));
 
-            resp.setHeader("Location", "http://localhost:8080/TaskManagementSystem/tasks/" + savedTask.id().toString());
+            resp.setHeader("Location", "http://localhost:8080/TaskManagementSystem/tasks/" +
+                    savedTask.id().toString());
         } catch (Exception e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());
         }

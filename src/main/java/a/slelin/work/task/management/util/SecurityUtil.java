@@ -11,6 +11,7 @@ public final class SecurityUtil {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
 
+    @SuppressWarnings("unused")
     public static boolean checkPassword(String password, String hashedPassword) {
         return BCrypt.checkpw(password, hashedPassword);
     }
