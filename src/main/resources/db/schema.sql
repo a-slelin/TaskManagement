@@ -6,12 +6,14 @@ DROP TABLE IF EXISTS users CASCADE;
 -- Создаём таблицу пользователей;
 CREATE TABLE users
 (
-    id       UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    username VARCHAR(50)  NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    gender   VARCHAR(9)   NOT NULL,
-    phone    VARCHAR(15),
-    email    VARCHAR(50),
+    id         UUID                  DEFAULT gen_random_uuid() PRIMARY KEY,
+    username   VARCHAR(50)  NOT NULL UNIQUE,
+    password   VARCHAR(255) NOT NULL,
+    gender     VARCHAR(9)   NOT NULL DEFAULT 'undefined',
+    phone      VARCHAR(15),
+    email      VARCHAR(50),
+    created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CHECK (gender IN ('male', 'female', 'undefined'))
 );
 
@@ -22,6 +24,8 @@ CREATE TABLE project
     name        VARCHAR(255) NOT NULL,
     description TEXT,
     owner_id    UUID         NOT NULL,
+    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_project_to_user FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
@@ -33,6 +37,8 @@ CREATE TABLE task
     description TEXT,
     status      VARCHAR(11)  NOT NULL,
     project_id  BIGINT       NOT NULL,
+    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_task_to_project FOREIGN KEY (project_id) REFERENCES project (id) ON DELETE CASCADE,
     CHECK (status IN ('begin', 'end', 'in_progress', 'canceled', 'on_hold'))
 );

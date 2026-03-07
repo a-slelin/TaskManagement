@@ -1,124 +1,156 @@
 package a.slelin.work.task.management.dao;
 
-import a.slelin.work.task.management.dao.mapper.UserDaoMapper;
 import a.slelin.work.task.management.entity.User;
-import a.slelin.work.task.management.util.DatabaseUtil;
+import a.slelin.work.task.management.exception.EntityNotFoundByIdException;
+import a.slelin.work.task.management.util.JpaUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.Hibernate;
 
-import java.sql.Statement;
 import java.util.List;
 import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserDao implements Dao<User, UUID> {
 
-    private final static UserDaoMapper mapper = UserDaoMapper.getInstance();
-
     @Getter
-    public static final UserDao instance = new UserDao();
+    private final static UserDao instance = new UserDao();
+
+    private final static EntityManager em = JpaUtil.getEntityManager();
 
     @Override
-    public List<User> getAll() {
-        String sql = """
-                SELECT *
-                FROM users
-                """;
+    public List<User> findAll() {
+        List<User> users;
 
-        try (var connection = DatabaseUtil.getConnection();
-             var statement = connection.prepareStatement(sql);
-             var resultSet = statement.executeQuery()) {
-            return mapper.map(resultSet);
+        try {
+            em.getTransaction().begin();
+            users = em.createQuery("""
+                            SELECT u
+                            FROM User u LEFT OUTER JOIN Project p
+                            ON u.id = p.user.id LEFT OUTER JOIN Task t
+                            ON p.id = t.project.id
+                            """, User.class)
+                    .getResultList();
+            em.getTransaction().commit();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при получении всех пользователей.", e);
+            em.getTransaction().rollback();
+            throw new RuntimeException("UserDao.findAll() failed.", e);
         }
+
+        return users;
+    }
+
+    public User getUserById(String id) {
+        return findById(UUID.fromString(id));
     }
 
     @Override
-    public User getById(UUID id) {
-        String sql = """
-                SELECT *
-                FROM users
-                WHERE id = ?
-                """;
+    public User findById(@NotNull UUID id) {
+        User user;
 
-        try (var connection = DatabaseUtil.getConnection();
-             var statement = connection.prepareStatement(sql)) {
-            statement.setObject(1, id);
-            var resultSet = statement.executeQuery();
-            return mapper.mapOne(resultSet);
+        try {
+            em.getTransaction().begin();
+            user = em.find(User.class, id);
+
+            if (user == null) {
+                throw new EntityNotFoundByIdException(User.class, id);
+            }
+
+            Hibernate.initialize(user.getProjects());
+            if (user.getProjects() != null) {
+                user.getProjects()
+                        .forEach(project -> Hibernate.initialize(project.getTasks()));
+            }
+
+            em.getTransaction().commit();
+        } catch (EntityNotFoundByIdException e) {
+            throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при получении пользователя id = %s.".formatted(id.toString()), e);
+            em.getTransaction().rollback();
+            throw new RuntimeException("UserDao.findById() failed.", e);
         }
+
+        return user;
     }
 
     @Override
-    public User create(User entity) {
-        String sql = """
-                INSERT INTO users(username, password, gender, phone, email)
-                VALUES (?, ?, ?, ?, ?)
-                """;
+    public boolean existsById(@NotNull UUID id) {
+        int count;
 
-        try (var connection = DatabaseUtil.getConnection();
-             var statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-            statement.setString(1, entity.getUsername());
-            statement.setString(2, entity.getPassword());
-            statement.setString(3, entity.getGender().getDisplayName());
-            statement.setString(4, entity.getPhone());
-            statement.setString(5, entity.getEmail());
-
-            statement.executeUpdate();
-            UUID id = mapper.mapId(statement.getGeneratedKeys());
-            entity.setId(id);
-
-            return entity;
+        try {
+            em.getTransaction().begin();
+            count = em.createQuery("""
+                            SELECT COUNT(u)
+                            FROM User u
+                            WHERE u.id = :id
+                            """, Integer.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+            em.getTransaction().commit();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при создании пользователя.", e);
+            em.getTransaction().rollback();
+            throw new RuntimeException("UserDao.existsById() failed.", e);
         }
+
+        return count > 0;
     }
 
     @Override
-    public User update(User entity) {
-        String sql = """
-                UPDATE users
-                SET username = ?, password = ?, gender = ?, phone = ?, email = ?
-                WHERE id = ?
-                """;
-
-        try (var connection = DatabaseUtil.getConnection();
-             var statement = connection.prepareStatement(sql)) {
-
-            statement.setString(1, entity.getUsername());
-            statement.setString(2, entity.getPassword());
-            statement.setString(3, entity.getGender() == null ? null
-                    : entity.getGender().getDisplayName());
-            statement.setString(4, entity.getPhone());
-            statement.setString(5, entity.getEmail());
-            statement.setObject(6, entity.getId());
-
-            statement.executeUpdate();
-
-            return entity;
+    public User create(@NotNull User user) {
+        try {
+            em.getTransaction().begin();
+            em.persist(user);
+            Hibernate.initialize(user.getProjects());
+            if (user.getProjects() != null) {
+                user.getProjects()
+                        .forEach(project -> Hibernate.initialize(project.getTasks()));
+            }
+            em.getTransaction().commit();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при обновлении пользователя.", e);
+            em.getTransaction().rollback();
+            throw new RuntimeException("UserDao.create() failed. " + e.getMessage(), e);
+        }
+
+        return user;
+    }
+
+    @Override
+    public User update(@NotNull User user) {
+        try {
+            em.getTransaction().begin();
+            user = em.merge(user);
+            Hibernate.initialize(user.getProjects());
+            if (user.getProjects() != null) {
+                user.getProjects()
+                        .forEach(project -> Hibernate.initialize(project.getTasks()));
+            }
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw new RuntimeException("UserDao.update() failed.", e);
+        }
+
+        return user;
+    }
+
+    @Override
+    public void delete(@NotNull User user) {
+        try {
+            em.getTransaction().begin();
+            em.remove(user);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw new RuntimeException("UserDao.delete() failed.", e);
         }
     }
 
     @Override
     public void delete(UUID id) {
-        String sql = """
-                DELETE FROM users
-                WHERE id = ?
-                """;
-
-        try (var connection = DatabaseUtil.getConnection();
-             var statement = connection.prepareStatement(sql)) {
-            statement.setObject(1, id);
-            statement.executeUpdate();
-        } catch (Exception e) {
-            throw new RuntimeException("Ошибка при удалении пользователя id = %s.".formatted(id), e);
-        }
+        User user = findById(id);
+        delete(user);
     }
 }

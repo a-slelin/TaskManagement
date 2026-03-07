@@ -1,121 +1,130 @@
 package a.slelin.work.task.management.dao;
 
-import a.slelin.work.task.management.dao.mapper.TaskDaoMapper;
 import a.slelin.work.task.management.entity.Task;
-import a.slelin.work.task.management.util.DatabaseUtil;
+import a.slelin.work.task.management.exception.EntityNotFoundByIdException;
+import a.slelin.work.task.management.util.JpaUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.sql.Statement;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TaskDao implements Dao<Task, Long> {
 
-    private static final TaskDaoMapper mapper = TaskDaoMapper.getInstance();
-
     @Getter
-    private static final TaskDao instance = new TaskDao();
+    private final static TaskDao instance = new TaskDao();
+
+    private final static EntityManager em = JpaUtil.getEntityManager();
 
     @Override
-    public List<Task> getAll() {
-        String sql = """
-                SELECT *
-                FROM task
-                """;
+    public List<Task> findAll() {
+        List<Task> tasks;
 
-        try (var connection = DatabaseUtil.getConnection();
-             var statement = connection.prepareStatement(sql);
-             var resultSet = statement.executeQuery()) {
-            return mapper.map(resultSet);
+        try {
+            em.getTransaction().begin();
+            tasks = em.createQuery("""
+                            SELECT t
+                            FROM Task t
+                            ORDER BY t.id
+                            """, Task.class)
+                    .getResultList();
+            em.getTransaction().commit();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при получении всех задач.", e);
+            em.getTransaction().rollback();
+            throw new RuntimeException("TaskDao.findAll() failed.", e);
         }
+
+        return tasks;
     }
 
     @Override
-    public Task getById(Long id) {
-        String sql = """
-                SELECT *
-                FROM task
-                WHERE id = ?
-                """;
+    public Task findById(@NotNull Long id) {
+        Task task;
 
-        try (var connection = DatabaseUtil.getConnection();
-             var statement = connection.prepareStatement(sql)) {
-            statement.setLong(1, id);
-            var resultSet = statement.executeQuery();
-            return mapper.mapOne(resultSet);
+        try {
+            em.getTransaction().begin();
+            task = em.find(Task.class, id);
+            em.getTransaction().commit();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при получении задачи id = %d.".formatted(id), e);
+            em.getTransaction().rollback();
+            throw new RuntimeException("TaskDao.findById() failed.", e);
         }
+
+        if (task == null) {
+            throw new EntityNotFoundByIdException(Task.class, id);
+        }
+
+        return task;
     }
 
     @Override
-    public Task create(Task entity) {
-        String sql = """
-                INSERT INTO task (title, description, status, project_id)
-                VALUES (?, ?, ?, ?)
-                """;
+    public boolean existsById(@NotNull Long id) {
+        long count;
 
-        try (var connection = DatabaseUtil.getConnection();
-             var statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-            statement.setString(1, entity.getTitle());
-            statement.setString(2, entity.getDescription());
-            statement.setString(3, entity.getStatus() == null ? null
-                    : entity.getStatus().getDisplayName());
-            statement.setLong(4, entity.getProject().getId());
-
-            statement.executeUpdate();
-            Long id = mapper.mapId(statement.getGeneratedKeys());
-            entity.setId(id);
-
-            return entity;
+        try {
+            em.getTransaction().begin();
+            count = em.createQuery("""
+                            SELECT COUNT(t)
+                            FROM Task t
+                            WHERE t.id = :id
+                            """, Long.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+            em.getTransaction().commit();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при создании задачи.", e);
+            em.getTransaction().rollback();
+            throw new RuntimeException("TaskDao.existsById() failed.", e);
         }
+
+        return count > 0;
     }
 
     @Override
-    public Task update(Task entity) {
-        String sql = """
-                UPDATE task
-                SET title = ?, description = ?, status = ?
-                WHERE id = ?
-                """;
-
-        try (var connection = DatabaseUtil.getConnection();
-             var statement = connection.prepareStatement(sql)) {
-
-            statement.setString(1, entity.getTitle());
-            statement.setString(2, entity.getDescription());
-            statement.setString(3, entity.getStatus() == null ? null
-                    : entity.getStatus().getDisplayName());
-            statement.setLong(4, entity.getId());
-
-            statement.executeUpdate();
-
-            return entity;
+    public Task create(@NotNull Task task) {
+        try {
+            em.getTransaction().begin();
+            em.persist(task);
+            em.getTransaction().commit();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при обновлении задачи.", e);
+            em.getTransaction().rollback();
+            throw new RuntimeException("TaskDao.create() failed.", e);
+        }
+
+        return task;
+    }
+
+    @Override
+    public Task update(@NotNull Task task) {
+        try {
+            em.getTransaction().begin();
+            task = em.merge(task);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw new RuntimeException("TaskDao.update() failed.", e);
+        }
+
+        return task;
+    }
+
+    @Override
+    public void delete(@NotNull Task task) {
+        try {
+            em.getTransaction().begin();
+            em.remove(em.merge(task));
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw new RuntimeException("TaskDao.delete() failed.", e);
         }
     }
 
     @Override
     public void delete(Long id) {
-        String sql = """
-                DELETE FROM task
-                WHERE id = ?
-                """;
-
-        try (var connection = DatabaseUtil.getConnection();
-             var statement = connection.prepareStatement(sql)) {
-            statement.setLong(1, id);
-            statement.executeUpdate();
-        } catch (Exception e) {
-            throw new RuntimeException("Ошибка при удалении задачи id = %d.".formatted(id), e);
-        }
+        Task task = findById(id);
+        delete(task);
     }
 }

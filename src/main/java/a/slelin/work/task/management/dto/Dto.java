@@ -1,4 +1,6 @@
 package a.slelin.work.task.management.dto;
 
-public interface Dto {
+import java.io.Serializable;
+
+public interface Dto extends Serializable {
 }

@@ -1,7 +1,8 @@
 package a.slelin.work.task.management.service;
 
 import a.slelin.work.task.management.dao.UserDao;
-import a.slelin.work.task.management.dto.UserDto;
+import a.slelin.work.task.management.dto.UserRD;
+import a.slelin.work.task.management.dto.UserWD;
 import a.slelin.work.task.management.dto.mapper.UserMapper;
 import a.slelin.work.task.management.entity.User;
 import lombok.AccessLevel;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class UserService implements Service<UUID, UserDto> {
+public class UserService implements Service<UUID, UserRD, UserWD> {
 
     @Getter
     private final static UserService instance = new UserService();
@@ -23,28 +24,29 @@ public class UserService implements Service<UUID, UserDto> {
     private final static UserDao repository = UserDao.getInstance();
 
     @Override
-    public List<UserDto> getAll() {
-        return repository.getAll().stream()
+    public List<UserRD> getAll() {
+        return repository.findAll().stream()
                 .map(mapper::toDto)
                 .toList();
     }
 
     @Override
-    public UserDto getById(UUID id) {
-        return mapper.toDto(repository.getById(id));
+    public UserRD getById(UUID id) {
+        return mapper.toDto(repository.findById(id));
     }
 
     @Override
-    public UUID create(UserDto dto) {
+    public UserRD update(UUID id, UserWD dto) {
+        User user = mapper.toEntity(dto);
+        user.setId(id);
+        user = repository.update(user);
+        return mapper.toDto(user);
+    }
+
+    @Override
+    public UserRD create(UserWD dto) {
         User user = mapper.toEntity(dto);
         user = repository.create(user);
-        return user.getId();
-    }
-
-    @Override
-    public UserDto update(UserDto dto) {
-        User user = mapper.toEntity(dto);
-        user = repository.update(user);
         return mapper.toDto(user);
     }
 

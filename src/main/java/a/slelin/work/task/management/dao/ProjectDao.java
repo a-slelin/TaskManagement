@@ -1,117 +1,136 @@
 package a.slelin.work.task.management.dao;
 
-import a.slelin.work.task.management.dao.mapper.ProjectDaoMapper;
 import a.slelin.work.task.management.entity.Project;
-import a.slelin.work.task.management.util.DatabaseUtil;
+import a.slelin.work.task.management.exception.EntityNotFoundByIdException;
+import a.slelin.work.task.management.util.JpaUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.Hibernate;
 
-import java.sql.Statement;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProjectDao implements Dao<Project, Long> {
 
-    private final static ProjectDaoMapper mapper = ProjectDaoMapper.getInstance();
-
     @Getter
     private final static ProjectDao instance = new ProjectDao();
 
-    @Override
-    public List<Project> getAll() {
-        String sql = """
-                SELECT *
-                FROM project
-                """;
+    private final static EntityManager em = JpaUtil.getEntityManager();
 
-        try (var connection = DatabaseUtil.getConnection();
-             var statement = connection.prepareStatement(sql);
-             var resultSet = statement.executeQuery()) {
-            return mapper.map(resultSet);
+    @Override
+    public List<Project> findAll() {
+        List<Project> projects;
+
+        try {
+            em.getTransaction().begin();
+            projects = em.createQuery("""
+                    SELECT p
+                    FROM Project p LEFT OUTER JOIN Task t
+                    ON p.id = t.project.id
+                    """, Project.class).getResultList();
+            em.getTransaction().commit();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при получении всех проектов.", e);
+            em.getTransaction().rollback();
+            throw new RuntimeException("ProjectDao.findAll() failed.", e);
         }
+
+        return projects;
     }
 
     @Override
-    public Project getById(Long id) {
-        String sql = """
-                SELECT *
-                FROM project
-                WHERE id = ?
-                """;
+    public Project findById(@NotNull Long id) {
+        Project project;
 
-        try (var connection = DatabaseUtil.getConnection();
-             var statement = connection.prepareStatement(sql)) {
-            statement.setLong(1, id);
-            var resultSet = statement.executeQuery();
-            return mapper.mapOne(resultSet);
+        try {
+            em.getTransaction().begin();
+            project = em.find(Project.class, id);
+
+            if (project == null) {
+                throw new EntityNotFoundByIdException(Project.class, id);
+            }
+
+            Hibernate.initialize(project.getTasks());
+            em.getTransaction().commit();
+        } catch (EntityNotFoundByIdException e) {
+            throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при получении проекта id = %d.".formatted(id), e);
+            em.getTransaction().rollback();
+            throw new RuntimeException("ProjectDao.findById() failed.", e);
         }
+
+        return project;
     }
 
     @Override
-    public Project create(Project entity) {
-        String sql = """
-                INSERT INTO project (name, description, owner_id)
-                VALUES (?, ?, ?)
-                """;
+    public boolean existsById(@NotNull Long id) {
+        long count;
 
-        try (var connection = DatabaseUtil.getConnection();
-             var statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-            statement.setString(1, entity.getName());
-            statement.setString(2, entity.getDescription());
-            statement.setObject(3, entity.getUser().getId());
-
-            statement.executeUpdate();
-            Long id = mapper.mapId(statement.getGeneratedKeys());
-            entity.setId(id);
-
-            return entity;
+        try {
+            em.getTransaction().begin();
+            count = em.createQuery("""
+                            SELECT COUNT(p)
+                            FROM Project p
+                            WHERE p.id = :id
+                            """, Long.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+            em.getTransaction().commit();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при создании проекта.", e);
+            em.getTransaction().rollback();
+            throw new RuntimeException("ProjectDao.existsById() failed.", e);
         }
+
+        return count > 0;
     }
 
     @Override
-    public Project update(Project entity) {
-        String sql = """
-                UPDATE project
-                SET name = ?, description = ?
-                WHERE id = ?
-                """;
-
-        try (var connection = DatabaseUtil.getConnection();
-             var statement = connection.prepareStatement(sql)) {
-
-            statement.setString(1, entity.getName());
-            statement.setString(2, entity.getDescription());
-            statement.setLong(3, entity.getId());
-
-            statement.executeUpdate();
-
-            return entity;
+    public Project create(@NotNull Project project) {
+        try {
+            em.getTransaction().begin();
+            em.persist(project);
+            Hibernate.initialize(project.getTasks());
+            em.getTransaction().commit();
         } catch (Exception e) {
-            throw new RuntimeException("Ошибка при обновлении проекта.", e);
+            em.getTransaction().rollback();
+            throw new RuntimeException("ProjectDao.create() failed.", e);
+        }
+
+        return project;
+    }
+
+    @Override
+    public Project update(@NotNull Project project) {
+        try {
+            em.getTransaction().begin();
+            project = em.merge(project);
+            Hibernate.initialize(project.getTasks());
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw new RuntimeException("ProjectDao.update() failed.", e);
+        }
+
+        return project;
+    }
+
+    @Override
+    public void delete(@NotNull Project project) {
+        try {
+            em.getTransaction().begin();
+            em.remove(project);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw new RuntimeException("ProjectDao.delete() failed.", e);
         }
     }
 
     @Override
     public void delete(Long id) {
-        String sql = """
-                DELETE FROM project
-                WHERE id = ?
-                """;
-
-        try (var connection = DatabaseUtil.getConnection();
-             var statement = connection.prepareStatement(sql)) {
-            statement.setLong(1, id);
-            statement.executeUpdate();
-        } catch (Exception e) {
-            throw new RuntimeException("Ошибка при удалении проекта id = %d.".formatted(id), e);
-        }
+        Project project = findById(id);
+        delete(project);
     }
 }
