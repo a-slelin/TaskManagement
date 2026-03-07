@@ -1,10 +1,14 @@
 package a.slelin.work.task.management.service;
 
+import a.slelin.work.task.management.dao.ProjectDao;
 import a.slelin.work.task.management.dao.UserDao;
+import a.slelin.work.task.management.dto.ProjectRD;
 import a.slelin.work.task.management.dto.UserRD;
 import a.slelin.work.task.management.dto.UserWD;
+import a.slelin.work.task.management.dto.mapper.ProjectMapper;
 import a.slelin.work.task.management.dto.mapper.UserMapper;
 import a.slelin.work.task.management.entity.User;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +22,10 @@ public class UserService implements Service<UUID, UserRD, UserWD> {
 
     @Getter
     private final static UserService instance = new UserService();
+
+    private final static ProjectMapper projectMapper = Mappers.getMapper(ProjectMapper.class);
+
+    private final static ProjectDao projectRepository = ProjectDao.getInstance();
 
     private final static UserMapper mapper = Mappers.getMapper(UserMapper.class);
 
@@ -33,6 +41,11 @@ public class UserService implements Service<UUID, UserRD, UserWD> {
     @Override
     public UserRD getById(UUID id) {
         return mapper.toDto(repository.findById(id));
+    }
+
+    public List<ProjectRD> getUserProjects(@NotNull UUID id) {
+        return projectRepository.findByUser(id).stream()
+                .map(projectMapper::toDto).toList();
     }
 
     @Override
@@ -53,5 +66,9 @@ public class UserService implements Service<UUID, UserRD, UserWD> {
     @Override
     public void delete(UUID id) {
         repository.delete(id);
+    }
+
+    public void deleteUserProjects(@NotNull UUID id) {
+        projectRepository.deleteByUser(id);
     }
 }

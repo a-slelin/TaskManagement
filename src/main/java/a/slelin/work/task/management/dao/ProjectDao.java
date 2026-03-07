@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.Hibernate;
 
 import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProjectDao implements Dao<Project, Long> {
@@ -60,6 +61,28 @@ public class ProjectDao implements Dao<Project, Long> {
         }
 
         return project;
+    }
+
+    public List<Project> findByUser(@NotNull UUID id) {
+        List<Project> projects;
+
+        try {
+            em.getTransaction().begin();
+            projects = em.createQuery("""
+                            SELECT p
+                            FROM Project p LEFT OUTER JOIN Task t
+                            ON p.id = t.project.id
+                            WHERE p.user.id = :id
+                            """, Project.class)
+                    .setParameter("id", id)
+                    .getResultList();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        }
+
+        return projects;
     }
 
     @Override
@@ -130,5 +153,22 @@ public class ProjectDao implements Dao<Project, Long> {
     public void delete(Long id) {
         Project project = findById(id);
         delete(project);
+    }
+
+    public void deleteByUser(@NotNull UUID id) {
+        try {
+            em.getTransaction().begin();
+            em.createQuery("""
+                            DELETE
+                            FROM Project p
+                            WHERE p.user.id = :id
+                            """)
+                    .setParameter("id", id)
+                    .executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        }
     }
 }
