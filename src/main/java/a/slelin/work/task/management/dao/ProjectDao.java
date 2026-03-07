@@ -34,7 +34,7 @@ public class ProjectDao implements Dao<Project, Long> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("ProjectDao.findAll() failed.", e);
+            throw e;
         }
 
         return projects;
@@ -54,11 +54,9 @@ public class ProjectDao implements Dao<Project, Long> {
 
             Hibernate.initialize(project.getTasks());
             em.getTransaction().commit();
-        } catch (EntityNotFoundByIdException e) {
-            throw e;
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("ProjectDao.findById() failed.", e);
+            throw e;
         }
 
         return project;
@@ -80,7 +78,7 @@ public class ProjectDao implements Dao<Project, Long> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("ProjectDao.existsById() failed.", e);
+            throw e;
         }
 
         return count > 0;
@@ -95,7 +93,7 @@ public class ProjectDao implements Dao<Project, Long> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("ProjectDao.create() failed.", e);
+            throw e;
         }
 
         return project;
@@ -110,7 +108,7 @@ public class ProjectDao implements Dao<Project, Long> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("ProjectDao.update() failed.", e);
+            throw e;
         }
 
         return project;
@@ -124,7 +122,7 @@ public class ProjectDao implements Dao<Project, Long> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("ProjectDao.delete() failed.", e);
+            throw e;
         }
     }
 

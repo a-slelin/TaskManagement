@@ -74,6 +74,7 @@
         <version.hibernate.validator>9.1.0.Final</version.hibernate.validator>
         <version.bcrypt>0.3</version.bcrypt>
         <version.jersey>4.0.2</version.jersey>
+        <version.jackson>2.19.1</version.jackson>
 
     </properties>
 
@@ -150,6 +151,14 @@
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
             <version>${version.jersey}</version>
+        </dependency>
+
+        <!--Jackson Datatype-->
+        <!--suppress VulnerableLibrariesLocal -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${version.jackson}</version>
         </dependency>
 
     </dependencies>

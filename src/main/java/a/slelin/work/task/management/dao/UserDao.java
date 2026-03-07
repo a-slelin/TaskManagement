@@ -37,7 +37,7 @@ public class UserDao implements Dao<User, UUID> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("UserDao.findAll() failed.", e);
+            throw e;
         }
 
         return users;
@@ -66,11 +66,9 @@ public class UserDao implements Dao<User, UUID> {
             }
 
             em.getTransaction().commit();
-        } catch (EntityNotFoundByIdException e) {
-            throw e;
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("UserDao.findById() failed.", e);
+            throw e;
         }
 
         return user;
@@ -92,7 +90,7 @@ public class UserDao implements Dao<User, UUID> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("UserDao.existsById() failed.", e);
+            throw e;
         }
 
         return count > 0;
@@ -111,7 +109,7 @@ public class UserDao implements Dao<User, UUID> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("UserDao.create() failed. " + e.getMessage(), e);
+            throw e;
         }
 
         return user;
@@ -130,7 +128,7 @@ public class UserDao implements Dao<User, UUID> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("UserDao.update() failed.", e);
+            throw e;
         }
 
         return user;
@@ -144,7 +142,7 @@ public class UserDao implements Dao<User, UUID> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("UserDao.delete() failed.", e);
+            throw e;
         }
     }
 
