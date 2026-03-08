@@ -26,14 +26,15 @@ public class ProjectController {
 
     @GET
     @Consumes(MediaType.WILDCARD)
-    public List<ProjectRD> getProjects() {
-        return service.getAll();
+    public List<ProjectRD> getProjects(@QueryParam("tasks") @DefaultValue("false") boolean tasks) {
+        return service.getAll(tasks);
     }
 
     @GET
     @Path("/{id}")
-    public ProjectRD getProject(@PathParam("id") Long id) {
-        return service.getById(id);
+    public ProjectRD getProject(@PathParam("id") Long id,
+                                @QueryParam("tasks") @DefaultValue("false") boolean tasks) {
+        return service.getById(id, tasks);
     }
 
     @GET

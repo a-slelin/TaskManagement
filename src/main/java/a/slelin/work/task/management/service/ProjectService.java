@@ -31,14 +31,22 @@ public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
 
     @Override
     public List<ProjectRD> getAll() {
-        return repository.findAll().stream()
+        return getAll(false);
+    }
+
+    public List<ProjectRD> getAll(boolean tasks) {
+        return repository.findAll(tasks).stream()
                 .map(mapper::toDto)
                 .toList();
     }
 
     @Override
     public ProjectRD getById(Long id) {
-        return mapper.toDto(repository.findById(id));
+        return getById(id, false);
+    }
+
+    public ProjectRD getById(Long id, boolean tasks) {
+        return mapper.toDto(repository.findById(id, tasks));
     }
 
     public List<TaskRD> getProjectTasks(Long id) {
