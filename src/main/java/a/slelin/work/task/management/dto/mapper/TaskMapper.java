@@ -41,6 +41,8 @@ public interface TaskMapper {
         return task.getProject().getUser().getId().toString();
     }
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "project", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Task patch(@MappingTarget Task task, TaskWD taskDto);
 }

@@ -52,6 +52,8 @@ public interface UserMapper {
                 .toList();
     }
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "projects", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     User patch(@MappingTarget User user, UserWD userDto);
 }
