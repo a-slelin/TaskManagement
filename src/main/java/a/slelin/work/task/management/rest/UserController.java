@@ -86,6 +86,12 @@ public class UserController {
         return userService.update(id, user);
     }
 
+    @PATCH
+    @Path("/{id}")
+    public UserRD patchUser(@PathParam("id") UUID id, UserWD user) {
+        return userService.patch(id, user);
+    }
+
 
     @DELETE
     @Path("/{id}")

@@ -6,9 +6,7 @@ import a.slelin.work.task.management.dto.UserWD;
 import a.slelin.work.task.management.entity.Gender;
 import a.slelin.work.task.management.entity.Project;
 import a.slelin.work.task.management.entity.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -53,4 +51,7 @@ public interface UserMapper {
                 .map(Mappers.getMapper(ProjectMapper.class)::toDto)
                 .toList();
     }
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    User patch(@MappingTarget User user, UserWD userDto);
 }

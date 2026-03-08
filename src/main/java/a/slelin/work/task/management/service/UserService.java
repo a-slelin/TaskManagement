@@ -117,6 +117,16 @@ public class UserService implements Service<UUID, UserRD, UserWD> {
     }
 
     @Override
+    public UserRD patch(@NotNull UUID id, @NotNull @Valid UserWD dto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundByIdException(User.class, id));
+
+        user = userMapper.patch(user, dto);
+        user = userRepository.update(user);
+        return userMapper.toDto(user);
+    }
+
+    @Override
     public void delete(@NotNull UUID id) {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundByIdException(User.class, id);
