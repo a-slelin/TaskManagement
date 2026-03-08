@@ -62,14 +62,14 @@ public class TaskService implements Service<Long, TaskRD, TaskWD> {
 
     @Override
     public TaskRD update(@NotNull Long id, @NotNull @Valid TaskWD dto) {
-        if (!repository.existsById(id)) {
-            throw new EntityNotFoundByIdException(Task.class, id);
-        }
+        Task task = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundByIdException(Task.class, id));
 
-        Task task = mapper.toEntity(dto);
-        task.setId(id);
-        task = repository.update(task);
-        return mapper.toDto(task);
+        Task updatedTask = mapper.toEntity(dto);
+        updatedTask.setId(id);
+        updatedTask.setProject(task.getProject());
+        updatedTask = repository.update(updatedTask);
+        return mapper.toDto(updatedTask);
     }
 
     @Override

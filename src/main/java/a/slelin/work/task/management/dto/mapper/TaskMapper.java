@@ -43,6 +43,7 @@ public interface TaskMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "project", ignore = true)
+    @Mapping(target = "status", qualifiedByName = "getStatus")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Task patch(@MappingTarget Task task, TaskWD taskDto);
 }
