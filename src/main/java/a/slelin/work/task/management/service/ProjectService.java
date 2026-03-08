@@ -97,14 +97,15 @@ public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
 
     @Override
     public ProjectRD update(@NotNull Long id, @NotNull @Valid ProjectWD dto) {
-        if (!projectRepository.existsById(id)) {
-            throw new EntityNotFoundByIdException(Project.class, id);
-        }
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundByIdException(Project.class, id));
 
-        Project project = projectMapper.toEntity(dto);
-        project.setId(id);
-        project = projectRepository.update(project);
-        return projectMapper.toDto(project);
+        Project updatedProject = projectMapper.toEntity(dto);
+        updatedProject.setId(id);
+        updatedProject.setTasks(project.getTasks());
+        updatedProject.setUser(project.getUser());
+        updatedProject = projectRepository.update(updatedProject);
+        return projectMapper.toDto(updatedProject);
     }
 
     @Override

@@ -114,14 +114,14 @@ public class UserService implements Service<UUID, UserRD, UserWD> {
 
     @Override
     public UserRD update(@NotNull UUID id, @NotNull @Valid UserWD dto) {
-        if (!userRepository.existsById(id)) {
-            throw new EntityNotFoundByIdException(User.class, id);
-        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundByIdException(User.class, id));
 
-        User user = userMapper.toEntity(dto);
-        user.setId(id);
-        user = userRepository.update(user);
-        return userMapper.toDto(user);
+        User updatedUser = userMapper.toEntity(dto);
+        updatedUser.setId(id);
+        updatedUser.setProjects(user.getProjects());
+        updatedUser = userRepository.update(updatedUser);
+        return userMapper.toDto(updatedUser);
     }
 
     @Override

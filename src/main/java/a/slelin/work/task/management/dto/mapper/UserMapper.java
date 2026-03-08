@@ -75,6 +75,7 @@ public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "projects", ignore = true)
+    @Mapping(target = "gender", qualifiedByName = "getGender")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     User patch(@MappingTarget User user, UserWD userDto);
 }
