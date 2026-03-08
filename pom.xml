@@ -53,7 +53,9 @@
 
         <!--WildFly settings-->
         <wildfly.path>D:\wildfly-39.0.1.Final</wildfly.path>
-        <wildfly.url>http://localhost:9990</wildfly.url>
+        <wildfly.host>localhost</wildfly.host>
+        <wildfly.port>9990</wildfly.port>
+        <wildfly.url>http://${wildfly.port}:${wildfly.port}</wildfly.url>
         <wildfly.username>root</wildfly.username>
         <wildfly.password>root</wildfly.password>
 
@@ -63,20 +65,22 @@
         <version.plugin.surefire>3.5.5</version.plugin.surefire>
         <version.plugin.war>3.5.1</version.plugin.war>
         <version.plugin.install>3.1.4</version.plugin.install>
+        <version.plugin.wildfly>5.1.5.Final</version.plugin.wildfly>
 
         <!--Libraries-->
 
         <!--Specific Libraries-->
         <version.lombok>1.18.42</version.lombok>
         <version.mapstruct>1.6.3</version.mapstruct>
-        <version.hibernate.orm>7.2.6.Final</version.hibernate.orm>
-        <version.hibernate.validator>9.1.0.Final</version.hibernate.validator>
         <version.bcrypt>0.3</version.bcrypt>
-        <version.jersey>4.0.2</version.jersey>
         <version.jackson>2.19.1</version.jackson>
 
         <!--Jakarta Specification-->
         <version.jakarta.cdi>4.1.0</version.jakarta.cdi>
+        <version.jakarta.validation>3.1.1</version.jakarta.validation>
+        <version.jakarta.persistence>3.2.0</version.jakarta.persistence>
+        <version.jakarta.jaxrs>4.0.0</version.jakarta.jaxrs>
+        <version.jakarta.jta>2.0.1</version.jakarta.jta>
 
     </properties>
 
@@ -98,54 +102,11 @@
             <version>${version.mapstruct}</version>
         </dependency>
 
-        <!--Hibernate ORM-->
-        <dependency>
-            <groupId>org.hibernate.orm</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>${version.hibernate.orm}</version>
-        </dependency>
-
-        <!--Hibernate Validator-->
-        <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>${version.hibernate.validator}</version>
-        </dependency>
-
         <!--Bcrypt-->
         <dependency>
             <groupId>org.mindrot.bcrypt</groupId>
             <artifactId>bcrypt</artifactId>
             <version>${version.bcrypt}</version>
-        </dependency>
-
-        <!--Jersey Server-->
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-server</artifactId>
-            <version>${version.jersey}</version>
-        </dependency>
-
-        <!--Jersey Inject-->
-        <dependency>
-            <groupId>org.glassfish.jersey.inject</groupId>
-            <artifactId>jersey-hk2</artifactId>
-            <version>${version.jersey}</version>
-        </dependency>
-
-        <!--Jersey Container Servlet-->
-        <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet</artifactId>
-            <version>${version.jersey}</version>
-        </dependency>
-
-        <!--Jersey JSON Jackson-->
-        <!--suppress VulnerableLibrariesLocal -->
-        <dependency>
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-json-jackson</artifactId>
-            <version>${version.jersey}</version>
         </dependency>
 
         <!--Jackson Datatype-->
@@ -154,6 +115,7 @@
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${version.jackson}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!--Jakarta Specification Libraries Block-->
@@ -163,6 +125,38 @@
             <groupId>jakarta.enterprise</groupId>
             <artifactId>jakarta.enterprise.cdi-api</artifactId>
             <version>${version.jakarta.cdi}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--Jakarta Validation-->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>${version.jakarta.validation}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--Jakarta Persistence-->
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <version>${version.jakarta.persistence}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--Jakarta Jax-Rs-->
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>${version.jakarta.jaxrs}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--Jakarta Jta-->
+        <dependency>
+            <groupId>jakarta.transaction</groupId>
+            <artifactId>jakarta.transaction-api</artifactId>
+            <version>${version.jakarta.jta}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -226,6 +220,29 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
                 <version>${version.plugin.install}</version>
+            </plugin>
+
+            <!--WildFly plugin-->
+            <plugin>
+                <groupId>org.wildfly.plugins</groupId>
+                <artifactId>wildfly-maven-plugin</artifactId>
+                <version>${version.plugin.wildfly}</version>
+                <configuration>
+                    <hostname>${wildfly.host}</hostname>
+                    <port>${wildfly.port}</port>
+                    <username>${wildfly.username}</username>
+                    <password>${wildfly.password}</password>
+                    <name>${project.build.finalName}.war</name>
+                    <filename>${project.build.finalName}.war</filename>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
         </plugins>
