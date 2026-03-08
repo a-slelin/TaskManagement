@@ -10,27 +10,18 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-@Mapper
 @SuppressWarnings("unused")
+@Mapper(componentModel = "cdi")
 public interface TaskMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "project", ignore = true)
     @Mapping(target = "status", qualifiedByName = "getStatus")
-    @Mapping(target = "project", qualifiedByName = "getProject")
     Task toEntity(TaskWD task);
 
     @Named("getStatus")
     default Status getStatus(String statusStr) {
         return Status.of(statusStr);
-    }
-
-    @Named("getProject")
-    default Project getProject(Long projectId) {
-        if (projectId == null) {
-            return null;
-        }
-
-        return ProjectDao.getInstance().findById(projectId);
     }
 
     @Mapping(target = "status", qualifiedByName = "takeStatus")

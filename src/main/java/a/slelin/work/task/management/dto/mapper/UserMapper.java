@@ -14,8 +14,8 @@ import org.mapstruct.factory.Mappers;
 import java.util.List;
 import java.util.UUID;
 
-@Mapper
 @SuppressWarnings("unused")
+@Mapper(componentModel = "cdi")
 public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)

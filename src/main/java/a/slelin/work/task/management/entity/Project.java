@@ -2,7 +2,6 @@ package a.slelin.work.task.management.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -36,7 +35,6 @@ public class Project extends Audit {
 
     private String description;
 
-    @NotNull
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
