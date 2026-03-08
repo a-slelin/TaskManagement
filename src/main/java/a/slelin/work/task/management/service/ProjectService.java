@@ -109,6 +109,16 @@ public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
     }
 
     @Override
+    public ProjectRD patch(@NotNull @Min(1) Long id, @NotNull @Valid ProjectWD dto) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundByIdException(Project.class, id));
+
+        project = projectMapper.patch(project, dto);
+        project = projectRepository.update(project);
+        return projectMapper.toDto(project);
+    }
+
+    @Override
     public void delete(@NotNull @Min(1) Long id) {
         if (!projectRepository.existsById(id)) {
             throw new EntityNotFoundByIdException(Project.class, id);

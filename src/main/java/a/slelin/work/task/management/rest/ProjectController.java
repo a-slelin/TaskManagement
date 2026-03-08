@@ -70,6 +70,12 @@ public class ProjectController {
         return projectService.update(id, project);
     }
 
+    @PATCH
+    @Path("/{id}")
+    public ProjectRD patchProject(@PathParam("id") Long id, ProjectWD project) {
+        return projectService.patch(id, project);
+    }
+
     @DELETE
     @Path("/{id}")
     @Consumes(MediaType.WILDCARD)

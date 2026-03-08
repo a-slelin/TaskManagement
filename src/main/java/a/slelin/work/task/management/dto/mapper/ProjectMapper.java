@@ -1,16 +1,12 @@
 package a.slelin.work.task.management.dto.mapper;
 
-import a.slelin.work.task.management.dao.UserDao;
 import a.slelin.work.task.management.dto.ProjectRD;
 import a.slelin.work.task.management.dto.ProjectWD;
 import a.slelin.work.task.management.dto.TaskRD;
 import a.slelin.work.task.management.entity.Project;
 import a.slelin.work.task.management.entity.Task;
 import a.slelin.work.task.management.entity.User;
-import jakarta.inject.Inject;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -43,4 +39,7 @@ public interface ProjectMapper {
                 .map(Mappers.getMapper(TaskMapper.class)::toDto)
                 .toList();
     }
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    Project patch(@MappingTarget Project project, ProjectWD projectWD);
 }
