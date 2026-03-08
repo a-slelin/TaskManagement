@@ -1,23 +1,30 @@
 package a.slelin.work.task.management.dao;
 
-import jakarta.validation.constraints.NotNull;
-
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
 public interface Dao<E, ID extends Serializable> {
 
     List<E> findAll();
 
-    E findById(@NotNull ID id);
+    Optional<E> findById(ID id);
 
-    boolean existsById(@NotNull ID id);
+    long count();
 
-    E create(@NotNull E e);
+    long countById(ID id);
 
-    E update(@NotNull E e);
+    default boolean existsById(ID id) {
+        return countById(id) > 0;
+    }
 
-    void delete(@NotNull E e);
+    E create(E e);
 
-    void delete(@NotNull ID id);
+    E update(E e);
+
+    void delete(E e);
+
+    void deleteById(ID id);
+
+    void deleteAll();
 }

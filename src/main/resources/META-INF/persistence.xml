@@ -2,16 +2,13 @@
              xmlns="https://jakarta.ee/xml/ns/persistence"
              xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
              version="3.0">
-    <persistence-unit name="TaskManagementPU" transaction-type="RESOURCE_LOCAL">
+    <persistence-unit name="TaskManagementPU" transaction-type="JTA">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <jta-data-source>java:jboss/datasources/TaskManagementDS</jta-data-source>
         <class>a.slelin.work.task.management.entity.User</class>
         <class>a.slelin.work.task.management.entity.Project</class>
         <class>a.slelin.work.task.management.entity.Task</class>
         <properties>
-            <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/TaskManagement"/>
-            <property name="jakarta.persistence.jdbc.user" value="admin"/>
-            <property name="jakarta.persistence.jdbc.password" value="admin"/>
-            <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
             <property name="hibernate.hbm2ddl.auto" value="validate"/>
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>

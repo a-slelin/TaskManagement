@@ -4,7 +4,7 @@
 
     <groupId>a.slelin.work</groupId>
     <artifactId>task.management</artifactId>
-    <version>3.0</version>
+    <version>4.0-SNAPSHOT</version>
 
     <packaging>war</packaging>
 
@@ -76,10 +76,14 @@
         <version.jersey>4.0.2</version.jersey>
         <version.jackson>2.19.1</version.jackson>
 
+        <!--Jakarta Specification-->
+        <version.jakarta.cdi>4.1.0</version.jakarta.cdi>
+
     </properties>
 
-
     <dependencies>
+
+        <!--Specific Libraries Block-->
 
         <!--Lombok-->
         <dependency>
@@ -159,6 +163,16 @@
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>${version.jackson}</version>
+        </dependency>
+
+        <!--Jakarta Specification Libraries Block-->
+
+        <!--Jakarta CDI-->
+        <dependency>
+            <groupId>jakarta.enterprise</groupId>
+            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+            <version>${version.jakarta.cdi}</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
