@@ -51,10 +51,11 @@
         <java.version>25</java.version>
         <skipTests>false</skipTests>
 
-        <!--Tomcat settings-->
-        <tomcat.url>http://localhost:8080/manager/text</tomcat.url>
-        <tomcat.username>root</tomcat.username>
-        <tomcat.password>root</tomcat.password>
+        <!--WildFly settings-->
+        <wildfly.path>D:\wildfly-39.0.1.Final</wildfly.path>
+        <wildfly.url>http://localhost:9990</wildfly.url>
+        <wildfly.username>root</wildfly.username>
+        <wildfly.password>root</wildfly.password>
 
         <!--Plugins-->
         <version.plugin.clean>3.5.0</version.plugin.clean>
@@ -235,27 +236,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
                 <version>${version.plugin.install}</version>
-            </plugin>
-
-            <!--Tomcat plugin-->
-            <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-                <version>${version.plugin.tomcat}</version>
-                <configuration>
-                    <url>${tomcat.url}</url>
-                    <path>/${project.build.finalName}</path>
-                    <username>${tomcat.username}</username>
-                    <password>${tomcat.password}</password>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>redeploy</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
         </plugins>
