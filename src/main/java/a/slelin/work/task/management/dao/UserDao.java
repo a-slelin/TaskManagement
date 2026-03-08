@@ -45,11 +45,11 @@ public class UserDao implements Dao<User, UUID> {
 
     @Override
     public Optional<User> findById(UUID id) {
-        return Optional.of(em.find(User.class, id));
+        return Optional.ofNullable(em.find(User.class, id));
     }
 
     public Optional<User> findByIdWithProjects(UUID id) {
-        return Optional.of(em.createQuery("""
+        return Optional.ofNullable(em.createQuery("""
                         SELECT u
                         FROM User u LEFT JOIN Project p
                         ON u.id = p.user.id
@@ -60,7 +60,7 @@ public class UserDao implements Dao<User, UUID> {
     }
 
     public Optional<User> findByIdWithProjectsAndTasks(UUID id) {
-        return Optional.of(em.createQuery("""
+        return Optional.ofNullable(em.createQuery("""
                         SELECT u
                         FROM User u LEFT JOIN Project p
                         ON u.id = p.user.id LEFT JOIN Task t

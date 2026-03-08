@@ -36,11 +36,11 @@ public class ProjectDao implements Dao<Project, Long> {
 
     @Override
     public Optional<Project> findById(Long id) {
-        return Optional.of(em.find(Project.class, id));
+        return Optional.ofNullable(em.find(Project.class, id));
     }
 
     public Optional<Project> findByIdWithTasks(Long id) {
-        return Optional.of(em.createQuery("""
+        return Optional.ofNullable(em.createQuery("""
                         SELECT p
                         FROM Project p LEFT OUTER JOIN Task t
                         ON p.id = t.project.id

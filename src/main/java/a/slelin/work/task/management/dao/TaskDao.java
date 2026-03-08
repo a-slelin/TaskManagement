@@ -25,7 +25,7 @@ public class TaskDao implements Dao<Task, Long> {
 
     @Override
     public Optional<Task> findById(Long id) {
-        return Optional.of(em.find(Task.class, id));
+        return Optional.ofNullable(em.find(Task.class, id));
     }
 
     public List<Task> findByProject(Project project) {
