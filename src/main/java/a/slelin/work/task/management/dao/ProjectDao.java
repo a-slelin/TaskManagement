@@ -1,190 +1,151 @@
 package a.slelin.work.task.management.dao;
 
 import a.slelin.work.task.management.entity.Project;
-import a.slelin.work.task.management.exception.EntityNotFoundByIdException;
-import a.slelin.work.task.management.util.JpaUtil;
+import a.slelin.work.task.management.entity.User;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
-import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.Hibernate;
+import jakarta.persistence.PersistenceContext;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@ApplicationScoped
 public class ProjectDao implements Dao<Project, Long> {
 
-    @Getter
-    private final static ProjectDao instance = new ProjectDao();
-
-    private final static EntityManager em = JpaUtil.getEntityManager();
+    @PersistenceContext(unitName = "TaskManagementPU")
+    private EntityManager em;
 
     @Override
     public List<Project> findAll() {
-        return findAll(false);
+        return em.createQuery("""
+                        SELECT p
+                        FROM Project p
+                        """, Project.class)
+                .getResultList();
     }
 
-    public List<Project> findAll(boolean tasks) {
-        List<Project> projects;
-
-        try {
-            em.getTransaction().begin();
-            projects = em.createQuery("""
-                            SELECT p
-                            FROM Project p
-                            """, Project.class)
-                    .getResultList();
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
-
-        if (!tasks) {
-            projects.forEach(project -> project.setTasks(null));
-        }
-
-        return projects;
+    public List<Project> findAllWithTasks() {
+        return em.createQuery("""
+                        SELECT p
+                        FROM Project p LEFT OUTER JOIN Task t
+                        ON p.id = t.project.id
+                        """, Project.class)
+                .getResultList();
     }
 
     @Override
-    public Project findById(@NotNull Long id) {
-        return findById(id, false);
+    public Optional<Project> findById(Long id) {
+        return Optional.ofNullable(em.find(Project.class, id));
     }
 
-    public Project findById(@NotNull Long id, boolean tasks) {
-        Project project;
-
-        try {
-            em.getTransaction().begin();
-            project = em.find(Project.class, id);
-
-            if (project == null) {
-                throw new EntityNotFoundByIdException(Project.class, id);
-            }
-
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
-
-        if (!tasks) {
-            project.setTasks(null);
-        }
-
-        return project;
+    public Optional<Project> findByIdWithTasks(Long id) {
+        return Optional.ofNullable(em.createQuery("""
+                        SELECT p
+                        FROM Project p LEFT OUTER JOIN Task t
+                        ON p.id = t.project.id
+                        WHERE p.id = :id
+                        """, Project.class)
+                .setParameter("id", id)
+                .getSingleResult());
     }
 
-    public List<Project> findByUser(@NotNull UUID id) {
-        List<Project> projects;
+    public List<Project> findByUser(User user) {
+        return findByUser(user.getId());
+    }
 
-        try {
-            em.getTransaction().begin();
-            projects = em.createQuery("""
-                            SELECT p
-                            FROM Project p LEFT OUTER JOIN Task t
-                            ON p.id = t.project.id
-                            WHERE p.user.id = :id
-                            """, Project.class)
-                    .setParameter("id", id)
-                    .getResultList();
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
+    public List<Project> findByUser(UUID id) {
+        return em.createQuery("""
+                        SELECT p
+                        FROM Project p
+                        WHERE p.user.id = :id
+                        """, Project.class)
+                .setParameter("id", id)
+                .getResultList();
+    }
 
-        return projects;
+    public List<Project> findByUserWithTasks(User user) {
+        return findByUserWithTasks(user.getId());
+    }
+
+    public List<Project> findByUserWithTasks(UUID id) {
+        return em.createQuery("""
+                        SELECT p
+                        FROM Project p LEFT OUTER JOIN Task t
+                        ON p.id = t.project.id
+                        WHERE p.user.id = :id
+                        """, Project.class)
+                .setParameter("id", id)
+                .getResultList();
     }
 
     @Override
-    public boolean existsById(@NotNull Long id) {
-        long count;
-
-        try {
-            em.getTransaction().begin();
-            count = em.createQuery("""
-                            SELECT COUNT(p)
-                            FROM Project p
-                            WHERE p.id = :id
-                            """, Long.class)
-                    .setParameter("id", id)
-                    .getSingleResult();
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
-
-        return count > 0;
+    public long count() {
+        return em.createQuery("""
+                        SELECT COUNT(p)
+                        FROM Project p
+                        """, Long.class)
+                .getSingleResult();
     }
 
     @Override
-    public Project create(@NotNull Project project) {
-        try {
-            em.getTransaction().begin();
-            em.persist(project);
-            Hibernate.initialize(project.getTasks());
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
+    public long countById(Long id) {
+        return em.createQuery("""
+                        SELECT COUNT(p)
+                        FROM Project p
+                        WHERE p.id = :id
+                        """, Long.class)
+                .setParameter("id", id)
+                .getSingleResult();
+    }
 
+    @Override
+    public Project create(Project project) {
+        em.persist(project);
         return project;
     }
 
     @Override
-    public Project update(@NotNull Project project) {
-        try {
-            em.getTransaction().begin();
-            project = em.merge(project);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
-
-        project.setTasks(null);
-
-        return project;
+    public Project update(Project project) {
+        return em.merge(project);
     }
 
     @Override
-    public void delete(@NotNull Project project) {
-        try {
-            em.getTransaction().begin();
-            em.remove(project);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
+    public void delete(Project project) {
+        em.remove(project);
     }
 
     @Override
-    public void delete(Long id) {
-        Project project = findById(id);
-        delete(project);
+    public void deleteById(Long id) {
+        em.createQuery("""
+                        DELETE
+                        FROM Project p
+                        WHERE p.id = :id
+                        """)
+                .setParameter("id", id)
+                .executeUpdate();
     }
 
-    public void deleteByUser(@NotNull UUID id) {
-        try {
-            em.getTransaction().begin();
-            em.createQuery("""
-                            DELETE
-                            FROM Project p
-                            WHERE p.user.id = :id
-                            """)
-                    .setParameter("id", id)
-                    .executeUpdate();
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
+    public void deleteByUser(User user) {
+        deleteByUser(user.getId());
+    }
+
+    public void deleteByUser(UUID id) {
+        em.createQuery("""
+                        DELETE
+                        FROM Project p
+                        WHERE p.user.id = :id
+                        """)
+                .setParameter("id", id)
+                .executeUpdate();
+    }
+
+    @Override
+    public void deleteAll() {
+        em.createQuery("""
+                        DELETE
+                        FROM Project p
+                        """)
+                .executeUpdate();
     }
 }

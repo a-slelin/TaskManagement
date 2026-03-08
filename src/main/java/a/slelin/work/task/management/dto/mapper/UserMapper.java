@@ -6,16 +6,14 @@ import a.slelin.work.task.management.dto.UserWD;
 import a.slelin.work.task.management.entity.Gender;
 import a.slelin.work.task.management.entity.Project;
 import a.slelin.work.task.management.entity.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 import java.util.UUID;
 
-@Mapper
 @SuppressWarnings("unused")
+@Mapper(componentModel = "cdi")
 public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
@@ -30,8 +28,18 @@ public interface UserMapper {
 
     @Mapping(target = "id", qualifiedByName = "takeId")
     @Mapping(target = "gender", qualifiedByName = "takeGender")
-    @Mapping(target = "projects", qualifiedByName = "takeProjects")
+    @Mapping(target = "projects", ignore = true)
     UserRD toDto(User user);
+
+    @Mapping(target = "id", qualifiedByName = "takeId")
+    @Mapping(target = "gender", qualifiedByName = "takeGender")
+    @Mapping(target = "projects", qualifiedByName = "takeProjects")
+    UserRD toDtoWithProjects(User user);
+
+    @Mapping(target = "id", qualifiedByName = "takeId")
+    @Mapping(target = "gender", qualifiedByName = "takeGender")
+    @Mapping(target = "projects", qualifiedByName = "takeProjectsWithTasks")
+    UserRD toDtoWithProjectsAndTasks(User user);
 
     @Named("takeId")
     default String takeId(UUID id) {
@@ -53,4 +61,21 @@ public interface UserMapper {
                 .map(Mappers.getMapper(ProjectMapper.class)::toDto)
                 .toList();
     }
+
+    @Named("takeProjectsWithTasks")
+    default List<ProjectRD> takeProjectsWithTasks(List<Project> projects) {
+        if (projects == null) {
+            return List.of();
+        }
+
+        return projects.stream()
+                .map(Mappers.getMapper(ProjectMapper.class)::toDtoWithTasks)
+                .toList();
+    }
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "projects", ignore = true)
+    @Mapping(target = "gender", qualifiedByName = "getGender")
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    User patch(@MappingTarget User user, UserWD userDto);
 }

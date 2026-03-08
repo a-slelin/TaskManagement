@@ -38,7 +38,6 @@ public class Task extends Audit {
     @Convert(converter = StatusConverter.class)
     private Status status;
 
-    @NotNull
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.EAGER, optional = false)

@@ -1,169 +1,106 @@
 package a.slelin.work.task.management.dao;
 
+import a.slelin.work.task.management.entity.Project;
 import a.slelin.work.task.management.entity.Task;
-import a.slelin.work.task.management.exception.EntityNotFoundByIdException;
-import a.slelin.work.task.management.util.JpaUtil;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
-import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.PersistenceContext;
 
 import java.util.List;
+import java.util.Optional;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@ApplicationScoped
 public class TaskDao implements Dao<Task, Long> {
 
-    @Getter
-    private final static TaskDao instance = new TaskDao();
-
-    private final static EntityManager em = JpaUtil.getEntityManager();
+    @PersistenceContext(unitName = "TaskManagementPU")
+    private EntityManager em;
 
     @Override
     public List<Task> findAll() {
-        List<Task> tasks;
-
-        try {
-            em.getTransaction().begin();
-            tasks = em.createQuery("""
-                            SELECT t
-                            FROM Task t
-                            ORDER BY t.id
-                            """, Task.class)
-                    .getResultList();
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
-
-        return tasks;
+        return em.createQuery("""
+                SELECT t
+                FROM Task t
+                """, Task.class).getResultList();
     }
 
     @Override
-    public Task findById(@NotNull Long id) {
-        Task task;
-
-        try {
-            em.getTransaction().begin();
-            task = em.find(Task.class, id);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
-
-        if (task == null) {
-            throw new EntityNotFoundByIdException(Task.class, id);
-        }
-
-        return task;
+    public Optional<Task> findById(Long id) {
+        return Optional.ofNullable(em.find(Task.class, id));
     }
 
-    public List<Task> findByProject(@NotNull Long id) {
-        List<Task> tasks;
+    public List<Task> findByProject(Project project) {
+        return findByProject(project.getId());
+    }
 
-        try {
-            em.getTransaction().begin();
-            tasks = em.createQuery("""
-                            SELECT t
-                            FROM Task t
-                            WHERE t.project.id = :id
-                            ORDER BY t.id
-                            """, Task.class)
-                    .setParameter("id", id)
-                    .getResultList();
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
-
-        return tasks;
+    public List<Task> findByProject(Long id) {
+        return em.createQuery("""
+                SELECT t
+                FROM Task t
+                WHERE t.project.id = :id
+                """, Task.class).setParameter("id", id).getResultList();
     }
 
     @Override
-    public boolean existsById(@NotNull Long id) {
-        long count;
-
-        try {
-            em.getTransaction().begin();
-            count = em.createQuery("""
-                            SELECT COUNT(t)
-                            FROM Task t
-                            WHERE t.id = :id
-                            """, Long.class)
-                    .setParameter("id", id)
-                    .getSingleResult();
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
-
-        return count > 0;
+    public long count() {
+        return em.createQuery("""
+                SELECT COUNT(t)
+                FROM Task t
+                """, Long.class).getSingleResult();
     }
 
     @Override
-    public Task create(@NotNull Task task) {
-        try {
-            em.getTransaction().begin();
-            em.persist(task);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
+    public long countById(Long id) {
+        return em.createQuery("""
+                SELECT COUNT(t)
+                FROM Task t
+                WHERE t.id = :id
+                """, Long.class).setParameter("id", id).getSingleResult();
+    }
 
+    @Override
+    public Task create(Task task) {
+        em.persist(task);
         return task;
     }
 
     @Override
-    public Task update(@NotNull Task task) {
-        try {
-            em.getTransaction().begin();
-            task = em.merge(task);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
-
-        return task;
+    public Task update(Task task) {
+        return em.merge(task);
     }
 
     @Override
-    public void delete(@NotNull Task task) {
-        try {
-            em.getTransaction().begin();
-            em.remove(em.merge(task));
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
+    public void delete(Task task) {
+        em.remove(task);
     }
 
     @Override
-    public void delete(Long id) {
-        Task task = findById(id);
-        delete(task);
+    public void deleteById(Long id) {
+        em.createQuery("""
+                DELETE
+                FROM Task t
+                WHERE t.id = :id
+                """).setParameter("id", id).executeUpdate();
     }
 
-    public void deleteByProject(@NotNull Long id) {
-        try {
-            em.getTransaction().begin();
-            em.createQuery("""
-                            DELETE
-                            FROM Task t
-                            WHERE t.project.id = :id
-                            """)
-                    .setParameter("id", id)
-                    .executeUpdate();
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            em.getTransaction().rollback();
-            throw e;
-        }
+    public void deleteByProject(Project project) {
+        deleteByProject(project.getId());
+    }
+
+    public void deleteByProject(Long id) {
+        em.createQuery("""
+                        DELETE
+                        FROM Task t
+                        WHERE t.project.id = :id
+                        """)
+                .setParameter("id", id)
+                .executeUpdate();
+    }
+
+    @Override
+    public void deleteAll() {
+        em.createQuery("""
+                DELETE
+                FROM Task t
+                """).executeUpdate();
     }
 }

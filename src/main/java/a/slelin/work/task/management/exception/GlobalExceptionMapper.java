@@ -62,6 +62,18 @@ public class GlobalExceptionMapper implements ExceptionMapper<Exception> {
                         .debugMessage("Illegal argument. Check input data.")
                         .details(Map.of());
             }
+            case TaskSetProjectException _ -> {
+                status = Response.Status.BAD_REQUEST;
+                builder.httpStatus(400L)
+                        .debugMessage("Task set project failed.")
+                        .details(Map.of());
+            }
+            case BusinessFault _ -> {
+                status = Response.Status.BAD_REQUEST;
+                builder.httpStatus(400L)
+                        .debugMessage("Business fault has occurred.")
+                        .details(Map.of());
+            }
             case null, default -> {
                 status = Response.Status.INTERNAL_SERVER_ERROR;
                 builder.httpStatus(500L)

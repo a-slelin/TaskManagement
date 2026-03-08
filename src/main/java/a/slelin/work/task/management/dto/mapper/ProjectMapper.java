@@ -1,35 +1,31 @@
 package a.slelin.work.task.management.dto.mapper;
 
-import a.slelin.work.task.management.dao.UserDao;
 import a.slelin.work.task.management.dto.ProjectRD;
 import a.slelin.work.task.management.dto.ProjectWD;
 import a.slelin.work.task.management.dto.TaskRD;
 import a.slelin.work.task.management.entity.Project;
 import a.slelin.work.task.management.entity.Task;
 import a.slelin.work.task.management.entity.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
 @SuppressWarnings("unused")
+@Mapper(componentModel = "cdi")
 public interface ProjectMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "tasks", ignore = true)
-    @Mapping(target = "user", qualifiedByName = "getUser")
+    @Mapping(target = "user", ignore = true)
     Project toEntity(ProjectWD project);
-
-    @Named("getUser")
-    default User getUser(String userStr) {
-        return UserDao.getInstance().getUserById(userStr);
-    }
 
     @Mapping(target = "user", qualifiedByName = "takeUser")
     @Mapping(target = "tasks", qualifiedByName = "takeTasks")
+    ProjectRD toDtoWithTasks(Project project);
+
+    @Mapping(target = "user", qualifiedByName = "takeUser")
+    @Mapping(target = "tasks", ignore = true)
     ProjectRD toDto(Project project);
 
     @Named("takeUser")
@@ -47,4 +43,10 @@ public interface ProjectMapper {
                 .map(Mappers.getMapper(TaskMapper.class)::toDto)
                 .toList();
     }
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "tasks", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    Project patch(@MappingTarget Project project, ProjectWD projectWD);
 }

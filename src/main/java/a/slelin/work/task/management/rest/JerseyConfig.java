@@ -1,14 +1,8 @@
 package a.slelin.work.task.management.rest;
 
-import a.slelin.work.task.management.exception.GlobalExceptionMapper;
 import jakarta.ws.rs.ApplicationPath;
-import org.glassfish.jersey.server.ResourceConfig;
+import jakarta.ws.rs.core.Application;
 
-@ApplicationPath("/")
-public class JerseyConfig extends ResourceConfig {
-
-    public JerseyConfig() {
-        packages("a.slelin.work.task.management.rest");
-        register(GlobalExceptionMapper.class);
-    }
+@ApplicationPath("/api")
+public class JerseyConfig extends Application {
 }

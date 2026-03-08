@@ -6,6 +6,9 @@ import a.slelin.work.task.management.dto.TaskRD;
 import a.slelin.work.task.management.dto.TaskWD;
 import a.slelin.work.task.management.service.ProjectService;
 import a.slelin.work.task.management.service.TaskService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.validation.constraints.Min;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -16,54 +19,42 @@ import java.net.URI;
 import java.util.List;
 
 @Path("/projects")
+@ApplicationScoped
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class ProjectController {
 
-    private final static TaskService taskService = TaskService.getInstance();
+    @Inject
+    private TaskService taskService;
 
-    private final static ProjectService service = ProjectService.getInstance();
+    @Inject
+    private ProjectService projectService;
 
     @GET
     @Consumes(MediaType.WILDCARD)
     public List<ProjectRD> getProjects(@QueryParam("tasks") @DefaultValue("false") boolean tasks) {
-        return service.getAll(tasks);
+        return projectService.getAll(tasks);
     }
 
     @GET
     @Path("/{id}")
-    public ProjectRD getProject(@PathParam("id") Long id,
+    public ProjectRD getProject(@Min(1) @PathParam("id") Long id,
                                 @QueryParam("tasks") @DefaultValue("false") boolean tasks) {
-        return service.getById(id, tasks);
+        return projectService.getById(id, tasks);
     }
 
     @GET
     @Path("/{id}/tasks")
-    public List<TaskRD> getTasks(@PathParam("id") Long id) {
-        return service.getProjectTasks(id);
-    }
-
-    @POST
-    public Response createProject(ProjectWD project, @Context UriInfo uriInfo) {
-        ProjectRD savedProject = service.create(project);
-        URI location = uriInfo.getAbsolutePathBuilder()
-                .path(savedProject.id().toString())
-                .build();
-        return Response.created(location)
-                .entity(savedProject)
-                .build();
+    public List<TaskRD> getTasks(@Min(1) @PathParam("id") Long id) {
+        return projectService.getProjectTasks(id);
     }
 
     @POST
     @Path("/{id}/tasks")
-    public Response createTask(@PathParam("id") Long id,
+    public Response createTask(@Min(1) @PathParam("id") Long id,
                                TaskWD task,
                                @Context UriInfo uriInfo) {
-        TaskWD newTask = TaskWD.intercept(task)
-                .project(id)
-                .build();
-
-        TaskRD savedTask = taskService.create(newTask);
+        TaskRD savedTask = taskService.create(id, task);
         URI location = uriInfo.getBaseUriBuilder()
                 .path(TaskController.class)
                 .path(savedTask.id().toString())
@@ -76,16 +67,22 @@ public class ProjectController {
 
     @PUT
     @Path("/{id}")
-    public ProjectRD updateProject(@PathParam("id") Long id, ProjectWD project) {
-        return service.update(id, project);
+    public ProjectRD updateProject(@Min(1) @PathParam("id") Long id, ProjectWD project) {
+        return projectService.update(id, project);
+    }
+
+    @PATCH
+    @Path("/{id}")
+    public ProjectRD patchProject(@Min(1) @PathParam("id") Long id, ProjectWD project) {
+        return projectService.patch(id, project);
     }
 
     @DELETE
     @Path("/{id}")
     @Consumes(MediaType.WILDCARD)
     @Produces(MediaType.WILDCARD)
-    public Response deleteProject(@PathParam("id") Long id) {
-        service.delete(id);
+    public Response deleteProject(@Min(1) @PathParam("id") Long id) {
+        projectService.delete(id);
         return Response.noContent().build();
     }
 
@@ -93,8 +90,8 @@ public class ProjectController {
     @Path("/{id}/tasks")
     @Consumes(MediaType.WILDCARD)
     @Produces(MediaType.WILDCARD)
-    public Response deleteTask(@PathParam("id") Long id) {
-        service.deleteTasks(id);
+    public Response deleteTask(@Min(1) @PathParam("id") Long id) {
+        projectService.deleteTasks(id);
         return Response.noContent().build();
     }
 }

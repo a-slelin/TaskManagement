@@ -6,6 +6,8 @@ import a.slelin.work.task.management.dto.UserRD;
 import a.slelin.work.task.management.dto.UserWD;
 import a.slelin.work.task.management.service.ProjectService;
 import a.slelin.work.task.management.service.UserService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -17,37 +19,44 @@ import java.util.List;
 import java.util.UUID;
 
 @Path("/users")
+@ApplicationScoped
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class UserController {
 
-    private final static ProjectService projectService = ProjectService.getInstance();
+    @Inject
+    private ProjectService projectService;
 
-    private final static UserService service = UserService.getInstance();
+    @Inject
+    private UserService userService;
 
     @GET
     @Consumes(MediaType.WILDCARD)
-    public List<UserRD> getUsers() {
-        return service.getAll();
+    public List<UserRD> getUsers(@QueryParam("projects") @DefaultValue("false") boolean projects,
+                                 @QueryParam("tasks") @DefaultValue("false") boolean tasks) {
+        return userService.getAll(projects, tasks);
     }
 
     @GET
     @Path("/{id}")
     @Consumes(MediaType.WILDCARD)
-    public UserRD getUser(@PathParam("id") UUID id) {
-        return service.getById(id);
+    public UserRD getUser(@PathParam("id") UUID id,
+                          @QueryParam("projects") @DefaultValue("false") boolean projects,
+                          @QueryParam("tasks") @DefaultValue("false") boolean tasks) {
+        return userService.getById(id, projects, tasks);
     }
 
     @GET
     @Path("/{id}/projects")
     @Consumes(MediaType.WILDCARD)
-    public List<ProjectRD> getProjects(@PathParam("id") UUID id) {
-        return service.getUserProjects(id);
+    public List<ProjectRD> getProjects(@PathParam("id") UUID id,
+                                       @QueryParam("tasks") @DefaultValue("false") boolean tasks) {
+        return userService.getUserProjects(id, tasks);
     }
 
     @POST
     public Response createUser(UserWD user, @Context UriInfo uriInfo) {
-        UserRD savedUser = service.create(user);
+        UserRD savedUser = userService.create(user);
         URI location = uriInfo.getAbsolutePathBuilder()
                 .path(savedUser.id())
                 .build();
@@ -61,11 +70,7 @@ public class UserController {
     public Response createProject(@PathParam("id") UUID id,
                                   ProjectWD project,
                                   @Context UriInfo uriInfo) {
-        ProjectWD newProject = ProjectWD.intercept(project)
-                .user(id.toString())
-                .build();
-
-        ProjectRD savedProject = projectService.create(newProject);
+        ProjectRD savedProject = projectService.create(id, project);
         URI location = uriInfo.getBaseUriBuilder()
                 .path(ProjectController.class)
                 .path(savedProject.id().toString())
@@ -78,7 +83,13 @@ public class UserController {
     @PUT
     @Path("/{id}")
     public UserRD updateUser(@PathParam("id") UUID id, UserWD user) {
-        return service.update(id, user);
+        return userService.update(id, user);
+    }
+
+    @PATCH
+    @Path("/{id}")
+    public UserRD patchUser(@PathParam("id") UUID id, UserWD user) {
+        return userService.patch(id, user);
     }
 
 
@@ -87,7 +98,7 @@ public class UserController {
     @Consumes(MediaType.WILDCARD)
     @Produces(MediaType.WILDCARD)
     public Response deleteUser(@PathParam("id") UUID id) {
-        service.delete(id);
+        userService.delete(id);
         return Response.noContent().build();
     }
 
@@ -96,7 +107,7 @@ public class UserController {
     @Consumes(MediaType.WILDCARD)
     @Produces(MediaType.WILDCARD)
     public Response deleteProject(@PathParam("id") UUID id) {
-        service.deleteUserProjects(id);
+        userService.deleteUserProjects(id);
         return Response.noContent().build();
     }
 }
