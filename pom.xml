@@ -4,7 +4,7 @@
 
     <groupId>a.slelin.work</groupId>
     <artifactId>task.management</artifactId>
-    <version>2.0</version>
+    <version>3.0</version>
 
     <packaging>war</packaging>
 
@@ -68,15 +68,13 @@
 
         <!--Specific Libraries-->
         <version.lombok>1.18.42</version.lombok>
-        <version.junit>6.0.3</version.junit>
         <version.postgresql>42.7.10</version.postgresql>
-        <version.h2>2.4.240</version.h2>
         <version.mapstruct>1.6.3</version.mapstruct>
-        <version.jakarta.servlet-api>6.1.0</version.jakarta.servlet-api>
-        <version.jackson>3.1.0</version.jackson>
         <version.hibernate.orm>7.2.6.Final</version.hibernate.orm>
         <version.hibernate.validator>9.1.0.Final</version.hibernate.validator>
         <version.bcrypt>0.3</version.bcrypt>
+        <version.jersey>4.0.2</version.jersey>
+        <version.jackson>2.19.1</version.jackson>
 
     </properties>
 
@@ -90,14 +88,6 @@
             <version>${version.lombok}</version>
         </dependency>
 
-        <!--Junit-->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${version.junit}</version>
-            <scope>test</scope>
-        </dependency>
-
         <!--PostgreSQL-->
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -106,34 +96,11 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!--H2-->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${version.h2}</version>
-            <scope>test</scope>
-        </dependency>
-
         <!--MapStruct-->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>${version.mapstruct}</version>
-        </dependency>
-
-        <!--Jakarta Servlet Api-->
-        <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-            <version>${version.jakarta.servlet-api}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!--Jackson Json-->
-        <dependency>
-            <groupId>tools.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${version.jackson}</version>
         </dependency>
 
         <!--Hibernate ORM-->
@@ -155,6 +122,43 @@
             <groupId>org.mindrot.bcrypt</groupId>
             <artifactId>bcrypt</artifactId>
             <version>${version.bcrypt}</version>
+        </dependency>
+
+        <!--Jersey Server-->
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>${version.jersey}</version>
+        </dependency>
+
+        <!--Jersey Inject-->
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>${version.jersey}</version>
+        </dependency>
+
+        <!--Jersey Container Servlet-->
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet</artifactId>
+            <version>${version.jersey}</version>
+        </dependency>
+
+        <!--Jersey JSON Jackson-->
+        <!--suppress VulnerableLibrariesLocal -->
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <version>${version.jersey}</version>
+        </dependency>
+
+        <!--Jackson Datatype-->
+        <!--suppress VulnerableLibrariesLocal -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${version.jackson}</version>
         </dependency>
 
     </dependencies>

@@ -34,7 +34,7 @@ public class TaskDao implements Dao<Task, Long> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("TaskDao.findAll() failed.", e);
+            throw e;
         }
 
         return tasks;
@@ -50,7 +50,7 @@ public class TaskDao implements Dao<Task, Long> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("TaskDao.findById() failed.", e);
+            throw e;
         }
 
         if (task == null) {
@@ -58,6 +58,28 @@ public class TaskDao implements Dao<Task, Long> {
         }
 
         return task;
+    }
+
+    public List<Task> findByProject(@NotNull Long id) {
+        List<Task> tasks;
+
+        try {
+            em.getTransaction().begin();
+            tasks = em.createQuery("""
+                            SELECT t
+                            FROM Task t
+                            WHERE t.project.id = :id
+                            ORDER BY t.id
+                            """, Task.class)
+                    .setParameter("id", id)
+                    .getResultList();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        }
+
+        return tasks;
     }
 
     @Override
@@ -76,7 +98,7 @@ public class TaskDao implements Dao<Task, Long> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("TaskDao.existsById() failed.", e);
+            throw e;
         }
 
         return count > 0;
@@ -90,7 +112,7 @@ public class TaskDao implements Dao<Task, Long> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("TaskDao.create() failed.", e);
+            throw e;
         }
 
         return task;
@@ -104,7 +126,7 @@ public class TaskDao implements Dao<Task, Long> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("TaskDao.update() failed.", e);
+            throw e;
         }
 
         return task;
@@ -118,7 +140,7 @@ public class TaskDao implements Dao<Task, Long> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("TaskDao.delete() failed.", e);
+            throw e;
         }
     }
 
@@ -126,5 +148,22 @@ public class TaskDao implements Dao<Task, Long> {
     public void delete(Long id) {
         Task task = findById(id);
         delete(task);
+    }
+
+    public void deleteByProject(@NotNull Long id) {
+        try {
+            em.getTransaction().begin();
+            em.createQuery("""
+                            DELETE
+                            FROM Task t
+                            WHERE t.project.id = :id
+                            """)
+                    .setParameter("id", id)
+                    .executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        }
     }
 }

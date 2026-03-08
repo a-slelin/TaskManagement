@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.Hibernate;
 
 import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProjectDao implements Dao<Project, Long> {
@@ -22,19 +23,27 @@ public class ProjectDao implements Dao<Project, Long> {
 
     @Override
     public List<Project> findAll() {
+        return findAll(false);
+    }
+
+    public List<Project> findAll(boolean tasks) {
         List<Project> projects;
 
         try {
             em.getTransaction().begin();
             projects = em.createQuery("""
-                    SELECT p
-                    FROM Project p LEFT OUTER JOIN Task t
-                    ON p.id = t.project.id
-                    """, Project.class).getResultList();
+                            SELECT p
+                            FROM Project p
+                            """, Project.class)
+                    .getResultList();
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("ProjectDao.findAll() failed.", e);
+            throw e;
+        }
+
+        if (!tasks) {
+            projects.forEach(project -> project.setTasks(null));
         }
 
         return projects;
@@ -42,6 +51,10 @@ public class ProjectDao implements Dao<Project, Long> {
 
     @Override
     public Project findById(@NotNull Long id) {
+        return findById(id, false);
+    }
+
+    public Project findById(@NotNull Long id, boolean tasks) {
         Project project;
 
         try {
@@ -52,16 +65,39 @@ public class ProjectDao implements Dao<Project, Long> {
                 throw new EntityNotFoundByIdException(Project.class, id);
             }
 
-            Hibernate.initialize(project.getTasks());
             em.getTransaction().commit();
-        } catch (EntityNotFoundByIdException e) {
-            throw e;
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("ProjectDao.findById() failed.", e);
+            throw e;
+        }
+
+        if (!tasks) {
+            project.setTasks(null);
         }
 
         return project;
+    }
+
+    public List<Project> findByUser(@NotNull UUID id) {
+        List<Project> projects;
+
+        try {
+            em.getTransaction().begin();
+            projects = em.createQuery("""
+                            SELECT p
+                            FROM Project p LEFT OUTER JOIN Task t
+                            ON p.id = t.project.id
+                            WHERE p.user.id = :id
+                            """, Project.class)
+                    .setParameter("id", id)
+                    .getResultList();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        }
+
+        return projects;
     }
 
     @Override
@@ -80,7 +116,7 @@ public class ProjectDao implements Dao<Project, Long> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("ProjectDao.existsById() failed.", e);
+            throw e;
         }
 
         return count > 0;
@@ -95,7 +131,7 @@ public class ProjectDao implements Dao<Project, Long> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("ProjectDao.create() failed.", e);
+            throw e;
         }
 
         return project;
@@ -106,12 +142,13 @@ public class ProjectDao implements Dao<Project, Long> {
         try {
             em.getTransaction().begin();
             project = em.merge(project);
-            Hibernate.initialize(project.getTasks());
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("ProjectDao.update() failed.", e);
+            throw e;
         }
+
+        project.setTasks(null);
 
         return project;
     }
@@ -124,7 +161,7 @@ public class ProjectDao implements Dao<Project, Long> {
             em.getTransaction().commit();
         } catch (Exception e) {
             em.getTransaction().rollback();
-            throw new RuntimeException("ProjectDao.delete() failed.", e);
+            throw e;
         }
     }
 
@@ -132,5 +169,22 @@ public class ProjectDao implements Dao<Project, Long> {
     public void delete(Long id) {
         Project project = findById(id);
         delete(project);
+    }
+
+    public void deleteByUser(@NotNull UUID id) {
+        try {
+            em.getTransaction().begin();
+            em.createQuery("""
+                            DELETE
+                            FROM Project p
+                            WHERE p.user.id = :id
+                            """)
+                    .setParameter("id", id)
+                    .executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw e;
+        }
     }
 }
