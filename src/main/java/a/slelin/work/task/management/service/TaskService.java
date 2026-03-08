@@ -8,6 +8,7 @@ import a.slelin.work.task.management.dto.mapper.TaskMapper;
 import a.slelin.work.task.management.entity.Project;
 import a.slelin.work.task.management.entity.Task;
 import a.slelin.work.task.management.exception.EntityNotFoundByIdException;
+import a.slelin.work.task.management.exception.TaskSetProjectException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -68,6 +69,27 @@ public class TaskService implements Service<Long, TaskRD, TaskWD> {
 
         Task task = mapper.toEntity(dto);
         task.setId(id);
+        task = repository.update(task);
+        return mapper.toDto(task);
+    }
+
+    public TaskRD drawToProject(@NotNull @Min(1) Long projectId, @NotNull @Min(1) Long taskId) {
+        Project newProject = projectRepository.findById(projectId)
+                .orElseThrow(() -> new EntityNotFoundByIdException(Project.class, projectId));
+
+        Task task = repository.findById(taskId)
+                .orElseThrow(() -> new EntityNotFoundByIdException(Task.class, taskId));
+
+        Project oldProject = task.getProject();
+        if (newProject.equals(oldProject)) {
+            throw new TaskSetProjectException("Try set the same project.");
+        }
+
+        if (!newProject.getUser().equals(oldProject.getUser())) {
+            throw new TaskSetProjectException("Try set project from other user.");
+        }
+
+        task.setProject(newProject);
         task = repository.update(task);
         return mapper.toDto(task);
     }

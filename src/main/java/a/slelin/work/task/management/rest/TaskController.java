@@ -39,6 +39,13 @@ public class TaskController {
         return service.update(id, task);
     }
 
+    @PUT
+    @Path("/{id}/project/{projectId}")
+    public TaskRD setProject(@PathParam("id") Long id,
+                             @PathParam("projectId") Long projectId) {
+        return service.drawToProject(id, projectId);
+    }
+
     @DELETE
     @Path("/{id}")
     @Consumes(MediaType.WILDCARD)
