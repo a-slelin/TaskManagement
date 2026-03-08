@@ -3,6 +3,7 @@ package a.slelin.work.task.management.config;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
@@ -19,8 +20,9 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
+@EnableJpaRepositories
 @PropertySource("classpath:application.properties")
-@EnableJpaRepositories("a.slelin.work.task.management.repository")
+@ComponentScan("a.slelin.work.task.management.repository")
 public class DBConfig {
 
     @Bean

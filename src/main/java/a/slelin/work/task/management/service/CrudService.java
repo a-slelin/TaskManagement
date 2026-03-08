@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
-public interface Service<ID extends Serializable, RD extends ReadDto, WD extends WriteDto> {
+public interface CrudService<ID extends Serializable, RD extends ReadDto, WD extends WriteDto> {
 
     List<RD> getAll();
 

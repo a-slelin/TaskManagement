@@ -8,7 +8,7 @@ import a.slelin.work.task.management.entity.Task;
 import org.mapstruct.*;
 
 @SuppressWarnings("unused")
-@Mapper(componentModel = "cdi")
+@Mapper(componentModel = "spring")
 public interface TaskMapper {
 
     @Mapping(target = "id", ignore = true)

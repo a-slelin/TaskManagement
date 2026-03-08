@@ -12,7 +12,7 @@ import org.mapstruct.factory.Mappers;
 import java.util.List;
 
 @SuppressWarnings("unused")
-@Mapper(componentModel = "cdi")
+@Mapper(componentModel = "spring")
 public interface ProjectMapper {
 
     @Mapping(target = "id", ignore = true)
