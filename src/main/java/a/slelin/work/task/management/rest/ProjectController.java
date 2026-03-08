@@ -8,6 +8,7 @@ import a.slelin.work.task.management.service.ProjectService;
 import a.slelin.work.task.management.service.TaskService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.validation.constraints.Min;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -37,20 +38,20 @@ public class ProjectController {
 
     @GET
     @Path("/{id}")
-    public ProjectRD getProject(@PathParam("id") Long id,
+    public ProjectRD getProject(@Min(1) @PathParam("id") Long id,
                                 @QueryParam("tasks") @DefaultValue("false") boolean tasks) {
         return projectService.getById(id, tasks);
     }
 
     @GET
     @Path("/{id}/tasks")
-    public List<TaskRD> getTasks(@PathParam("id") Long id) {
+    public List<TaskRD> getTasks(@Min(1) @PathParam("id") Long id) {
         return projectService.getProjectTasks(id);
     }
 
     @POST
     @Path("/{id}/tasks")
-    public Response createTask(@PathParam("id") Long id,
+    public Response createTask(@Min(1) @PathParam("id") Long id,
                                TaskWD task,
                                @Context UriInfo uriInfo) {
         TaskRD savedTask = taskService.create(id, task);
@@ -66,13 +67,13 @@ public class ProjectController {
 
     @PUT
     @Path("/{id}")
-    public ProjectRD updateProject(@PathParam("id") Long id, ProjectWD project) {
+    public ProjectRD updateProject(@Min(1) @PathParam("id") Long id, ProjectWD project) {
         return projectService.update(id, project);
     }
 
     @PATCH
     @Path("/{id}")
-    public ProjectRD patchProject(@PathParam("id") Long id, ProjectWD project) {
+    public ProjectRD patchProject(@Min(1) @PathParam("id") Long id, ProjectWD project) {
         return projectService.patch(id, project);
     }
 
@@ -80,7 +81,7 @@ public class ProjectController {
     @Path("/{id}")
     @Consumes(MediaType.WILDCARD)
     @Produces(MediaType.WILDCARD)
-    public Response deleteProject(@PathParam("id") Long id) {
+    public Response deleteProject(@Min(1) @PathParam("id") Long id) {
         projectService.delete(id);
         return Response.noContent().build();
     }
@@ -89,7 +90,7 @@ public class ProjectController {
     @Path("/{id}/tasks")
     @Consumes(MediaType.WILDCARD)
     @Produces(MediaType.WILDCARD)
-    public Response deleteTask(@PathParam("id") Long id) {
+    public Response deleteTask(@Min(1) @PathParam("id") Long id) {
         projectService.deleteTasks(id);
         return Response.noContent().build();
     }

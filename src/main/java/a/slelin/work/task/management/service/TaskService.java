@@ -13,7 +13,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
@@ -39,7 +38,7 @@ public class TaskService implements Service<Long, TaskRD, TaskWD> {
     }
 
     @Override
-    public TaskRD getById(@NotNull @Min(1) Long id) {
+    public TaskRD getById(@NotNull Long id) {
         Task task = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundByIdException(Task.class, id));
 
@@ -51,7 +50,7 @@ public class TaskService implements Service<Long, TaskRD, TaskWD> {
         throw new UnsupportedOperationException();
     }
 
-    public TaskRD create(@NotNull @Min(1) Long projectId, @NotNull @Valid TaskWD dto) {
+    public TaskRD create(@NotNull Long projectId, @NotNull @Valid TaskWD dto) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundByIdException(Project.class, projectId));
 
@@ -62,7 +61,7 @@ public class TaskService implements Service<Long, TaskRD, TaskWD> {
     }
 
     @Override
-    public TaskRD update(@NotNull @Min(1) Long id, @NotNull @Valid TaskWD dto) {
+    public TaskRD update(@NotNull Long id, @NotNull @Valid TaskWD dto) {
         if (!repository.existsById(id)) {
             throw new EntityNotFoundByIdException(Task.class, id);
         }
@@ -74,7 +73,7 @@ public class TaskService implements Service<Long, TaskRD, TaskWD> {
     }
 
     @Override
-    public TaskRD patch(@NotNull @Min(1) Long id, @NotNull @Valid TaskWD dto) {
+    public TaskRD patch(@NotNull Long id, @NotNull @Valid TaskWD dto) {
         Task task = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundByIdException(Task.class, id));
 
@@ -83,7 +82,7 @@ public class TaskService implements Service<Long, TaskRD, TaskWD> {
         return mapper.toDto(task);
     }
 
-    public TaskRD drawToProject(@NotNull @Min(1) Long projectId, @NotNull @Min(1) Long taskId) {
+    public TaskRD drawToProject(@NotNull Long projectId, @NotNull Long taskId) {
         Project newProject = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundByIdException(Project.class, projectId));
 
@@ -105,7 +104,7 @@ public class TaskService implements Service<Long, TaskRD, TaskWD> {
     }
 
     @Override
-    public void delete(@NotNull @Min(1) Long id) {
+    public void delete(@NotNull Long id) {
         if (!repository.existsById(id)) {
             throw new EntityNotFoundByIdException(Task.class, id);
         }

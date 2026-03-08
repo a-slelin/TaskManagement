@@ -16,7 +16,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
@@ -53,11 +52,11 @@ public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
     }
 
     @Override
-    public ProjectRD getById(@NotNull @Min(1) Long id) {
+    public ProjectRD getById(@NotNull Long id) {
         return getById(id, false);
     }
 
-    public ProjectRD getById(@NotNull @Min(1) Long id, boolean tasks) {
+    public ProjectRD getById(@NotNull Long id, boolean tasks) {
         Optional<Project> projectOptional;
 
         if (tasks) {
@@ -72,7 +71,7 @@ public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
         return projectMapper.toDto(project);
     }
 
-    public List<TaskRD> getProjectTasks(@NotNull @Min(1) Long id) {
+    public List<TaskRD> getProjectTasks(@NotNull Long id) {
         if (!projectRepository.existsById(id)) {
             throw new EntityNotFoundByIdException(Project.class, id);
         }
@@ -97,7 +96,7 @@ public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
     }
 
     @Override
-    public ProjectRD update(@NotNull @Min(1) Long id, @NotNull @Valid ProjectWD dto) {
+    public ProjectRD update(@NotNull Long id, @NotNull @Valid ProjectWD dto) {
         if (!projectRepository.existsById(id)) {
             throw new EntityNotFoundByIdException(Project.class, id);
         }
@@ -109,7 +108,7 @@ public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
     }
 
     @Override
-    public ProjectRD patch(@NotNull @Min(1) Long id, @NotNull @Valid ProjectWD dto) {
+    public ProjectRD patch(@NotNull Long id, @NotNull @Valid ProjectWD dto) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundByIdException(Project.class, id));
 
@@ -119,7 +118,7 @@ public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
     }
 
     @Override
-    public void delete(@NotNull @Min(1) Long id) {
+    public void delete(@NotNull Long id) {
         if (!projectRepository.existsById(id)) {
             throw new EntityNotFoundByIdException(Project.class, id);
         }
@@ -127,7 +126,7 @@ public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
         projectRepository.deleteById(id);
     }
 
-    public void deleteTasks(@NotNull @Min(1) Long id) {
+    public void deleteTasks(@NotNull Long id) {
         if (!projectRepository.existsById(id)) {
             throw new EntityNotFoundByIdException(Task.class, id);
         }
