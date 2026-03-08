@@ -22,6 +22,10 @@ public interface ProjectMapper {
 
     @Mapping(target = "user", qualifiedByName = "takeUser")
     @Mapping(target = "tasks", qualifiedByName = "takeTasks")
+    ProjectRD toDtoWithTasks(Project project);
+
+    @Mapping(target = "user", qualifiedByName = "takeUser")
+    @Mapping(target = "tasks", ignore = true)
     ProjectRD toDto(Project project);
 
     @Named("takeUser")

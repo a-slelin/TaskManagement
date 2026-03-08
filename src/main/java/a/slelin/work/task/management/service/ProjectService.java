@@ -48,7 +48,7 @@ public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
 
     public List<ProjectRD> getAll(boolean tasks) {
         return (tasks ? projectRepository.findAllWithTasks() : projectRepository.findAll())
-                .stream().map(projectMapper::toDto).toList();
+                .stream().map(tasks ? projectMapper::toDtoWithTasks : projectMapper::toDto).toList();
     }
 
     @Override
@@ -68,7 +68,7 @@ public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
         Project project = projectOptional
                 .orElseThrow(() -> new EntityNotFoundByIdException(Project.class, id));
 
-        return projectMapper.toDto(project);
+        return tasks ? projectMapper.toDtoWithTasks(project) : projectMapper.toDto(project);
     }
 
     public List<TaskRD> getProjectTasks(@NotNull Long id) {

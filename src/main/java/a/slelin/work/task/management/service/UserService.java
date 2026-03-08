@@ -18,6 +18,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 
 @Transactional
 @ApplicationScoped
@@ -46,16 +47,19 @@ public class UserService implements Service<UUID, UserRD, UserWD> {
 
     public List<UserRD> getAll(boolean projects, boolean tasks) {
         List<User> users;
+        Function<User, UserRD> map;
 
         if (projects) {
             users = tasks ? userRepository.findAllWithProjectsAndTasks()
                     : userRepository.findAllWithProjects();
+            map = tasks ? userMapper::toDtoWithProjectsAndTasks : userMapper::toDtoWithProjects;
         } else {
             users = userRepository.findAll();
+            map = userMapper::toDto;
         }
 
         return users.stream()
-                .map(userMapper::toDto)
+                .map(map)
                 .toList();
     }
 
@@ -70,18 +74,22 @@ public class UserService implements Service<UUID, UserRD, UserWD> {
 
     public UserRD getById(@NotNull UUID id, boolean projects, boolean tasks) {
         Optional<User> userOptional;
+        Function<User, UserRD> map;
 
         if (projects) {
             userOptional = tasks ? userRepository.findByIdWithProjectsAndTasks(id)
                     : userRepository.findByIdWithProjects(id);
+            map = tasks ? userMapper::toDtoWithProjectsAndTasks : userMapper::toDtoWithProjects;
+
         } else {
             userOptional = userRepository.findById(id);
+            map = userMapper::toDto;
         }
 
         User user = userOptional
                 .orElseThrow(() -> new EntityNotFoundByIdException(User.class, id));
 
-        return userMapper.toDto(user);
+        return map.apply(user);
     }
 
     public List<ProjectRD> getUserProjects(@NotNull UUID id) {

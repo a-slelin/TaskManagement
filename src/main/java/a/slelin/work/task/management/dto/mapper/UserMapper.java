@@ -28,8 +28,18 @@ public interface UserMapper {
 
     @Mapping(target = "id", qualifiedByName = "takeId")
     @Mapping(target = "gender", qualifiedByName = "takeGender")
-    @Mapping(target = "projects", qualifiedByName = "takeProjects")
+    @Mapping(target = "projects", ignore = true)
     UserRD toDto(User user);
+
+    @Mapping(target = "id", qualifiedByName = "takeId")
+    @Mapping(target = "gender", qualifiedByName = "takeGender")
+    @Mapping(target = "projects", qualifiedByName = "takeProjects")
+    UserRD toDtoWithProjects(User user);
+
+    @Mapping(target = "id", qualifiedByName = "takeId")
+    @Mapping(target = "gender", qualifiedByName = "takeGender")
+    @Mapping(target = "projects", qualifiedByName = "takeProjectsWithTasks")
+    UserRD toDtoWithProjectsAndTasks(User user);
 
     @Named("takeId")
     default String takeId(UUID id) {
@@ -49,6 +59,17 @@ public interface UserMapper {
 
         return projects.stream()
                 .map(Mappers.getMapper(ProjectMapper.class)::toDto)
+                .toList();
+    }
+
+    @Named("takeProjectsWithTasks")
+    default List<ProjectRD> takeProjectsWithTasks(List<Project> projects) {
+        if (projects == null) {
+            return List.of();
+        }
+
+        return projects.stream()
+                .map(Mappers.getMapper(ProjectMapper.class)::toDtoWithTasks)
                 .toList();
     }
 
