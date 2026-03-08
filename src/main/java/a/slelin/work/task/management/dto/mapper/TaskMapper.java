@@ -6,9 +6,7 @@ import a.slelin.work.task.management.dto.TaskWD;
 import a.slelin.work.task.management.entity.Project;
 import a.slelin.work.task.management.entity.Status;
 import a.slelin.work.task.management.entity.Task;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 
 @SuppressWarnings("unused")
 @Mapper(componentModel = "cdi")
@@ -43,4 +41,7 @@ public interface TaskMapper {
     default String takeUser(Task task) {
         return task.getProject().getUser().getId().toString();
     }
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    Task patch(@MappingTarget Task task, TaskWD taskDto);
 }

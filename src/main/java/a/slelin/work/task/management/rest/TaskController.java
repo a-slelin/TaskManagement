@@ -39,6 +39,12 @@ public class TaskController {
         return service.update(id, task);
     }
 
+    @PATCH
+    @Path("/{id}")
+    public TaskRD patchTask(@PathParam("id") Long id, TaskWD dto) {
+        return service.patch(id, dto);
+    }
+
     @PUT
     @Path("/{id}/project/{projectId}")
     public TaskRD setProject(@PathParam("id") Long id,

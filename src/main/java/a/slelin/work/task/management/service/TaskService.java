@@ -73,6 +73,16 @@ public class TaskService implements Service<Long, TaskRD, TaskWD> {
         return mapper.toDto(task);
     }
 
+    @Override
+    public TaskRD patch(@NotNull @Min(1) Long id, @NotNull @Valid TaskWD dto) {
+        Task task = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundByIdException(Task.class, id));
+
+        task = mapper.patch(task, dto);
+        task = repository.update(task);
+        return mapper.toDto(task);
+    }
+
     public TaskRD drawToProject(@NotNull @Min(1) Long projectId, @NotNull @Min(1) Long taskId) {
         Project newProject = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundByIdException(Project.class, projectId));

@@ -16,6 +16,8 @@ public interface Service<ID extends Serializable, RD extends ReadDto, WD extends
 
     RD update(@NotNull ID id, @NotNull @Valid WD dto);
 
+    RD patch(@NotNull ID id, @NotNull @Valid WD dto);
+
     RD create(@NotNull @Valid WD dto);
 
     void delete(@NotNull ID id);
