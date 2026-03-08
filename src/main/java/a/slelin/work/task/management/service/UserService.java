@@ -8,67 +8,128 @@ import a.slelin.work.task.management.dto.UserWD;
 import a.slelin.work.task.management.dto.mapper.ProjectMapper;
 import a.slelin.work.task.management.dto.mapper.UserMapper;
 import a.slelin.work.task.management.entity.User;
+import a.slelin.work.task.management.exception.EntityNotFoundByIdException;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Transactional
+@ApplicationScoped
 public class UserService implements Service<UUID, UserRD, UserWD> {
 
-    @Getter
-    private final static UserService instance = new UserService();
+    @Inject
+    private ProjectMapper projectMapper;
 
-    private final static ProjectMapper projectMapper = Mappers.getMapper(ProjectMapper.class);
+    @Inject
+    private ProjectDao projectRepository;
 
-    private final static ProjectDao projectRepository = ProjectDao.getInstance();
+    @Inject
+    private UserMapper userMapper;
 
-    private final static UserMapper mapper = Mappers.getMapper(UserMapper.class);
-
-    private final static UserDao repository = UserDao.getInstance();
+    @Inject
+    private UserDao userRepository;
 
     @Override
     public List<UserRD> getAll() {
-        return repository.findAll().stream()
-                .map(mapper::toDto)
+        return getAll(false, false);
+    }
+
+    public List<UserRD> getAll(boolean projects) {
+        return getAll(projects, false);
+    }
+
+    public List<UserRD> getAll(boolean projects, boolean tasks) {
+        List<User> users;
+
+        if (projects) {
+            users = tasks ? userRepository.findAllWithProjectsAndTasks()
+                    : userRepository.findAllWithProjects();
+        } else {
+            users = userRepository.findAll();
+        }
+
+        return users.stream()
+                .map(userMapper::toDto)
                 .toList();
     }
 
     @Override
-    public UserRD getById(UUID id) {
-        return mapper.toDto(repository.findById(id));
+    public UserRD getById(@NotNull UUID id) {
+        return getById(id, false, false);
+    }
+
+    public UserRD getById(@NotNull UUID id, boolean projects) {
+        return getById(id, projects, false);
+    }
+
+    public UserRD getById(@NotNull UUID id, boolean projects, boolean tasks) {
+        Optional<User> userOptional;
+
+        if (projects) {
+            userOptional = tasks ? userRepository.findByIdWithProjectsAndTasks(id)
+                    : userRepository.findByIdWithProjects(id);
+        } else {
+            userOptional = userRepository.findById(id);
+        }
+
+        User user = userOptional
+                .orElseThrow(() -> new EntityNotFoundByIdException(User.class, id));
+
+        return userMapper.toDto(user);
     }
 
     public List<ProjectRD> getUserProjects(@NotNull UUID id) {
-        return projectRepository.findByUser(id).stream()
-                .map(projectMapper::toDto).toList();
+        return getUserProjects(id, false);
+    }
+
+    public List<ProjectRD> getUserProjects(@NotNull UUID id, boolean tasks) {
+        if (!userRepository.existsById(id)) {
+            throw new EntityNotFoundByIdException(User.class, id);
+        }
+
+        return (tasks ? projectRepository.findByUserWithTasks(id) : projectRepository.findByUser(id))
+                .stream().map(projectMapper::toDto).toList();
     }
 
     @Override
-    public UserRD update(UUID id, UserWD dto) {
-        User user = mapper.toEntity(dto);
+    public UserRD create(@NotNull @Valid UserWD dto) {
+        User user = userMapper.toEntity(dto);
+        user = userRepository.create(user);
+        return userMapper.toDto(user);
+    }
+
+    @Override
+    public UserRD update(@NotNull UUID id, @NotNull @Valid UserWD dto) {
+        if (!userRepository.existsById(id)) {
+            throw new EntityNotFoundByIdException(User.class, id);
+        }
+
+        User user = userMapper.toEntity(dto);
         user.setId(id);
-        user = repository.update(user);
-        return mapper.toDto(user);
+        user = userRepository.update(user);
+        return userMapper.toDto(user);
     }
 
     @Override
-    public UserRD create(UserWD dto) {
-        User user = mapper.toEntity(dto);
-        user = repository.create(user);
-        return mapper.toDto(user);
-    }
+    public void delete(@NotNull UUID id) {
+        if (!userRepository.existsById(id)) {
+            throw new EntityNotFoundByIdException(User.class, id);
+        }
 
-    @Override
-    public void delete(UUID id) {
-        repository.delete(id);
+        userRepository.deleteById(id);
     }
 
     public void deleteUserProjects(@NotNull UUID id) {
+        if (!userRepository.existsById(id)) {
+            throw new EntityNotFoundByIdException(User.class, id);
+        }
+
         projectRepository.deleteByUser(id);
     }
 }
