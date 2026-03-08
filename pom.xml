@@ -81,6 +81,7 @@
         <version.jakarta.persistence>3.2.0</version.jakarta.persistence>
         <version.jakarta.jaxrs>4.0.0</version.jakarta.jaxrs>
         <version.jakarta.jta>2.0.1</version.jakarta.jta>
+        <version.jakarta.servlet>6.1.0</version.jakarta.servlet>
 
     </properties>
 
@@ -157,6 +158,14 @@
             <groupId>jakarta.transaction</groupId>
             <artifactId>jakarta.transaction-api</artifactId>
             <version>${version.jakarta.jta}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--Jakarta Servlet Api-->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>${version.jakarta.servlet}</version>
             <scope>provided</scope>
         </dependency>
 
