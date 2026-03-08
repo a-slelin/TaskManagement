@@ -63,13 +63,11 @@
         <version.plugin.surefire>3.5.5</version.plugin.surefire>
         <version.plugin.war>3.5.1</version.plugin.war>
         <version.plugin.install>3.1.4</version.plugin.install>
-        <version.plugin.tomcat>2.2</version.plugin.tomcat>
 
         <!--Libraries-->
 
         <!--Specific Libraries-->
         <version.lombok>1.18.42</version.lombok>
-        <version.postgresql>42.7.10</version.postgresql>
         <version.mapstruct>1.6.3</version.mapstruct>
         <version.hibernate.orm>7.2.6.Final</version.hibernate.orm>
         <version.hibernate.validator>9.1.0.Final</version.hibernate.validator>
@@ -91,14 +89,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${version.lombok}</version>
-        </dependency>
-
-        <!--PostgreSQL-->
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${version.postgresql}</version>
-            <scope>runtime</scope>
         </dependency>
 
         <!--MapStruct-->

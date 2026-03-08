@@ -116,6 +116,52 @@
 5) После чего перед нами откроется основная панель:
    ![Главная панель](images/wildfly/start/panel.jpg)
 
+## Создание DataSource в WildFly
+
+1) Сначала необходимо скачать Postgre драйвер и установить его как модуль, чтоб его смог увидеть WildFly. Если вам очень
+   лень скачивать что-то, то может при клонировании залезть в папочку **util/** и оттуда взять последнюю, на сегодняшний
+   момент, версию. Далее нужно установить этот драйвер по пути: **<путь к wildfly>\modules\org\postgresql\main**. После
+   чего также необходимо добавить xml конфиг (module.xml):
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <module xmlns="urn:jboss:module:1.9" name="org.postgresql">
+       <resources>
+              <resource-root path="postgresql-42.7.10.jar"/>
+       </resources>
+       <dependencies>
+           <module name="javax.api"/>
+           <module name="javax.transaction.api"/>
+       </dependencies>
+   </module>
+   ```
+
+2) Переходи в секцию конфигураций на главной панели:
+   ![Конфигурация](images/wildfly/datasource/config.jpg)
+3) Далее переходим по пути к необходимому ресурсу:
+   ![Путь](images/wildfly/datasource/path.jpg)
+4) Создаем новый Postgre драйвер (у меня уже создан):
+   ![Драйвер](images/wildfly/datasource/driver.jpg)
+
+Отлично! Драйвер есть, теперь осталось создать сам DataSource, это можно сделать в том же пути, следуя инструкциям ниже:
+
+![Шаблон](images/wildfly/datasource/ds-template.jpg)
+
+![Именование](images/wildfly/datasource/ds-name.jpg)
+
+![Драйвер](images/wildfly/datasource/ds-driver.jpg)
+
+![Подключение](images/wildfly/datasource/ds-connection.jpg)
+
+![Тестовое подключение](images/wildfly/datasource/ds-test-connection.jpg)
+
+![Успех тестового подключения](images/wildfly/datasource/ds-test-connection-successful.jpg)
+
+![Ревью](images/wildfly/datasource/ds-review.jpg)
+
+![Финиш](images/wildfly/datasource/ds-finish.jpg)
+
+Теперь datasource создан!
+
 ## Версии
 
 * Версия проекта **v1.0** - простое низкоуровневое веб-приложение.
