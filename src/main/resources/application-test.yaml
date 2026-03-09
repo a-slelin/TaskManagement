@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: Task Management System
+    version: 6.0
+
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        hbm2ddl:
+          auto: validate
+    open-in-view: true
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
+      data-locations: classpath:db/data.sql
+
+logging:
+  level:
+    root: info

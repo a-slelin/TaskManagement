@@ -10,7 +10,7 @@ public enum Status {
     BEGIN("begin", "b"),
     END("end", "e"),
     IN_PROGRESS("in_progress", "p"),
-    CANCELLED("canceled", "c"),
+    CANCELED("canceled", "c"),
     ON_HOLD("on_hold", "h");
 
     private final String displayName;

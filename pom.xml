@@ -62,8 +62,11 @@
 
         <!--Specific Libraries-->
         <version.lombok>1.18.42</version.lombok>
+        <version.logback>1.5.32</version.logback>
         <version.mapstruct>1.6.3</version.mapstruct>
         <version.postgresql>42.7.10</version.postgresql>
+        <version.h2>2.4.240</version.h2>
+        <version.httpclient>5.6</version.httpclient>
 
         <!--Spring Libraries-->
         <version.spring.boot>4.0.3</version.spring.boot>
@@ -81,6 +84,13 @@
             <version>${version.lombok}</version>
         </dependency>
 
+        <!--Logback-->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${version.logback}</version>
+        </dependency>
+
         <!--MapStruct-->
         <dependency>
             <groupId>org.mapstruct</groupId>
@@ -94,6 +104,22 @@
             <artifactId>postgresql</artifactId>
             <version>${version.postgresql}</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <!--H2-->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${version.h2}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--HttpClient-->
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>${version.httpclient}</version>
+            <scope>test</scope>
         </dependency>
 
         <!--Spring Libraries Block-->
@@ -131,6 +157,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
             <version>${version.spring.boot}</version>
+        </dependency>
+
+        <!--Spring Boot Test-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>${version.spring.boot}</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
