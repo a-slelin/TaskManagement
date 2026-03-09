@@ -10,7 +10,8 @@ import org.thymeleaf.templatemode.TemplateMode;
 
 @EnableWebMvc
 @Configuration
-@ComponentScan("a.slelin.work.task.management.controller")
+@ComponentScan({"a.slelin.work.task.management.controller",
+        "a.slelin.work.task.management.exception.handler"})
 public class WebConfig implements WebMvcConfigurer {
 
     @Bean

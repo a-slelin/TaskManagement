@@ -1,5 +1,6 @@
 package a.slelin.work.task.management.entity;
 
+import a.slelin.work.task.management.exception.EnumParseException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -27,6 +28,6 @@ public enum Gender {
             }
         }
 
-        throw new IllegalArgumentException(key + " is not a valid gender.");
+        throw new EnumParseException(Gender.class, key);
     }
 }
