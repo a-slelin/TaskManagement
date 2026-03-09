@@ -81,6 +81,7 @@ public class User extends Audit {
             cascade = CascadeType.ALL)
     private List<Project> projects;
 
+    @SuppressWarnings("unused")
     public void addProject(Project project) {
         if (projects == null) {
             projects = new ArrayList<>();
@@ -92,6 +93,7 @@ public class User extends Audit {
         }
     }
 
+    @SuppressWarnings("unused")
     public void removeProject(Project project) {
         if (projects == null) {
             projects = new ArrayList<>();
