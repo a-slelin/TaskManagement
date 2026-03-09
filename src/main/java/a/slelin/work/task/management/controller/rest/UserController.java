@@ -10,14 +10,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
-
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.fromMethodCall;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 @Validated
 @RestController
@@ -65,8 +63,10 @@ public class UserController {
     public ResponseEntity<ProjectRD> createUserProject(@PathVariable UUID id,
                                                        @RequestBody ProjectWD project) {
         ProjectRD savedProject = projectService.create(id, project);
-        URI location = fromMethodCall(on(ProjectController.class).getProject(savedProject.id(), false))
-                .build().toUri();
+        URI location = MvcUriComponentsBuilder
+                .fromMethodName(ProjectController.class, "getProject", savedProject.id(), false)
+                .build()
+                .toUri();
         return ResponseEntity.created(location)
                 .body(savedProject);
     }

@@ -11,12 +11,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.fromMethodCall;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 @Validated
 @RestController
@@ -49,14 +47,15 @@ public class ProjectController {
     @PostMapping("/{id}/tasks")
     public ResponseEntity<TaskRD> createTask(@PathVariable @Min(1) Long id,
                                              @RequestBody TaskWD task) {
-        TaskRD body = taskService.create(id, task);
-        URI location = fromMethodCall(on(TaskController.class).getTask(body.id()))
+        TaskRD savedTask = taskService.create(id, task);
+        URI location = MvcUriComponentsBuilder
+                .fromMethodName(TaskController.class, "getTask", savedTask.id())
                 .build()
                 .toUri();
 
         return ResponseEntity
                 .created(location)
-                .body(body);
+                .body(savedTask);
     }
 
     @PutMapping("/{id}")
