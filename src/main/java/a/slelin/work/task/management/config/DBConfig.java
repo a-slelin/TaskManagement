@@ -20,9 +20,9 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
-@EnableJpaRepositories
 @PropertySource("classpath:application.properties")
 @ComponentScan("a.slelin.work.task.management.repository")
+@EnableJpaRepositories("a.slelin.work.task.management.repository")
 public class DBConfig {
 
     @Bean
@@ -50,7 +50,7 @@ public class DBConfig {
     @Bean
     public Properties properties() {
         Properties properties = new Properties();
-        properties.put("hibernate.hbm2ddl.auto", "create-drop");
+        properties.put("hibernate.hbm2ddl.auto", "validate");
         properties.put("hibernate.format_sql", true);
         properties.put("hibernate.show_sql", true);
         properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
@@ -58,13 +58,13 @@ public class DBConfig {
     }
 
     @Bean
-    public EntityManagerFactory entityManagerFactory(DataSource dataSource, Properties properties) {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource, Properties properties) {
         var factoryBean = new LocalContainerEntityManagerFactoryBean();
         factoryBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
         factoryBean.setPackagesToScan("a.slelin.work.task.management.entity");
         factoryBean.setJpaProperties(properties);
         factoryBean.setDataSource(dataSource);
-        return factoryBean.getNativeEntityManagerFactory();
+        return factoryBean;
     }
 
     @Bean

@@ -4,7 +4,7 @@
 
     <groupId>a.slelin.work</groupId>
     <artifactId>task.management</artifactId>
-    <version>4.0</version>
+    <version>5.0-SNAPSHOT</version>
 
     <packaging>war</packaging>
 
@@ -75,6 +75,7 @@
         <version.hibernate.orm>7.2.6.Final</version.hibernate.orm>
         <version.hibernate.validator>9.1.0.Final</version.hibernate.validator>
         <version.thymeleaf>3.1.3.RELEASE</version.thymeleaf>
+        <version.aspectj>1.9.25.1</version.aspectj>
 
         <!--Jakarta Specification-->
         <version.jakarta.servlet>6.1.0</version.jakarta.servlet>
@@ -146,6 +147,14 @@
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf-spring6</artifactId>
             <version>${version.thymeleaf}</version>
+        </dependency>
+
+        <!--AspectJWeaver-->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${version.aspectj}</version>
+            <scope>runtime</scope>
         </dependency>
 
         <!--Jakarta Specification Libraries Block-->
