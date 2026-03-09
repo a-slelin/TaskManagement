@@ -46,6 +46,13 @@ public class TaskControllerCrudTest {
 
         List<TaskRD> tasks = response.getBody();
         assertNotNull(tasks);
+
+        tasks.forEach(task -> {
+            assertNotNull(task);
+            assertNotNull(task.id());
+            assertNotNull(task.project());
+            assertNotNull(task.user());
+        });
     }
 
     @Test
@@ -68,6 +75,8 @@ public class TaskControllerCrudTest {
         assertNotNull(task);
         assertNotNull(task.id());
         assertEquals(id, task.id());
+        assertNotNull(task.project());
+        assertNotNull(task.user());
     }
 
     @Test
