@@ -1,8 +1,5 @@
 package a.slelin.work.task.management.service;
 
-import a.slelin.work.task.management.dao.ProjectDao;
-import a.slelin.work.task.management.dao.TaskDao;
-import a.slelin.work.task.management.dao.UserDao;
 import a.slelin.work.task.management.dto.ProjectRD;
 import a.slelin.work.task.management.dto.ProjectWD;
 import a.slelin.work.task.management.dto.TaskRD;
@@ -12,71 +9,70 @@ import a.slelin.work.task.management.entity.Project;
 import a.slelin.work.task.management.entity.Task;
 import a.slelin.work.task.management.entity.User;
 import a.slelin.work.task.management.exception.EntityNotFoundByIdException;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
+import a.slelin.work.task.management.repository.ProjectRepository;
+import a.slelin.work.task.management.repository.TaskRepository;
+import a.slelin.work.task.management.repository.UserRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
+@Service
+@Validated
 @Transactional
-@ApplicationScoped
-public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
+@RequiredArgsConstructor
+public class ProjectService implements CrudService<Long, ProjectRD, ProjectWD> {
 
-    @Inject
-    private UserDao userRepository;
+    private final ProjectMapper projectMapper;
 
-    @Inject
-    private TaskMapper taskMapper;
+    private final ProjectRepository projectRepository;
 
-    @Inject
-    private TaskDao taskRepository;
+    private final TaskMapper taskMapper;
 
-    @Inject
-    private ProjectMapper projectMapper;
+    private final TaskRepository taskRepository;
 
-    @Inject
-    private ProjectDao projectRepository;
+    private final UserRepository userRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProjectRD> getAll() {
         return getAll(false);
     }
 
+    @Transactional(readOnly = true)
     public List<ProjectRD> getAll(boolean tasks) {
-        return (tasks ? projectRepository.findAllWithTasks() : projectRepository.findAll())
-                .stream().map(tasks ? projectMapper::toDtoWithTasks : projectMapper::toDto).toList();
+        return projectRepository.findAll()
+                .stream()
+                .map(tasks ? projectMapper::toDtoWithTasks : projectMapper::toDto)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ProjectRD getById(@NotNull Long id) {
         return getById(id, false);
     }
 
+    @Transactional(readOnly = true)
     public ProjectRD getById(@NotNull Long id, boolean tasks) {
-        Optional<Project> projectOptional;
-
-        if (tasks) {
-            projectOptional = projectRepository.findByIdWithTasks(id);
-        } else {
-            projectOptional = projectRepository.findById(id);
-        }
-
-        Project project = projectOptional
+        Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundByIdException(Project.class, id));
 
         return tasks ? projectMapper.toDtoWithTasks(project) : projectMapper.toDto(project);
     }
 
+    @Transactional(readOnly = true)
     public List<TaskRD> getProjectTasks(@NotNull Long id) {
         if (!projectRepository.existsById(id)) {
             throw new EntityNotFoundByIdException(Project.class, id);
         }
 
-        return taskRepository.findByProject(id).stream()
+        return taskRepository.findByProjectId(id).stream()
                 .map(taskMapper::toDto).toList();
     }
 
@@ -91,7 +87,7 @@ public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
 
         Project project = projectMapper.toEntity(dto);
         project.setUser(user);
-        project = projectRepository.create(project);
+        project = projectRepository.save(project);
         return projectMapper.toDto(project);
     }
 
@@ -104,7 +100,7 @@ public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
         updatedProject.setId(id);
         updatedProject.setTasks(project.getTasks());
         updatedProject.setUser(project.getUser());
-        updatedProject = projectRepository.update(updatedProject);
+        updatedProject = projectRepository.save(updatedProject);
         return projectMapper.toDto(updatedProject);
     }
 
@@ -114,7 +110,7 @@ public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
                 .orElseThrow(() -> new EntityNotFoundByIdException(Project.class, id));
 
         project = projectMapper.patch(project, dto);
-        project = projectRepository.update(project);
+        project = projectRepository.save(project);
         return projectMapper.toDto(project);
     }
 
@@ -132,6 +128,6 @@ public class ProjectService implements Service<Long, ProjectRD, ProjectWD> {
             throw new EntityNotFoundByIdException(Task.class, id);
         }
 
-        taskRepository.deleteByProject(id);
+        taskRepository.deleteByProjectId(id);
     }
 }

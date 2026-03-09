@@ -1,7 +1,5 @@
 package a.slelin.work.task.management.service;
 
-import a.slelin.work.task.management.dao.ProjectDao;
-import a.slelin.work.task.management.dao.UserDao;
 import a.slelin.work.task.management.dto.ProjectRD;
 import a.slelin.work.task.management.dto.UserRD;
 import a.slelin.work.task.management.dto.UserWD;
@@ -9,106 +7,106 @@ import a.slelin.work.task.management.dto.mapper.ProjectMapper;
 import a.slelin.work.task.management.dto.mapper.UserMapper;
 import a.slelin.work.task.management.entity.User;
 import a.slelin.work.task.management.exception.EntityNotFoundByIdException;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
+import a.slelin.work.task.management.repository.ProjectRepository;
+import a.slelin.work.task.management.repository.UserRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
+@Service
+@Validated
 @Transactional
-@ApplicationScoped
-public class UserService implements Service<UUID, UserRD, UserWD> {
+@RequiredArgsConstructor
+public class UserService implements CrudService<UUID, UserRD, UserWD> {
 
-    @Inject
-    private ProjectMapper projectMapper;
+    private final ProjectMapper projectMapper;
 
-    @Inject
-    private ProjectDao projectRepository;
+    private final ProjectRepository projectRepository;
 
-    @Inject
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
 
-    @Inject
-    private UserDao userRepository;
+    private final UserRepository userRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserRD> getAll() {
         return getAll(false, false);
     }
 
+    @Transactional(readOnly = true)
     public List<UserRD> getAll(boolean projects) {
         return getAll(projects, false);
     }
 
+    @Transactional(readOnly = true)
     public List<UserRD> getAll(boolean projects, boolean tasks) {
-        List<User> users;
         Function<User, UserRD> map;
 
         if (projects) {
-            users = tasks ? userRepository.findAllWithProjectsAndTasks()
-                    : userRepository.findAllWithProjects();
             map = tasks ? userMapper::toDtoWithProjectsAndTasks : userMapper::toDtoWithProjects;
         } else {
-            users = userRepository.findAll();
             map = userMapper::toDto;
         }
 
-        return users.stream()
+        return userRepository.findAll().stream()
                 .map(map)
                 .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserRD getById(@NotNull UUID id) {
         return getById(id, false, false);
     }
 
+    @Transactional(readOnly = true)
     public UserRD getById(@NotNull UUID id, boolean projects) {
         return getById(id, projects, false);
     }
 
+    @Transactional(readOnly = true)
     public UserRD getById(@NotNull UUID id, boolean projects, boolean tasks) {
-        Optional<User> userOptional;
         Function<User, UserRD> map;
 
         if (projects) {
-            userOptional = tasks ? userRepository.findByIdWithProjectsAndTasks(id)
-                    : userRepository.findByIdWithProjects(id);
             map = tasks ? userMapper::toDtoWithProjectsAndTasks : userMapper::toDtoWithProjects;
-
         } else {
-            userOptional = userRepository.findById(id);
             map = userMapper::toDto;
         }
 
-        User user = userOptional
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundByIdException(User.class, id));
 
         return map.apply(user);
     }
 
+    @Transactional(readOnly = true)
     public List<ProjectRD> getUserProjects(@NotNull UUID id) {
         return getUserProjects(id, false);
     }
 
+    @Transactional(readOnly = true)
     public List<ProjectRD> getUserProjects(@NotNull UUID id, boolean tasks) {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundByIdException(User.class, id);
         }
 
-        return (tasks ? projectRepository.findByUserWithTasks(id) : projectRepository.findByUser(id))
-                .stream().map(projectMapper::toDto).toList();
+        return projectRepository.findByUserId(id).stream()
+                .map(tasks ? projectMapper::toDtoWithTasks : projectMapper::toDto)
+                .toList();
     }
 
     @Override
     public UserRD create(@NotNull @Valid UserWD dto) {
         User user = userMapper.toEntity(dto);
-        user = userRepository.create(user);
+        user = userRepository.save(user);
         return userMapper.toDto(user);
     }
 
@@ -120,7 +118,7 @@ public class UserService implements Service<UUID, UserRD, UserWD> {
         User updatedUser = userMapper.toEntity(dto);
         updatedUser.setId(id);
         updatedUser.setProjects(user.getProjects());
-        updatedUser = userRepository.update(updatedUser);
+        updatedUser = userRepository.save(updatedUser);
         return userMapper.toDto(updatedUser);
     }
 
@@ -130,7 +128,7 @@ public class UserService implements Service<UUID, UserRD, UserWD> {
                 .orElseThrow(() -> new EntityNotFoundByIdException(User.class, id));
 
         user = userMapper.patch(user, dto);
-        user = userRepository.update(user);
+        user = userRepository.save(user);
         return userMapper.toDto(user);
     }
 
@@ -148,6 +146,6 @@ public class UserService implements Service<UUID, UserRD, UserWD> {
             throw new EntityNotFoundByIdException(User.class, id);
         }
 
-        projectRepository.deleteByUser(id);
+        projectRepository.deleteByUserId(id);
     }
 }

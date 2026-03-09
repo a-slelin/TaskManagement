@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <!--/*@thymesVar id="title" type="java.lang.String"*/-->
+    <title th:text="${title}">Welcome</title>
+    <link rel="icon" th:href="@{/static/images/icon.svg}" type="image/svg"/>
+    <style>
+        .center {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .center img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="center">
+    <!--/*@thymesVar id="title" type="java.lang.String"*/-->
+    <h1 th:text="${title}">Welcome</h1>
+    <img alt="Welcome" height="550" th:src="@{/static/images/logo.jpg}"
+         width="900"/>
+</div>
+</body>
+</html>

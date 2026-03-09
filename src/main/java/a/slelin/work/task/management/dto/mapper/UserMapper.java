@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @SuppressWarnings("unused")
-@Mapper(componentModel = "cdi")
+@Mapper(componentModel = "spring")
 public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)

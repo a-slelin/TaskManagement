@@ -1,5 +1,6 @@
 package a.slelin.work.task.management.entity;
 
+import a.slelin.work.task.management.exception.EnumParseException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -29,6 +30,6 @@ public enum Status {
             }
         }
 
-        throw new IllegalArgumentException(key + " is not a valid status.");
+        throw new EnumParseException(Status.class, key);
     }
 }
