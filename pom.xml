@@ -71,7 +71,7 @@
         <version.mapstruct>1.6.3</version.mapstruct>
         <version.bcrypt>0.3</version.bcrypt>
         <version.postgresql>42.7.10</version.postgresql>
-        <version.jackson>2.19.1</version.jackson>
+        <version.jackson>3.1.0</version.jackson>
         <version.hibernate.orm>7.2.6.Final</version.hibernate.orm>
         <version.hibernate.validator>9.1.0.Final</version.hibernate.validator>
         <version.thymeleaf>3.1.3.RELEASE</version.thymeleaf>
@@ -120,11 +120,10 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!--Jackson Datatype-->
-        <!--suppress VulnerableLibrariesLocal -->
+        <!--Jackson Json-->
         <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
             <version>${version.jackson}</version>
         </dependency>
 

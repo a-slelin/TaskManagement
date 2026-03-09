@@ -1,12 +1,15 @@
 package a.slelin.work.task.management.exception;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import a.slelin.work.task.management.util.HttpMethodDeserializer;
+import a.slelin.work.task.management.util.HttpMethodSerializer;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.context.request.ServletWebRequest;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,6 +17,8 @@ import java.util.Map;
 
 @Builder
 public record ErrorResponse(@NotBlank String path,
+                            @JsonSerialize(using = HttpMethodSerializer.class)
+                            @JsonDeserialize(using = HttpMethodDeserializer.class)
                             @NotNull HttpMethod httpMethod,
                             @NotNull HttpStatus httpStatus,
                             String debugMessage,
@@ -21,7 +26,6 @@ public record ErrorResponse(@NotBlank String path,
                             @NotNull String exception,
                             String causeException,
                             Map<String, Object> details,
-                            @JsonFormat(pattern = TIME_STAMP_PATTERN)
                             @NotNull LocalDateTime timeStamp) {
 
     public final static String TIME_STAMP_PATTERN = "dd.MM.yyyy HH:mm:ss";

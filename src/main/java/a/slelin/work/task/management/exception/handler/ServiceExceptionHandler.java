@@ -5,6 +5,7 @@ import a.slelin.work.task.management.exception.EnumParseException;
 import a.slelin.work.task.management.exception.ErrorResponse;
 import a.slelin.work.task.management.exception.ValidationError;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,6 +14,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 
 import java.util.Map;
 
+@Order(1)
 @RestControllerAdvice
 public class ServiceExceptionHandler {
 
