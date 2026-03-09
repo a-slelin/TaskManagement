@@ -6,76 +6,93 @@ import a.slelin.work.task.management.dto.UserWD;
 import a.slelin.work.task.management.entity.Gender;
 import a.slelin.work.task.management.entity.Project;
 import a.slelin.work.task.management.entity.User;
+import lombok.RequiredArgsConstructor;
 import org.mapstruct.*;
-import org.mapstruct.factory.Mappers;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.UUID;
 
 @SuppressWarnings("unused")
 @Mapper(componentModel = "spring")
-public interface UserMapper {
+public abstract class UserMapper {
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    protected PasswordEncoder encoder;
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    protected ProjectMapper projectMapper;
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "projects", ignore = true)
+    @Mapping(target = "password", qualifiedByName = "getPassword")
     @Mapping(target = "gender", qualifiedByName = "getGender")
-    User toEntity(UserWD user);
+    public abstract User toEntity(UserWD user);
 
     @Named("getGender")
-    default Gender getGender(String genderStr) {
+    protected Gender getGender(String genderStr) {
         return Gender.of(genderStr);
+    }
+
+    @Named("getPassword")
+    protected String getPassword(String password) {
+        return encoder.encode(password);
     }
 
     @Mapping(target = "id", qualifiedByName = "takeId")
     @Mapping(target = "gender", qualifiedByName = "takeGender")
     @Mapping(target = "projects", ignore = true)
-    UserRD toDto(User user);
+    public abstract UserRD toDto(User user);
 
     @Mapping(target = "id", qualifiedByName = "takeId")
     @Mapping(target = "gender", qualifiedByName = "takeGender")
     @Mapping(target = "projects", qualifiedByName = "takeProjects")
-    UserRD toDtoWithProjects(User user);
+    public abstract UserRD toDtoWithProjects(User user);
 
     @Mapping(target = "id", qualifiedByName = "takeId")
     @Mapping(target = "gender", qualifiedByName = "takeGender")
     @Mapping(target = "projects", qualifiedByName = "takeProjectsWithTasks")
-    UserRD toDtoWithProjectsAndTasks(User user);
+    public abstract UserRD toDtoWithProjectsAndTasks(User user);
 
     @Named("takeId")
-    default String takeId(UUID id) {
+    protected String takeId(UUID id) {
         return id.toString();
     }
 
     @Named("takeGender")
-    default String takeGender(Gender gender) {
+    protected String takeGender(Gender gender) {
         return gender.getDisplayName();
     }
 
     @Named("takeProjects")
-    default List<ProjectRD> takeProjects(List<Project> projects) {
+    protected List<ProjectRD> takeProjects(List<Project> projects) {
         if (projects == null) {
             return List.of();
         }
 
         return projects.stream()
-                .map(Mappers.getMapper(ProjectMapper.class)::toDto)
+                .map(projectMapper::toDto)
                 .toList();
     }
 
     @Named("takeProjectsWithTasks")
-    default List<ProjectRD> takeProjectsWithTasks(List<Project> projects) {
+    protected List<ProjectRD> takeProjectsWithTasks(List<Project> projects) {
         if (projects == null) {
             return List.of();
         }
 
         return projects.stream()
-                .map(Mappers.getMapper(ProjectMapper.class)::toDtoWithTasks)
+                .map(projectMapper::toDtoWithTasks)
                 .toList();
     }
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "projects", ignore = true)
     @Mapping(target = "gender", qualifiedByName = "getGender")
+    @Mapping(target = "password", qualifiedByName = "getPassword")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    User patch(@MappingTarget User user, UserWD userDto);
+    public abstract User patch(@MappingTarget User user, UserWD userDto);
 }

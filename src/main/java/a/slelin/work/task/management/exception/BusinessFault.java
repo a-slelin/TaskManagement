@@ -1,5 +1,6 @@
 package a.slelin.work.task.management.exception;
 
+@SuppressWarnings("unused")
 public class BusinessFault extends RuntimeException {
 
     public BusinessFault() {

@@ -40,6 +40,7 @@ public class UserService implements CrudService<UUID, UserRD, UserWD> {
         return getAll(false, false);
     }
 
+    @SuppressWarnings("unused")
     @Transactional(readOnly = true)
     public List<UserRD> getAll(boolean projects) {
         return getAll(projects, false);
@@ -66,6 +67,7 @@ public class UserService implements CrudService<UUID, UserRD, UserWD> {
         return getById(id, false, false);
     }
 
+    @SuppressWarnings("unused")
     @Transactional(readOnly = true)
     public UserRD getById(@NotNull UUID id, boolean projects) {
         return getById(id, projects, false);
@@ -87,6 +89,7 @@ public class UserService implements CrudService<UUID, UserRD, UserWD> {
         return map.apply(user);
     }
 
+    @SuppressWarnings("unused")
     @Transactional(readOnly = true)
     public List<ProjectRD> getUserProjects(@NotNull UUID id) {
         return getUserProjects(id, false);
