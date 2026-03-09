@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/")
 public class WelcomeController {
 
-    @ModelAttribute
+    @ModelAttribute("title")
     public String title() {
         return "Welcome to Task Management System!!!";
     }
