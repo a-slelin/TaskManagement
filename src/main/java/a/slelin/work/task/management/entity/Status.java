@@ -22,6 +22,8 @@ public enum Status {
             return null;
         }
 
+        key = key.trim();
+
         for (Status status : Status.values()) {
             if (key.equalsIgnoreCase(status.name()) ||
                     key.equalsIgnoreCase(status.displayName) ||

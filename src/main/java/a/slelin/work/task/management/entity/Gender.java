@@ -20,6 +20,8 @@ public enum Gender {
             return null;
         }
 
+        key = key.trim();
+
         for (Gender value : Gender.values()) {
             if (key.equalsIgnoreCase(value.name()) ||
                     key.equalsIgnoreCase(value.displayName) ||
