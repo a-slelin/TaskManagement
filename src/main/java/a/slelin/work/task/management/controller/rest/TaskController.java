@@ -14,8 +14,8 @@ import java.util.List;
 @Validated
 @RestController
 @RequestMapping(value = "/api/tasks",
-        produces = "application/json",
-        consumes = "application/json")
+        produces = {"application/json", "application/xml", "application/yaml"},
+        consumes = {"application/json", "application/xml", "application/yaml"})
 @RequiredArgsConstructor
 public class TaskController {
 

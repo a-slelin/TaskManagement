@@ -20,8 +20,8 @@ import java.util.UUID;
 @Validated
 @RestController
 @RequestMapping(value = "/api/users",
-        consumes = "application/json",
-        produces = "application/json")
+        consumes = {"application/json", "application/xml", "application/yaml"},
+        produces = {"application/json", "application/xml", "application/yaml"})
 @RequiredArgsConstructor
 public class UserController {
 

@@ -67,6 +67,7 @@
         <version.postgresql>42.7.10</version.postgresql>
         <version.h2>2.4.240</version.h2>
         <version.httpclient>5.6</version.httpclient>
+        <version.jackson>3.1.0</version.jackson>
 
         <!--Spring Libraries-->
         <version.spring.boot>4.0.3</version.spring.boot>
@@ -120,6 +121,20 @@
             <artifactId>httpclient5</artifactId>
             <version>${version.httpclient}</version>
             <scope>test</scope>
+        </dependency>
+
+        <!--Jackson Xml-->
+        <dependency>
+            <groupId>tools.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+            <version>${version.jackson}</version>
+        </dependency>
+
+        <!--Jackson Yaml-->
+        <dependency>
+            <groupId>tools.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>${version.jackson}</version>
         </dependency>
 
         <!--Spring Libraries Block-->
