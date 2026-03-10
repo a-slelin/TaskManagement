@@ -71,6 +71,7 @@
 
         <!--Spring Libraries-->
         <version.spring.boot>4.0.3</version.spring.boot>
+        <version.spring.boot.aop>3.5.11</version.spring.boot.aop>
 
     </properties>
 
@@ -187,6 +188,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-liquibase</artifactId>
             <version>${version.spring.boot}</version>
+        </dependency>
+
+        <!--Spring Boot Aop-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+            <version>${version.spring.boot.aop}</version>
         </dependency>
 
     </dependencies>
