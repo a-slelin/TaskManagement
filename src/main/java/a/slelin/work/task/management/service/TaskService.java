@@ -1,5 +1,6 @@
 package a.slelin.work.task.management.service;
 
+import a.slelin.work.task.management.dto.SheetDto;
 import a.slelin.work.task.management.dto.TaskRD;
 import a.slelin.work.task.management.dto.TaskWD;
 import a.slelin.work.task.management.dto.mapper.TaskMapper;
@@ -12,11 +13,10 @@ import a.slelin.work.task.management.repository.TaskRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-
-import java.util.List;
 
 @Service
 @Validated
@@ -32,10 +32,8 @@ public class TaskService implements CrudService<Long, TaskRD, TaskWD> {
 
     @Override
     @Transactional(readOnly = true)
-    public List<TaskRD> getAll() {
-        return repository.findAll()
-                .stream().map(mapper::toDto)
-                .toList();
+    public SheetDto<TaskRD> getAll(@NotNull @Valid Pageable pageable) {
+        return SheetDto.of(repository.findAll(pageable), mapper::toDto);
     }
 
     @Override

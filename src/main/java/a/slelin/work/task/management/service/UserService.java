@@ -1,6 +1,7 @@
 package a.slelin.work.task.management.service;
 
 import a.slelin.work.task.management.dto.ProjectRD;
+import a.slelin.work.task.management.dto.SheetDto;
 import a.slelin.work.task.management.dto.UserRD;
 import a.slelin.work.task.management.dto.UserWD;
 import a.slelin.work.task.management.dto.mapper.ProjectMapper;
@@ -12,11 +13,11 @@ import a.slelin.work.task.management.repository.UserRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -36,18 +37,18 @@ public class UserService implements CrudService<UUID, UserRD, UserWD> {
 
     @Override
     @Transactional(readOnly = true)
-    public List<UserRD> getAll() {
-        return getAll(false, false);
+    public SheetDto<UserRD> getAll(@NotNull @Valid Pageable pageable) {
+        return getAll(pageable, false, false);
     }
 
     @SuppressWarnings("unused")
     @Transactional(readOnly = true)
-    public List<UserRD> getAll(boolean projects) {
-        return getAll(projects, false);
+    public SheetDto<UserRD> getAll(@NotNull @Valid Pageable pageable, boolean projects) {
+        return getAll(pageable, projects, false);
     }
 
     @Transactional(readOnly = true)
-    public List<UserRD> getAll(boolean projects, boolean tasks) {
+    public SheetDto<UserRD> getAll(@NotNull @Valid Pageable pageable, boolean projects, boolean tasks) {
         Function<User, UserRD> map;
 
         if (projects) {
@@ -56,9 +57,7 @@ public class UserService implements CrudService<UUID, UserRD, UserWD> {
             map = userMapper::toDto;
         }
 
-        return userRepository.findAll().stream()
-                .map(map)
-                .toList();
+        return SheetDto.of(userRepository.findAll(pageable), map);
     }
 
     @Override
@@ -91,19 +90,18 @@ public class UserService implements CrudService<UUID, UserRD, UserWD> {
 
     @SuppressWarnings("unused")
     @Transactional(readOnly = true)
-    public List<ProjectRD> getUserProjects(@NotNull UUID id) {
-        return getUserProjects(id, false);
+    public SheetDto<ProjectRD> getUserProjects(@NotNull @Valid Pageable pageable, @NotNull UUID id) {
+        return getUserProjects(pageable, id, false);
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectRD> getUserProjects(@NotNull UUID id, boolean tasks) {
+    public SheetDto<ProjectRD> getUserProjects(@NotNull @Valid Pageable pageable, @NotNull UUID id, boolean tasks) {
         if (!userRepository.existsById(id)) {
             throw new EntityNotFoundByIdException(User.class, id);
         }
 
-        return projectRepository.findByUserId(id).stream()
-                .map(tasks ? projectMapper::toDtoWithTasks : projectMapper::toDto)
-                .toList();
+        return SheetDto.of(projectRepository.findByUserId(id, pageable), tasks ?
+                projectMapper::toDtoWithTasks : projectMapper::toDto);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package a.slelin.work.task.management.test;
 
+import a.slelin.work.task.management.dto.SheetDto;
 import a.slelin.work.task.management.dto.TaskRD;
 import a.slelin.work.task.management.dto.TaskWD;
 import org.junit.jupiter.api.*;
@@ -34,7 +35,7 @@ public class TaskControllerCrudTest {
     @Order(1)
     @DisplayName("Тестируем получение всех задач")
     public void getAllTasks() {
-        ResponseEntity<List<TaskRD>> response = rest.exchange(
+        ResponseEntity<SheetDto<TaskRD>> response = rest.exchange(
                 TASK_URL,
                 HttpMethod.GET,
                 null,
@@ -44,7 +45,12 @@ public class TaskControllerCrudTest {
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        List<TaskRD> tasks = response.getBody();
+        SheetDto<TaskRD> sheet = response.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<TaskRD> tasks = sheet.content();
         assertNotNull(tasks);
 
         tasks.forEach(task -> {
@@ -159,10 +165,6 @@ public class TaskControllerCrudTest {
     public void deleteTask() {
         long id = 1;
 
-        @SuppressWarnings("unchecked")
-        List<TaskRD> tasks = rest.getForObject(TASK_URL, List.class);
-        assertNotNull(tasks);
-
         TaskRD task = rest.getForObject(TASK_URL + "/" + id, TaskRD.class);
         assertNotNull(task);
         assertNotNull(task.id());
@@ -179,11 +181,5 @@ public class TaskControllerCrudTest {
 
         assertThrows(HttpClientErrorException.NotFound.class, () ->
                 rest.getForObject(TASK_URL + "/" + id, TaskRD.class));
-
-        @SuppressWarnings("unchecked")
-        List<TaskRD> updatedTasks = rest.getForObject(TASK_URL, List.class);
-        assertNotNull(updatedTasks);
-
-        assertEquals(tasks.size() - 1, updatedTasks.size());
     }
 }

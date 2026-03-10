@@ -1,6 +1,7 @@
 package a.slelin.work.task.management.test;
 
 import a.slelin.work.task.management.dto.ProjectRD;
+import a.slelin.work.task.management.dto.SheetDto;
 import a.slelin.work.task.management.dto.TaskRD;
 import a.slelin.work.task.management.dto.UserRD;
 import a.slelin.work.task.management.exception.ErrorResponse;
@@ -38,7 +39,7 @@ public class BusinessProcessesTest {
     public void testDrawProject() {
 
         // Берём случайного пользователя из всех пользователей
-        ResponseEntity<List<UserRD>> responseAllUsers = rest.exchange(
+        ResponseEntity<SheetDto<UserRD>> responseAllUsers = rest.exchange(
                 USER_URL,
                 HttpMethod.GET,
                 null,
@@ -48,7 +49,11 @@ public class BusinessProcessesTest {
         assertNotNull(responseAllUsers.getStatusCode());
         assertEquals(HttpStatus.OK, responseAllUsers.getStatusCode());
 
-        List<UserRD> users = responseAllUsers.getBody();
+        SheetDto<UserRD> sheet = responseAllUsers.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+        List<UserRD> users = sheet.content();
         assertNotNull(users);
         assertFalse(users.isEmpty());
 
@@ -58,7 +63,7 @@ public class BusinessProcessesTest {
         String userId = user.id();
         assertNotNull(userId);
 
-        ResponseEntity<List<ProjectRD>> responseUserProjects = rest.exchange(
+        ResponseEntity<SheetDto<ProjectRD>> responseUserProjects = rest.exchange(
                 USER_URL + "/" + userId + "/projects?tasks",
                 HttpMethod.GET,
                 null,
@@ -74,7 +79,11 @@ public class BusinessProcessesTest {
          * У него должно быть хотя бы 2 проекта.
          * В первом проекте должна быть хотя бы одна задача.
          * */
-        List<ProjectRD> projects = responseUserProjects.getBody();
+        SheetDto<ProjectRD> sheet2 = responseUserProjects.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+        assertNotNull(sheet2.content());
+        List<ProjectRD> projects = sheet2.content();
         assertNotNull(projects);
         assertTrue(projects.size() >= 2);
 
@@ -148,7 +157,7 @@ public class BusinessProcessesTest {
     public void testDrawProject2() {
 
         // Берём случайного пользователя из всех пользователей
-        ResponseEntity<List<UserRD>> responseAllUsers = rest.exchange(
+        ResponseEntity<SheetDto<UserRD>> responseAllUsers = rest.exchange(
                 USER_URL,
                 HttpMethod.GET,
                 null,
@@ -158,7 +167,12 @@ public class BusinessProcessesTest {
         assertNotNull(responseAllUsers.getStatusCode());
         assertEquals(HttpStatus.OK, responseAllUsers.getStatusCode());
 
-        List<UserRD> users = responseAllUsers.getBody();
+        SheetDto<UserRD> sheet = responseAllUsers.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<UserRD> users = sheet.content();
         assertNotNull(users);
         assertFalse(users.isEmpty());
 
@@ -168,7 +182,7 @@ public class BusinessProcessesTest {
         String userId = user.id();
         assertNotNull(userId);
 
-        ResponseEntity<List<ProjectRD>> responseUserProjects = rest.exchange(
+        ResponseEntity<SheetDto<ProjectRD>> responseUserProjects = rest.exchange(
                 USER_URL + "/" + userId + "/projects?tasks",
                 HttpMethod.GET,
                 null,
@@ -183,7 +197,12 @@ public class BusinessProcessesTest {
          * Теперь у этого пользователя берём его проект.
          * В проекте должна быть хотя бы одна задача.
          * */
-        List<ProjectRD> projects = responseUserProjects.getBody();
+        SheetDto<ProjectRD> sheet2 = responseUserProjects.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+        assertNotNull(sheet2.content());
+
+        List<ProjectRD> projects = sheet2.content();
         assertNotNull(projects);
         assertFalse(projects.isEmpty());
 
@@ -248,7 +267,7 @@ public class BusinessProcessesTest {
     public void testDrawProject3() {
 
         // Берём случайных 2 пользователей из всех пользователей
-        ResponseEntity<List<UserRD>> responseAllUsers = rest.exchange(
+        ResponseEntity<SheetDto<UserRD>> responseAllUsers = rest.exchange(
                 USER_URL,
                 HttpMethod.GET,
                 null,
@@ -258,7 +277,12 @@ public class BusinessProcessesTest {
         assertNotNull(responseAllUsers.getStatusCode());
         assertEquals(HttpStatus.OK, responseAllUsers.getStatusCode());
 
-        List<UserRD> users = responseAllUsers.getBody();
+        SheetDto<UserRD> sheet = responseAllUsers.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<UserRD> users = sheet.content();
         assertNotNull(users);
         assertTrue(users.size() >= 2);
 
@@ -272,7 +296,7 @@ public class BusinessProcessesTest {
         assertNotNull(user1Id);
         assertNotNull(user2Id);
 
-        ResponseEntity<List<ProjectRD>> responseUser1Projects = rest.exchange(
+        ResponseEntity<SheetDto<ProjectRD>> responseUser1Projects = rest.exchange(
                 USER_URL + "/" + user1Id + "/projects?tasks",
                 HttpMethod.GET,
                 null,
@@ -283,7 +307,7 @@ public class BusinessProcessesTest {
         assertNotNull(responseUser1Projects.getStatusCode());
         assertEquals(HttpStatus.OK, responseUser1Projects.getStatusCode());
 
-        ResponseEntity<List<ProjectRD>> responseUser2Projects = rest.exchange(
+        ResponseEntity<SheetDto<ProjectRD>> responseUser2Projects = rest.exchange(
                 USER_URL + "/" + user2Id + "/projects?tasks",
                 HttpMethod.GET,
                 null,
@@ -298,11 +322,21 @@ public class BusinessProcessesTest {
          * У каждого из пользователей должно быть по проекту.
          * Причём у первого должна быть хотя бы одна задача.
          * */
-        List<ProjectRD> projects1 = responseUser1Projects.getBody();
+        SheetDto<ProjectRD> sheet2 = responseUser1Projects.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+        assertNotNull(sheet2.content());
+
+        List<ProjectRD> projects1 = sheet2.content();
         assertNotNull(projects1);
         assertFalse(projects1.isEmpty());
 
-        List<ProjectRD> projects2 = responseUser2Projects.getBody();
+        SheetDto<ProjectRD> sheet3 = responseUser2Projects.getBody();
+        assertNotNull(sheet3);
+        assertNotNull(sheet3.page());
+        assertNotNull(sheet3.content());
+
+        List<ProjectRD> projects2 = sheet3.content();
         assertNotNull(projects2);
         assertFalse(projects2.isEmpty());
 

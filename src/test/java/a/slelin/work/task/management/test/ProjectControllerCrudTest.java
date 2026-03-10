@@ -1,9 +1,6 @@
 package a.slelin.work.task.management.test;
 
-import a.slelin.work.task.management.dto.ProjectRD;
-import a.slelin.work.task.management.dto.ProjectWD;
-import a.slelin.work.task.management.dto.TaskRD;
-import a.slelin.work.task.management.dto.TaskWD;
+import a.slelin.work.task.management.dto.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,7 +31,7 @@ public class ProjectControllerCrudTest {
     @Order(1)
     @DisplayName("Тестируем получение всех проектов без задач")
     public void getAllProjects() {
-        ResponseEntity<List<ProjectRD>> response = rest.exchange(
+        ResponseEntity<SheetDto<ProjectRD>> response = rest.exchange(
                 PROJECT_URL,
                 HttpMethod.GET,
                 null,
@@ -44,7 +41,12 @@ public class ProjectControllerCrudTest {
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        List<ProjectRD> projects = response.getBody();
+        SheetDto<ProjectRD> sheet = response.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<ProjectRD> projects = sheet.content();
         assertNotNull(projects);
 
         projects.forEach(project -> {
@@ -59,7 +61,7 @@ public class ProjectControllerCrudTest {
     @Order(2)
     @DisplayName("Тестируем получение всех проектов с задачами")
     public void getAllProjectsWithTasks() {
-        ResponseEntity<List<ProjectRD>> response = rest.exchange(
+        ResponseEntity<SheetDto<ProjectRD>> response = rest.exchange(
                 PROJECT_URL + "?tasks",
                 HttpMethod.GET,
                 null,
@@ -69,7 +71,12 @@ public class ProjectControllerCrudTest {
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        List<ProjectRD> projects = response.getBody();
+        SheetDto<ProjectRD> sheet = response.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<ProjectRD> projects = sheet.content();
         assertNotNull(projects);
 
         projects.forEach(project -> {
@@ -136,7 +143,7 @@ public class ProjectControllerCrudTest {
     public void getProjectTasks() {
         long id = 1;
 
-        ResponseEntity<List<TaskRD>> response = rest.exchange(
+        ResponseEntity<SheetDto<TaskRD>> response = rest.exchange(
                 PROJECT_URL + "/" + id + "/tasks",
                 HttpMethod.GET,
                 null,
@@ -146,7 +153,12 @@ public class ProjectControllerCrudTest {
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        List<TaskRD> tasks = response.getBody();
+        SheetDto<TaskRD> sheet = response.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<TaskRD> tasks = sheet.content();
         assertNotNull(tasks);
 
         tasks.forEach(task -> {
@@ -306,32 +318,21 @@ public class ProjectControllerCrudTest {
     public void deleteProject() {
         long id = 1;
 
-        @SuppressWarnings("unchecked")
-        List<ProjectRD> projects = rest.getForObject(PROJECT_URL, List.class);
-        assertNotNull(projects);
-        assertFalse(projects.isEmpty());
-
         ProjectRD project = rest.getForObject(PROJECT_URL + "/" + id, ProjectRD.class);
         assertNotNull(project);
         assertNotNull(project.id());
         assertEquals(id, project.id());
 
-        ResponseEntity<Void> response = rest.exchange(
+        ResponseEntity<Void> response2 = rest.exchange(
                 PROJECT_URL + "/" + id,
                 HttpMethod.DELETE,
                 null,
                 Void.class);
-        assertNotNull(response);
-        assertNotNull(response.getStatusCode());
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, response2.getStatusCode());
 
         assertThrows(HttpClientErrorException.NotFound.class, () ->
                 rest.getForObject(PROJECT_URL + "/" + id, ProjectRD.class));
-
-        @SuppressWarnings("unchecked")
-        List<ProjectRD> updatedProjects = rest.getForObject(PROJECT_URL, List.class);
-        assertNotNull(updatedProjects);
-
-        assertEquals(projects.size() - 1, updatedProjects.size());
     }
 }

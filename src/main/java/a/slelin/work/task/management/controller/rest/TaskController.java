@@ -1,15 +1,16 @@
 package a.slelin.work.task.management.controller.rest;
 
+import a.slelin.work.task.management.dto.SheetDto;
 import a.slelin.work.task.management.dto.TaskRD;
 import a.slelin.work.task.management.dto.TaskWD;
 import a.slelin.work.task.management.service.TaskService;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Validated
 @RestController
@@ -22,8 +23,8 @@ public class TaskController {
     private final TaskService service;
 
     @GetMapping(consumes = "*/*")
-    public List<TaskRD> getTasks() {
-        return service.getAll();
+    public SheetDto<TaskRD> getTasks(@PageableDefault(sort = "id") Pageable pageable) {
+        return service.getAll(pageable);
     }
 
     @GetMapping(path = "/{id}", consumes = "*/*")

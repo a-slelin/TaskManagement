@@ -1,12 +1,11 @@
 package a.slelin.work.task.management.controller.rest;
 
-import a.slelin.work.task.management.dto.ProjectRD;
-import a.slelin.work.task.management.dto.ProjectWD;
-import a.slelin.work.task.management.dto.UserRD;
-import a.slelin.work.task.management.dto.UserWD;
+import a.slelin.work.task.management.dto.*;
 import a.slelin.work.task.management.service.ProjectService;
 import a.slelin.work.task.management.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +13,6 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 
 @Validated
@@ -30,9 +28,10 @@ public class UserController {
     private final ProjectService projectService;
 
     @GetMapping(consumes = "*/*")
-    public List<UserRD> getUsers(@RequestParam(value = "projects", required = false) String projects,
-                                 @RequestParam(value = "tasks", required = false) String tasks) {
-        return service.getAll(projects != null, tasks != null);
+    public SheetDto<UserRD> getUsers(@PageableDefault(sort = "id") Pageable pageable,
+                                     @RequestParam(value = "projects", required = false) String projects,
+                                     @RequestParam(value = "tasks", required = false) String tasks) {
+        return service.getAll(pageable, projects != null, tasks != null);
     }
 
     @GetMapping(path = "/{id}", consumes = "*/*")
@@ -43,9 +42,10 @@ public class UserController {
     }
 
     @GetMapping(path = "/{id}/projects", consumes = "*/*")
-    public List<ProjectRD> getUserProjects(@PathVariable UUID id,
-                                           @RequestParam(value = "tasks", required = false) String tasks) {
-        return service.getUserProjects(id, tasks != null);
+    public SheetDto<ProjectRD> getUserProjects(@PageableDefault(sort = "id") Pageable pageable,
+                                               @PathVariable UUID id,
+                                               @RequestParam(value = "tasks", required = false) String tasks) {
+        return service.getUserProjects(pageable, id, tasks != null);
     }
 
     @PostMapping

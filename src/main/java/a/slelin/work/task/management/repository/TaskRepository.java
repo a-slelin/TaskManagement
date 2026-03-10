@@ -1,15 +1,17 @@
 package a.slelin.work.task.management.repository;
 
 import a.slelin.work.task.management.entity.Task;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
-public interface TaskRepository extends JpaRepository<Task, Long> {
+public interface TaskRepository extends JpaRepository<Task, Long>,
+        PagingAndSortingRepository<Task, Long> {
 
-    List<Task> findByProjectId(Long projectId);
+    Page<Task> findByProjectId(Long projectId, Pageable pageable);
 
     void deleteByProjectId(Long projectId);
 }

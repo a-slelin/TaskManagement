@@ -1,9 +1,6 @@
 package a.slelin.work.task.management.test;
 
-import a.slelin.work.task.management.dto.ProjectRD;
-import a.slelin.work.task.management.dto.ProjectWD;
-import a.slelin.work.task.management.dto.UserRD;
-import a.slelin.work.task.management.dto.UserWD;
+import a.slelin.work.task.management.dto.*;
 import a.slelin.work.task.management.entity.User;
 import a.slelin.work.task.management.repository.UserRepository;
 import org.junit.jupiter.api.*;
@@ -44,7 +41,7 @@ public class UserControllerTest {
     @Order(1)
     @DisplayName("Тестируем получение всех пользователей без проектов")
     public void getAllProjects() {
-        ResponseEntity<List<UserRD>> response = rest.exchange(
+        ResponseEntity<SheetDto<UserRD>> response = rest.exchange(
                 USER_URL,
                 HttpMethod.GET,
                 null,
@@ -54,7 +51,12 @@ public class UserControllerTest {
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        List<UserRD> users = response.getBody();
+        SheetDto<UserRD> sheet = response.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<UserRD> users = sheet.content();
         assertNotNull(users);
 
         users.forEach(user -> {
@@ -68,7 +70,7 @@ public class UserControllerTest {
     @Order(2)
     @DisplayName("Тестируем получение всех пользователей c проектами, но без задач")
     public void getAllProjectsWithProjects() {
-        ResponseEntity<List<UserRD>> response = rest.exchange(
+        ResponseEntity<SheetDto<UserRD>> response = rest.exchange(
                 USER_URL + "?projects",
                 HttpMethod.GET,
                 null,
@@ -78,7 +80,12 @@ public class UserControllerTest {
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        List<UserRD> users = response.getBody();
+        SheetDto<UserRD> sheet = response.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<UserRD> users = sheet.content();
         assertNotNull(users);
 
         users.forEach(user -> {
@@ -99,7 +106,7 @@ public class UserControllerTest {
     @Order(3)
     @DisplayName("Тестируем получение всех пользователей c проектами и с задачами")
     public void getAllProjectsWithProjectsAndTasks() {
-        ResponseEntity<List<UserRD>> response = rest.exchange(
+        ResponseEntity<SheetDto<UserRD>> response = rest.exchange(
                 USER_URL + "?projects&tasks",
                 HttpMethod.GET,
                 null,
@@ -109,7 +116,12 @@ public class UserControllerTest {
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        List<UserRD> users = response.getBody();
+        SheetDto<UserRD> sheet = response.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<UserRD> users = sheet.content();
         assertNotNull(users);
 
         users.forEach(user -> {
@@ -138,7 +150,7 @@ public class UserControllerTest {
     @Order(4)
     @DisplayName("Тестируем получение пользователя по id = ? без проектов")
     public void getById() {
-        ResponseEntity<List<UserRD>> responseGetAll = rest.exchange(
+        ResponseEntity<SheetDto<UserRD>> responseGetAll = rest.exchange(
                 USER_URL,
                 HttpMethod.GET,
                 null,
@@ -148,7 +160,12 @@ public class UserControllerTest {
         assertNotNull(responseGetAll.getStatusCode());
         assertEquals(HttpStatus.OK, responseGetAll.getStatusCode());
 
-        List<UserRD> users = responseGetAll.getBody();
+        SheetDto<UserRD> sheet = responseGetAll.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<UserRD> users = sheet.content();
         assertNotNull(users);
         assertFalse(users.isEmpty());
 
@@ -178,7 +195,7 @@ public class UserControllerTest {
     @Order(5)
     @DisplayName("Тестируем получение пользователя по id = ? с проектами, но без задач")
     public void getByIdWithProjects() {
-        ResponseEntity<List<UserRD>> responseGetAll = rest.exchange(
+        ResponseEntity<SheetDto<UserRD>> responseGetAll = rest.exchange(
                 USER_URL,
                 HttpMethod.GET,
                 null,
@@ -188,7 +205,12 @@ public class UserControllerTest {
         assertNotNull(responseGetAll.getStatusCode());
         assertEquals(HttpStatus.OK, responseGetAll.getStatusCode());
 
-        List<UserRD> users = responseGetAll.getBody();
+        SheetDto<UserRD> sheet = responseGetAll.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<UserRD> users = sheet.content();
         assertNotNull(users);
         assertFalse(users.isEmpty());
 
@@ -226,7 +248,7 @@ public class UserControllerTest {
     @Order(6)
     @DisplayName("Тестируем получение пользователя по id = ? с проектов и с задачами")
     public void getByIdWithProjectsAndTasks() {
-        ResponseEntity<List<UserRD>> responseGetAll = rest.exchange(
+        ResponseEntity<SheetDto<UserRD>> responseGetAll = rest.exchange(
                 USER_URL,
                 HttpMethod.GET,
                 null,
@@ -236,7 +258,12 @@ public class UserControllerTest {
         assertNotNull(responseGetAll.getStatusCode());
         assertEquals(HttpStatus.OK, responseGetAll.getStatusCode());
 
-        List<UserRD> users = responseGetAll.getBody();
+        SheetDto<UserRD> sheet = responseGetAll.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<UserRD> users = sheet.content();
         assertNotNull(users);
         assertFalse(users.isEmpty());
 
@@ -282,7 +309,7 @@ public class UserControllerTest {
     @Order(7)
     @DisplayName("Тестируем получение всех проектов пользователя без задач")
     public void getUserProjects() {
-        ResponseEntity<List<UserRD>> responseGetAll = rest.exchange(
+        ResponseEntity<SheetDto<UserRD>> responseGetAll = rest.exchange(
                 USER_URL,
                 HttpMethod.GET,
                 null,
@@ -292,7 +319,12 @@ public class UserControllerTest {
         assertNotNull(responseGetAll.getStatusCode());
         assertEquals(HttpStatus.OK, responseGetAll.getStatusCode());
 
-        List<UserRD> users = responseGetAll.getBody();
+        SheetDto<UserRD> sheet = responseGetAll.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<UserRD> users = sheet.content();
         assertNotNull(users);
         assertFalse(users.isEmpty());
 
@@ -302,7 +334,7 @@ public class UserControllerTest {
         String userId = user.id();
         assertNotNull(userId);
 
-        ResponseEntity<List<ProjectRD>> response = rest.exchange(
+        ResponseEntity<SheetDto<ProjectRD>> response = rest.exchange(
                 USER_URL + "/" + userId + "/projects",
                 HttpMethod.GET,
                 null,
@@ -312,7 +344,12 @@ public class UserControllerTest {
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        List<ProjectRD> projects = response.getBody();
+        SheetDto<ProjectRD> sheet2 = response.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+        assertNotNull(sheet2.content());
+
+        List<ProjectRD> projects = sheet2.content();
         assertNotNull(projects);
 
         projects.forEach(project -> {
@@ -328,7 +365,7 @@ public class UserControllerTest {
     @Order(8)
     @DisplayName("Тестируем получение всех проектов пользователя с задачами")
     public void getUserProjectsWithTasks() {
-        ResponseEntity<List<UserRD>> responseGetAll = rest.exchange(
+        ResponseEntity<SheetDto<UserRD>> responseGetAll = rest.exchange(
                 USER_URL,
                 HttpMethod.GET,
                 null,
@@ -338,7 +375,12 @@ public class UserControllerTest {
         assertNotNull(responseGetAll.getStatusCode());
         assertEquals(HttpStatus.OK, responseGetAll.getStatusCode());
 
-        List<UserRD> users = responseGetAll.getBody();
+        SheetDto<UserRD> sheet = responseGetAll.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<UserRD> users = sheet.content();
         assertNotNull(users);
         assertFalse(users.isEmpty());
 
@@ -348,7 +390,7 @@ public class UserControllerTest {
         String userId = user.id();
         assertNotNull(userId);
 
-        ResponseEntity<List<ProjectRD>> response = rest.exchange(
+        ResponseEntity<SheetDto<ProjectRD>> response = rest.exchange(
                 USER_URL + "/" + userId + "/projects?tasks",
                 HttpMethod.GET,
                 null,
@@ -358,7 +400,12 @@ public class UserControllerTest {
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
-        List<ProjectRD> projects = response.getBody();
+        SheetDto<ProjectRD> sheet2 = response.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+        assertNotNull(sheet2.content());
+
+        List<ProjectRD> projects = sheet2.content();
         assertNotNull(projects);
 
         projects.forEach(project -> {
@@ -443,7 +490,7 @@ public class UserControllerTest {
     @Order(10)
     @DisplayName("Тестируем создание проекта")
     public void createProject() {
-        ResponseEntity<List<UserRD>> responseGetAll = rest.exchange(
+        ResponseEntity<SheetDto<UserRD>> responseGetAll = rest.exchange(
                 USER_URL,
                 HttpMethod.GET,
                 null,
@@ -453,7 +500,12 @@ public class UserControllerTest {
         assertNotNull(responseGetAll.getStatusCode());
         assertEquals(HttpStatus.OK, responseGetAll.getStatusCode());
 
-        List<UserRD> users = responseGetAll.getBody();
+        SheetDto<UserRD> sheet = responseGetAll.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<UserRD> users = sheet.content();
         assertNotNull(users);
         assertFalse(users.isEmpty());
 
@@ -511,7 +563,7 @@ public class UserControllerTest {
     @Order(11)
     @DisplayName("Тестируем обновление пользователя")
     public void updateUser() {
-        ResponseEntity<List<UserRD>> responseGetAll = rest.exchange(
+        ResponseEntity<SheetDto<UserRD>> responseGetAll = rest.exchange(
                 USER_URL,
                 HttpMethod.GET,
                 null,
@@ -521,7 +573,12 @@ public class UserControllerTest {
         assertNotNull(responseGetAll.getStatusCode());
         assertEquals(HttpStatus.OK, responseGetAll.getStatusCode());
 
-        List<UserRD> users = responseGetAll.getBody();
+        SheetDto<UserRD> sheet = responseGetAll.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<UserRD> users = sheet.content();
         assertNotNull(users);
         assertFalse(users.isEmpty());
 
@@ -565,7 +622,7 @@ public class UserControllerTest {
     @Order(12)
     @DisplayName("Тестируем патчинг пользователя")
     public void patchUser() {
-        ResponseEntity<List<UserRD>> responseGetAll = rest.exchange(
+        ResponseEntity<SheetDto<UserRD>> responseGetAll = rest.exchange(
                 USER_URL,
                 HttpMethod.GET,
                 null,
@@ -575,7 +632,12 @@ public class UserControllerTest {
         assertNotNull(responseGetAll.getStatusCode());
         assertEquals(HttpStatus.OK, responseGetAll.getStatusCode());
 
-        List<UserRD> users = responseGetAll.getBody();
+        SheetDto<UserRD> sheet = responseGetAll.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<UserRD> users = sheet.content();
         assertNotNull(users);
         assertFalse(users.isEmpty());
 
@@ -617,7 +679,7 @@ public class UserControllerTest {
     @Order(13)
     @DisplayName("Тестируем удаление проектов пользователя")
     public void deleteUserProjects() {
-        ResponseEntity<List<UserRD>> responseGetAll = rest.exchange(
+        ResponseEntity<SheetDto<UserRD>> responseGetAll = rest.exchange(
                 USER_URL,
                 HttpMethod.GET,
                 null,
@@ -627,7 +689,12 @@ public class UserControllerTest {
         assertNotNull(responseGetAll.getStatusCode());
         assertEquals(HttpStatus.OK, responseGetAll.getStatusCode());
 
-        List<UserRD> users = responseGetAll.getBody();
+        SheetDto<UserRD> sheet = responseGetAll.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<UserRD> users = sheet.content();
         assertNotNull(users);
         assertFalse(users.isEmpty());
 
@@ -646,7 +713,7 @@ public class UserControllerTest {
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
 
-        ResponseEntity<List<ProjectRD>> responseGetUserProjects = rest.exchange(
+        ResponseEntity<SheetDto<ProjectRD>> responseGetUserProjects = rest.exchange(
                 USER_URL + "/" + userId + "/projects",
                 HttpMethod.GET,
                 null,
@@ -656,7 +723,12 @@ public class UserControllerTest {
         assertNotNull(responseGetUserProjects.getStatusCode());
         assertEquals(HttpStatus.OK, responseGetUserProjects.getStatusCode());
 
-        List<ProjectRD> projects = responseGetUserProjects.getBody();
+        SheetDto<ProjectRD> sheet2 = responseGetUserProjects.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+        assertNotNull(sheet2.content());
+
+        List<ProjectRD> projects = sheet2.content();
         assertNotNull(projects);
         assertTrue(projects.isEmpty());
     }
@@ -665,7 +737,7 @@ public class UserControllerTest {
     @Order(14)
     @DisplayName("Тестируем удаление пользователя")
     public void deleteUser() {
-        ResponseEntity<List<UserRD>> responseGetAll = rest.exchange(
+        ResponseEntity<SheetDto<UserRD>> responseGetAll = rest.exchange(
                 USER_URL,
                 HttpMethod.GET,
                 null,
@@ -675,7 +747,12 @@ public class UserControllerTest {
         assertNotNull(responseGetAll.getStatusCode());
         assertEquals(HttpStatus.OK, responseGetAll.getStatusCode());
 
-        List<UserRD> users = responseGetAll.getBody();
+        SheetDto<UserRD> sheet = responseGetAll.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<UserRD> users = sheet.content();
         assertNotNull(users);
         assertFalse(users.isEmpty());
 
