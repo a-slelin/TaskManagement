@@ -43,10 +43,10 @@ public class TaskController {
         return service.patch(id, task);
     }
 
-    @PutMapping(path = "/{id}/project/{projectId}")
+    @PostMapping(path = "/{id}/project/{projectId}", consumes = "*/*")
     public TaskRD setProject(@PathVariable @Min(1) Long id,
                              @PathVariable @Min(1) Long projectId) {
-        return service.drawToProject(id, projectId);
+        return service.drawToProject(projectId, id);
     }
 
     @DeleteMapping(path = "/{id}",

@@ -92,3 +92,56 @@ VALUES ('Разработать систему авторизации',
         'Загрузка, хранение и согласование документов',
         'begin',
         (SELECT id FROM project WHERE name = 'Корпоративный портал'));
+
+INSERT INTO project (name, description, owner_id)
+VALUES ('Мобильное приложение для фитнеса',
+        'Разработка мобильного приложения для отслеживания тренировок и питания',
+        '35e9edb1-4cc7-4278-9677-c581857c1998'), -- alex_petrov
+       ('CRM для малого бизнеса',
+        'Система управления взаимоотношениями с клиентами для небольших компаний',
+        'bb9410b9-3b37-4eee-ab8c-1e221b7d001f'), -- ekaterina_smirnova
+       ('Система управления задачами',
+        'Внутренний таск-трекер для команды разработки',
+        '8925d0c8-eed8-46b7-a9b5-90d518500c8a'); -- pavel_ivanov
+
+INSERT INTO task (title, description, status, project_id)
+VALUES ('Разработка дизайна экранов',
+        'Создать макеты главного экрана, экрана тренировок и профиля в Figma',
+        'begin',
+        (SELECT id FROM project WHERE name = 'Мобильное приложение для фитнеса')),
+       ('Настройка бэкенда',
+        'Разработать API для хранения данных пользователей и тренировок',
+        'in_progress',
+        (SELECT id FROM project WHERE name = 'Мобильное приложение для фитнеса')),
+       ('Интеграция с HealthKit',
+        'Подключить синхронизацию данных о здоровье с Apple Health',
+        'on_hold',
+        (SELECT id FROM project WHERE name = 'Мобильное приложение для фитнеса'));
+
+INSERT INTO task (title, description, status, project_id)
+VALUES ('Проектирование БД',
+        'Создать схему данных для клиентов, сделок и контактов',
+        'end',
+        (SELECT id FROM project WHERE name = 'CRM для малого бизнеса')),
+       ('Разработка модуля клиентов',
+        'CRUD для клиентов с возможностью добавления заметок',
+        'in_progress',
+        (SELECT id FROM project WHERE name = 'CRM для малого бизнеса')),
+       ('Интеграция с email-рассылками',
+        'Подключить SendGrid для отправки уведомлений клиентам',
+        'begin',
+        (SELECT id FROM project WHERE name = 'CRM для малого бизнеса'));
+
+INSERT INTO task (title, description, status, project_id)
+VALUES ('Создание модели задач',
+        'Определить поля задачи: заголовок, описание, статус, исполнитель',
+        'end',
+        (SELECT id FROM project WHERE name = 'Система управления задачами')),
+       ('Реализация доски задач',
+        'Разработать интерфейс доски в стиле Kanban',
+        'in_progress',
+        (SELECT id FROM project WHERE name = 'Система управления задачами')),
+       ('Настройка уведомлений',
+        'Добавить email-уведомления при изменении статуса задачи',
+        'begin',
+        (SELECT id FROM project WHERE name = 'Система управления задачами'));
