@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -49,11 +50,12 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserRD> createUser(@RequestBody UserWD user,
-                                             UriComponentsBuilder ucBuilder) {
+    public ResponseEntity<UserRD> createUser(@RequestBody UserWD user) {
         UserRD savedUser = service.create(user);
-        URI location = ucBuilder.pathSegment(savedUser.id())
-                .build().toUri();
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .pathSegment(savedUser.id())
+                .build()
+                .toUri();
 
         return ResponseEntity.created(location)
                 .body(savedUser);
