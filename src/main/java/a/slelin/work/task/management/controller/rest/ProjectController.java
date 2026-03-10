@@ -29,14 +29,14 @@ public class ProjectController {
     private final TaskService taskService;
 
     @GetMapping(consumes = "*/*")
-    public List<ProjectRD> getProjects(@RequestParam(value = "tasks", defaultValue = "false") boolean tasks) {
-        return service.getAll(tasks);
+    public List<ProjectRD> getProjects(@RequestParam(value = "tasks", required = false) String tasks) {
+        return service.getAll(tasks != null);
     }
 
     @GetMapping(path = "/{id}", consumes = "*/*")
     public ProjectRD getProject(@PathVariable @Min(1) Long id,
-                                @RequestParam(value = "tasks", defaultValue = "false") boolean tasks) {
-        return service.getById(id, tasks);
+                                @RequestParam(value = "tasks", required = false) String tasks) {
+        return service.getById(id, tasks != null);
     }
 
     @GetMapping(path = "/{id}/tasks", consumes = "*/*")

@@ -60,7 +60,7 @@ public class ProjectControllerCrudTest {
     @DisplayName("Тестируем получение всех проектов с задачами")
     public void getAllProjectsWithTasks() {
         ResponseEntity<List<ProjectRD>> response = rest.exchange(
-                PROJECT_URL + "?tasks=true",
+                PROJECT_URL + "?tasks",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -112,7 +112,7 @@ public class ProjectControllerCrudTest {
         long id = 1;
 
         ResponseEntity<ProjectRD> response = rest.exchange(
-                PROJECT_URL + "/" + id + "?tasks=true",
+                PROJECT_URL + "/" + id + "?tasks",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -277,7 +277,7 @@ public class ProjectControllerCrudTest {
     public void deleteProjectTasks() {
         long id = 1;
 
-        ProjectRD project = rest.getForObject(PROJECT_URL + "/" + id + "?tasks=true", ProjectRD.class);
+        ProjectRD project = rest.getForObject(PROJECT_URL + "/" + id + "?tasks", ProjectRD.class);
         assertNotNull(project);
         assertNotNull(project.id());
         assertEquals(id, project.id());
@@ -292,7 +292,7 @@ public class ProjectControllerCrudTest {
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
 
-        ProjectRD updatedProject = rest.getForObject(PROJECT_URL + "/" + id + "?tasks=true", ProjectRD.class);
+        ProjectRD updatedProject = rest.getForObject(PROJECT_URL + "/" + id + "?tasks", ProjectRD.class);
         assertNotNull(updatedProject);
         assertNotNull(updatedProject.id());
         assertEquals(id, updatedProject.id());

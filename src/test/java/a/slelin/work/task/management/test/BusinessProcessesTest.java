@@ -59,7 +59,7 @@ public class BusinessProcessesTest {
         assertNotNull(userId);
 
         ResponseEntity<List<ProjectRD>> responseUserProjects = rest.exchange(
-                USER_URL + "/" + userId + "/projects?tasks=true",
+                USER_URL + "/" + userId + "/projects?tasks",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -124,7 +124,7 @@ public class BusinessProcessesTest {
         assertEquals(taskCheck.project(), movingTask.project());
 
         // В первом проекте этой задачи теперь нет
-        ProjectRD project1Updated = rest.getForObject(PROJECT_URL + "/" + project1.id() + "?tasks=true",
+        ProjectRD project1Updated = rest.getForObject(PROJECT_URL + "/" + project1.id() + "?tasks",
                 ProjectRD.class);
         assertNotNull(project1Updated);
         assertNotNull(project1Updated.id());
@@ -133,7 +133,7 @@ public class BusinessProcessesTest {
         assertFalse(project1Updated.tasks().contains(movingTask));
 
         // Во втором проекте эта задача есть
-        ProjectRD project2Updated = rest.getForObject(PROJECT_URL + "/" + project2.id() + "?tasks=true",
+        ProjectRD project2Updated = rest.getForObject(PROJECT_URL + "/" + project2.id() + "?tasks",
                 ProjectRD.class);
         assertNotNull(project2Updated);
         assertNotNull(project2Updated.id());
@@ -169,7 +169,7 @@ public class BusinessProcessesTest {
         assertNotNull(userId);
 
         ResponseEntity<List<ProjectRD>> responseUserProjects = rest.exchange(
-                USER_URL + "/" + userId + "/projects?tasks=true",
+                USER_URL + "/" + userId + "/projects?tasks",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -233,7 +233,7 @@ public class BusinessProcessesTest {
         assertNotNull(taskCheck.project());
         assertEquals(taskCheck.project(), task.project());
 
-        ProjectRD projectUpdated = rest.getForObject(PROJECT_URL + "/" + project.id() + "?tasks=true",
+        ProjectRD projectUpdated = rest.getForObject(PROJECT_URL + "/" + project.id() + "?tasks",
                 ProjectRD.class);
         assertNotNull(projectUpdated);
         assertNotNull(projectUpdated.id());
@@ -273,7 +273,7 @@ public class BusinessProcessesTest {
         assertNotNull(user2Id);
 
         ResponseEntity<List<ProjectRD>> responseUser1Projects = rest.exchange(
-                USER_URL + "/" + user1Id + "/projects?tasks=true",
+                USER_URL + "/" + user1Id + "/projects?tasks",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -284,7 +284,7 @@ public class BusinessProcessesTest {
         assertEquals(HttpStatus.OK, responseUser1Projects.getStatusCode());
 
         ResponseEntity<List<ProjectRD>> responseUser2Projects = rest.exchange(
-                USER_URL + "/" + user2Id + "/projects?tasks=true",
+                USER_URL + "/" + user2Id + "/projects?tasks",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -355,7 +355,7 @@ public class BusinessProcessesTest {
         assertNotNull(taskCheck.project());
         assertEquals(taskCheck.project(), task.project());
 
-        ProjectRD project1Updated = rest.getForObject(PROJECT_URL + "/" + project1.id() + "?tasks=true",
+        ProjectRD project1Updated = rest.getForObject(PROJECT_URL + "/" + project1.id() + "?tasks",
                 ProjectRD.class);
         assertNotNull(project1Updated);
         assertNotNull(project1Updated.id());
@@ -364,7 +364,7 @@ public class BusinessProcessesTest {
         assertTrue(project1Updated.tasks().contains(task));
 
         // Во втором проекте эта задача есть
-        ProjectRD project2Updated = rest.getForObject(PROJECT_URL + "/" + project2.id() + "?tasks=true",
+        ProjectRD project2Updated = rest.getForObject(PROJECT_URL + "/" + project2.id() + "?tasks",
                 ProjectRD.class);
         assertNotNull(project2Updated);
         assertNotNull(project2Updated.id());

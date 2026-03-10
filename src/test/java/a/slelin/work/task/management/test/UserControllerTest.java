@@ -69,7 +69,7 @@ public class UserControllerTest {
     @DisplayName("Тестируем получение всех пользователей c проектами, но без задач")
     public void getAllProjectsWithProjects() {
         ResponseEntity<List<UserRD>> response = rest.exchange(
-                USER_URL + "?projects=true",
+                USER_URL + "?projects",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -100,7 +100,7 @@ public class UserControllerTest {
     @DisplayName("Тестируем получение всех пользователей c проектами и с задачами")
     public void getAllProjectsWithProjectsAndTasks() {
         ResponseEntity<List<UserRD>> response = rest.exchange(
-                USER_URL + "?projects=true&tasks=true",
+                USER_URL + "?projects&tasks",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
@@ -199,7 +199,7 @@ public class UserControllerTest {
         assertNotNull(userId);
 
         ResponseEntity<UserRD> responseGetById = rest.exchange(
-                USER_URL + "/" + userId + "?projects=true",
+                USER_URL + "/" + userId + "?projects",
                 HttpMethod.GET,
                 null,
                 UserRD.class);
@@ -247,7 +247,7 @@ public class UserControllerTest {
         assertNotNull(userId);
 
         ResponseEntity<UserRD> responseGetById = rest.exchange(
-                USER_URL + "/" + userId + "?projects=true&tasks=true",
+                USER_URL + "/" + userId + "?projects&tasks",
                 HttpMethod.GET,
                 null,
                 UserRD.class);
@@ -349,7 +349,7 @@ public class UserControllerTest {
         assertNotNull(userId);
 
         ResponseEntity<List<ProjectRD>> response = rest.exchange(
-                USER_URL + "/" + userId + "/projects?tasks=true",
+                USER_URL + "/" + userId + "/projects?tasks",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {

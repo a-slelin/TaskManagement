@@ -12,7 +12,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
@@ -31,22 +30,22 @@ public class UserController {
     private final ProjectService projectService;
 
     @GetMapping(consumes = "*/*")
-    public List<UserRD> getUsers(@RequestParam(value = "projects", defaultValue = "false") boolean projects,
-                                 @RequestParam(value = "tasks", defaultValue = "false") boolean tasks) {
-        return service.getAll(projects, tasks);
+    public List<UserRD> getUsers(@RequestParam(value = "projects", required = false) String projects,
+                                 @RequestParam(value = "tasks", required = false) String tasks) {
+        return service.getAll(projects != null, tasks != null);
     }
 
     @GetMapping(path = "/{id}", consumes = "*/*")
     public UserRD getUser(@PathVariable UUID id,
-                          @RequestParam(value = "projects", defaultValue = "false") boolean projects,
-                          @RequestParam(value = "tasks", defaultValue = "false") boolean tasks) {
-        return service.getById(id, projects, tasks);
+                          @RequestParam(value = "projects", required = false) String projects,
+                          @RequestParam(value = "tasks", required = false) String tasks) {
+        return service.getById(id, projects != null, tasks != null);
     }
 
     @GetMapping(path = "/{id}/projects", consumes = "*/*")
     public List<ProjectRD> getUserProjects(@PathVariable UUID id,
-                                           @RequestParam(value = "tasks", defaultValue = "false") boolean tasks) {
-        return service.getUserProjects(id, tasks);
+                                           @RequestParam(value = "tasks", required = false) String tasks) {
+        return service.getUserProjects(id, tasks != null);
     }
 
     @PostMapping
@@ -65,8 +64,9 @@ public class UserController {
     public ResponseEntity<ProjectRD> createUserProject(@PathVariable UUID id,
                                                        @RequestBody ProjectWD project) {
         ProjectRD savedProject = projectService.create(id, project);
+        @SuppressWarnings("DataFlowIssue")
         URI location = MvcUriComponentsBuilder
-                .fromMethodName(ProjectController.class, "getProject", savedProject.id(), false)
+                .fromMethodName(ProjectController.class, "getProject", savedProject.id(), null)
                 .build()
                 .toUri();
         return ResponseEntity.created(location)
