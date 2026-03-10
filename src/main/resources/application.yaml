@@ -17,11 +17,10 @@ spring:
           auto: validate
     open-in-view: true
 
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:db/schema.sql
-      data-locations: classpath:db/data.sql
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    drop-first: false
+    enabled: true
 
 logging:
   level:
