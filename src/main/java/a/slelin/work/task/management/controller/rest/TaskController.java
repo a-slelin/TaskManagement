@@ -4,6 +4,7 @@ import a.slelin.work.task.management.dto.SheetDto;
 import a.slelin.work.task.management.dto.TaskRD;
 import a.slelin.work.task.management.dto.TaskWD;
 import a.slelin.work.task.management.service.TaskService;
+import a.slelin.work.task.management.util.filter.FilterChain;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,12 @@ public class TaskController {
     @GetMapping(path = "/{id}", consumes = "*/*")
     public TaskRD getTask(@PathVariable @Min(1) Long id) {
         return service.getById(id);
+    }
+
+    @PostMapping("/search")
+    public SheetDto<TaskRD> search(@PageableDefault(sort = "id") Pageable pageable,
+                                   @RequestBody FilterChain filters) {
+        return service.search(pageable, filters);
     }
 
     @PutMapping(path = "/{id}")

@@ -3,6 +3,7 @@ package a.slelin.work.task.management.controller.rest;
 import a.slelin.work.task.management.dto.*;
 import a.slelin.work.task.management.service.ProjectService;
 import a.slelin.work.task.management.service.UserService;
+import a.slelin.work.task.management.util.filter.FilterChain;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -58,6 +59,14 @@ public class UserController {
 
         return ResponseEntity.created(location)
                 .body(savedUser);
+    }
+
+    @PostMapping("/search")
+    public SheetDto<UserRD> searchUsers(@PageableDefault(sort = "id") Pageable pageable,
+                                        @RequestBody FilterChain filters,
+                                        @RequestParam(value = "projects", required = false) String projects,
+                                        @RequestParam(value = "tasks", required = false) String tasks) {
+        return service.search(pageable, filters, projects != null, tasks != null);
     }
 
     @PostMapping("/{id}/projects")

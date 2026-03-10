@@ -3,6 +3,7 @@ package a.slelin.work.task.management.controller.rest;
 import a.slelin.work.task.management.dto.*;
 import a.slelin.work.task.management.service.ProjectService;
 import a.slelin.work.task.management.service.TaskService;
+import a.slelin.work.task.management.util.filter.FilterChain;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +43,13 @@ public class ProjectController {
     public SheetDto<TaskRD> getProjectTasks(@PageableDefault(sort = "id") Pageable pageable,
                                             @PathVariable @Min(1) Long id) {
         return service.getProjectTasks(pageable, id);
+    }
+
+    @PostMapping("/search")
+    public SheetDto<ProjectRD> searchProjects(@PageableDefault(sort = "id") Pageable pageable,
+                                              @RequestBody FilterChain filters,
+                                              @RequestParam(value = "tasks", required = false) String tasks) {
+        return service.search(pageable, filters, tasks != null);
     }
 
     @PostMapping("/{id}/tasks")

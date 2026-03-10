@@ -5,23 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.*;
 
 @SuppressWarnings("unused")
-public class FilterChain {
-
-    @NotNull
-    private final List<Filter> filters;
-
-    public FilterChain() {
-        this.filters = new ArrayList<>();
-    }
-
-    private FilterChain(@NotNull List<Filter> filters) {
-        this.filters = new ArrayList<>();
-        Collections.copy(this.filters, filters);
-    }
-
-    public List<Filter> getFilters() {
-        return Collections.unmodifiableList(filters);
-    }
+public record FilterChain(@NotNull List<Filter> filters) {
 
     public boolean isEmpty() {
         return filters.isEmpty();
@@ -36,7 +20,7 @@ public class FilterChain {
     }
 
     public static FilterChain empty() {
-        return new FilterChain();
+        return new FilterChain(new ArrayList<>());
     }
 
     public static FilterChain of(@NotNull Filter... filters) {

@@ -20,7 +20,7 @@ public final class FilterUtil {
                 return criteriaBuilder.conjunction();
             }
 
-            Predicate[] predicates = filterChain.getFilters().stream()
+            Predicate[] predicates = filterChain.filters().stream()
                     .filter(Objects::nonNull)
                     .map(filter -> toPredicate(filter, root, criteriaBuilder))
                     .toArray(Predicate[]::new);
