@@ -6,7 +6,6 @@ import a.slelin.work.task.management.dto.UserWD;
 import a.slelin.work.task.management.entity.Gender;
 import a.slelin.work.task.management.entity.Project;
 import a.slelin.work.task.management.entity.User;
-import lombok.RequiredArgsConstructor;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

@@ -17,7 +17,7 @@ services:
       - task-management-network
 
   app:
-    image: aslelin/task-management-system
+    image: aslelin/task-management-system:1.0.0
     container_name: app
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/TaskManagement
