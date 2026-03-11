@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: Task Management System
+    version: 6.0
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/TaskManagement
+    username: admin
+    password: admin
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: false
+        hbm2ddl:
+          auto: validate
+    open-in-view: true
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    drop-first: false
+    enabled: true
+
+logging:
+  level:
+    root: info

@@ -9,16 +9,19 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/api", produces = "application/json")
+@RequestMapping(value = "/api", produces = {"application/json", "application/xml", "application/yaml"})
 public class InfoController {
 
-    @Value("${application.version}")
+    @Value("${spring.application.name}")
+    private String name;
+
+    @Value("${spring.application.version}")
     private String version;
 
     @GetMapping({"", "/", "/help", "/help/", "/info", "/info/"})
     public Map<String, Object> getInfo() {
         return Map.of(
-                "name", "Task Management System",
+                "name", name,
                 "version", version,
                 "description", "REST API for managing tasks and projects",
                 "timestamp", LocalDateTime.now().toString(),

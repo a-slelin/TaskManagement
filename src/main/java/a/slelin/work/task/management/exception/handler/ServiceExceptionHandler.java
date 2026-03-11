@@ -4,6 +4,7 @@ import a.slelin.work.task.management.exception.EntityNotFoundByIdException;
 import a.slelin.work.task.management.exception.EnumParseException;
 import a.slelin.work.task.management.exception.ErrorResponse;
 import a.slelin.work.task.management.exception.ValidationError;
+import a.slelin.work.task.management.util.filter.FilterParseException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -52,6 +53,16 @@ public class ServiceExceptionHandler {
                                         e.getEnumClass().getSimpleName().toLowerCase()))
                         .details(Map.of("enum", e.getEnumClass().getSimpleName(),
                                 "invalidKey", e.getInvalidKey().toString()))
+                        .build());
+    }
+
+    @ExceptionHandler(FilterParseException.class)
+    public ResponseEntity<ErrorResponse> filterParseExceptionHandler(FilterParseException e,
+                                                                     ServletWebRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.buildDefault(e, request)
+                        .httpStatus(HttpStatus.BAD_REQUEST)
+                        .debugMessage("Filter parsing failed.")
                         .build());
     }
 }

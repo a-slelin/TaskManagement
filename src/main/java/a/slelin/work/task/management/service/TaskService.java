@@ -1,5 +1,6 @@
 package a.slelin.work.task.management.service;
 
+import a.slelin.work.task.management.dto.SheetDto;
 import a.slelin.work.task.management.dto.TaskRD;
 import a.slelin.work.task.management.dto.TaskWD;
 import a.slelin.work.task.management.dto.mapper.TaskMapper;
@@ -9,14 +10,16 @@ import a.slelin.work.task.management.exception.EntityNotFoundByIdException;
 import a.slelin.work.task.management.exception.TaskSetProjectException;
 import a.slelin.work.task.management.repository.ProjectRepository;
 import a.slelin.work.task.management.repository.TaskRepository;
+import a.slelin.work.task.management.util.filter.FilterChain;
+import a.slelin.work.task.management.util.filter.FilterUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-
-import java.util.List;
 
 @Service
 @Validated
@@ -32,10 +35,16 @@ public class TaskService implements CrudService<Long, TaskRD, TaskWD> {
 
     @Override
     @Transactional(readOnly = true)
-    public List<TaskRD> getAll() {
-        return repository.findAll()
-                .stream().map(mapper::toDto)
-                .toList();
+    public SheetDto<TaskRD> getAll(@NotNull @Valid Pageable pageable) {
+        return SheetDto.of(repository.findAll(pageable), mapper::toDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SheetDto<TaskRD> search(@NotNull @Valid Pageable pageable,
+                                   @NotNull @Valid FilterChain filters) {
+        Specification<Task> specification = FilterUtil.toSpecification(filters);
+        return SheetDto.of(repository.findAll(specification, pageable), mapper::toDto);
     }
 
     @Override

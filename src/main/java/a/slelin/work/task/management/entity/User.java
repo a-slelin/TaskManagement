@@ -1,6 +1,5 @@
 package a.slelin.work.task.management.entity;
 
-import a.slelin.work.task.management.util.SecurityUtil;
 import a.slelin.work.task.management.util.validate.Phone;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -43,17 +42,6 @@ public class User extends Audit {
     @Size(min = 8, max = 255)
     private String password;
 
-    public void setPassword(String password) {
-        this.password = SecurityUtil.hashPassword(password);
-    }
-
-    public static class UserBuilder {
-        public UserBuilder password(String plainPassword) {
-            this.password = SecurityUtil.hashPassword(plainPassword);
-            return this;
-        }
-    }
-
     @NotNull
     @Column(length = 9,
             nullable = false)
@@ -81,6 +69,7 @@ public class User extends Audit {
             cascade = CascadeType.ALL)
     private List<Project> projects;
 
+    @SuppressWarnings("unused")
     public void addProject(Project project) {
         if (projects == null) {
             projects = new ArrayList<>();
@@ -92,6 +81,7 @@ public class User extends Audit {
         }
     }
 
+    @SuppressWarnings("unused")
     public void removeProject(Project project) {
         if (projects == null) {
             projects = new ArrayList<>();
@@ -109,7 +99,7 @@ public class User extends Audit {
                 List<Project> projects) {
         this.id = id;
         this.username = username;
-        this.password = SecurityUtil.hashPassword(password);
+        this.password = password;
         this.gender = Objects.requireNonNullElse(gender, Gender.UNDEFINED);
         this.phone = phone;
         this.email = email;

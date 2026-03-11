@@ -48,6 +48,7 @@ public class Project extends Audit {
             orphanRemoval = true)
     private List<Task> tasks;
 
+    @SuppressWarnings("unused")
     public void addTask(Task task) {
         if (tasks == null) {
             tasks = new ArrayList<>();
@@ -59,6 +60,7 @@ public class Project extends Audit {
         }
     }
 
+    @SuppressWarnings("unused")
     public void removeTask(Task task) {
         if (tasks == null) {
             tasks = new ArrayList<>();

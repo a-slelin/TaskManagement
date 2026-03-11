@@ -51,7 +51,7 @@ public record ErrorResponse(@NotBlank String path,
         }
 
         return buildDefault(e)
-                .path(request.getRequest().getRequestURI())
+                .path(request.getRequest().getRequestURL().toString())
                 .httpMethod(request.getHttpMethod())
                 .details(Map.of())
                 .timeStamp(LocalDateTime.now());

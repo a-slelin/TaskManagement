@@ -7,40 +7,44 @@ import a.slelin.work.task.management.entity.Project;
 import a.slelin.work.task.management.entity.Task;
 import a.slelin.work.task.management.entity.User;
 import org.mapstruct.*;
-import org.mapstruct.factory.Mappers;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 @SuppressWarnings("unused")
 @Mapper(componentModel = "spring")
-public interface ProjectMapper {
+public abstract class ProjectMapper {
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    protected TaskMapper taskMapper;
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "tasks", ignore = true)
     @Mapping(target = "user", ignore = true)
-    Project toEntity(ProjectWD project);
+    public abstract Project toEntity(ProjectWD project);
 
     @Mapping(target = "user", qualifiedByName = "takeUser")
     @Mapping(target = "tasks", qualifiedByName = "takeTasks")
-    ProjectRD toDtoWithTasks(Project project);
+    public abstract ProjectRD toDtoWithTasks(Project project);
 
     @Mapping(target = "user", qualifiedByName = "takeUser")
     @Mapping(target = "tasks", ignore = true)
-    ProjectRD toDto(Project project);
+    public abstract ProjectRD toDto(Project project);
 
     @Named("takeUser")
-    default String takeUser(User user) {
+    protected String takeUser(User user) {
         return user.getId().toString();
     }
 
     @Named("takeTasks")
-    default List<TaskRD> takeTasks(List<Task> tasks) {
+    protected List<TaskRD> takeTasks(List<Task> tasks) {
         if (tasks == null) {
             return List.of();
         }
 
         return tasks.stream()
-                .map(Mappers.getMapper(TaskMapper.class)::toDto)
+                .map(taskMapper::toDto)
                 .toList();
     }
 
@@ -48,5 +52,5 @@ public interface ProjectMapper {
     @Mapping(target = "tasks", ignore = true)
     @Mapping(target = "user", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    Project patch(@MappingTarget Project project, ProjectWD projectWD);
+    public abstract Project patch(@MappingTarget Project project, ProjectWD projectWD);
 }

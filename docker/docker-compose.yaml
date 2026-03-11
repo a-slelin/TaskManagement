@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:latest
-    container_name: postgres
+  db:
+    image: postgres:18-alpine3.22
+    container_name: db
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
@@ -11,3 +11,28 @@ services:
     ports:
       - "5432:5432"
     restart: unless-stopped
+    volumes:
+      - task_management_data:/var/lib/postgresql/test-data
+    networks:
+      - task-management-network
+
+  app:
+    image: aslelin/task-management-system:1.0.0
+    container_name: app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/TaskManagement
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - task-management-network
+
+volumes:
+  task_management_data:
+
+networks:
+  task-management-network:
+    driver: bridge
