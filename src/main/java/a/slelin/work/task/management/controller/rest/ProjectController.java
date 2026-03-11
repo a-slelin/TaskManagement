@@ -45,7 +45,7 @@ public class ProjectController {
         return service.getProjectTasks(pageable, id);
     }
 
-    @PostMapping("/search")
+    @PostMapping({"/search", "/filter"})
     public SheetDto<ProjectRD> searchProjects(@PageableDefault(sort = "id") Pageable pageable,
                                               @RequestBody FilterChain filters,
                                               @RequestParam(value = "tasks", required = false) String tasks) {

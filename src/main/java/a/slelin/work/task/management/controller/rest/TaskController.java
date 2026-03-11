@@ -33,7 +33,7 @@ public class TaskController {
         return service.getById(id);
     }
 
-    @PostMapping("/search")
+    @PostMapping({"/search", "/filter"})
     public SheetDto<TaskRD> search(@PageableDefault(sort = "id") Pageable pageable,
                                    @RequestBody FilterChain filters) {
         return service.search(pageable, filters);

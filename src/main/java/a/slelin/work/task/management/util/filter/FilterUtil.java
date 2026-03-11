@@ -35,6 +35,10 @@ public final class FilterUtil {
         Object value = filter.value();
         Object value2 = filter.value2();
 
+        if (field.toLowerCase().contains("password")) {
+            throw new FilterParseException("Filtering by field password is denied.");
+        }
+
         Path<T> path = getNestedPath(root, field);
 
         return switch (operation) {

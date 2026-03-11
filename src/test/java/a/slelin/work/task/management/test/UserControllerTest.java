@@ -3,6 +3,9 @@ package a.slelin.work.task.management.test;
 import a.slelin.work.task.management.dto.*;
 import a.slelin.work.task.management.entity.User;
 import a.slelin.work.task.management.repository.UserRepository;
+import a.slelin.work.task.management.util.filter.Filter;
+import a.slelin.work.task.management.util.filter.FilterChain;
+import a.slelin.work.task.management.util.filter.Operation;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -773,5 +776,42 @@ public class UserControllerTest {
 
         assertThrows(HttpClientErrorException.NotFound.class, () ->
                 rest.getForObject(USER_URL + "/" + userId, UserRD.class));
+    }
+
+    @Test
+    @Order(15)
+    @DisplayName("Тестируем получение пользователей по фильтру")
+    public void getProjectsByFilter() {
+        FilterChain filters = FilterChain.empty()
+                .add(Filter.of("phone", Operation.LIKE, "+"))
+                .add(Filter.of("email", Operation.LIKE, "@"));
+
+        ResponseEntity<SheetDto<UserRD>> response = rest.exchange(
+                USER_URL + "/filter",
+                HttpMethod.POST,
+                new HttpEntity<>(filters),
+                new ParameterizedTypeReference<>() {
+                });
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        SheetDto<UserRD> sheet = response.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<UserRD> users = sheet.content();
+        assertNotNull(users);
+
+        users.forEach(user -> {
+            assertNotNull(user);
+            assertNotNull(user.id());
+            assertNull(user.projects());
+            assertNotNull(user.phone());
+            assertTrue(user.phone().contains("+"));
+            assertNotNull(user.email());
+            assertTrue(user.email().contains("@"));
+        });
     }
 }

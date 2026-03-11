@@ -61,7 +61,7 @@ public class UserController {
                 .body(savedUser);
     }
 
-    @PostMapping("/search")
+    @PostMapping({"/search", "/filter"})
     public SheetDto<UserRD> searchUsers(@PageableDefault(sort = "id") Pageable pageable,
                                         @RequestBody FilterChain filters,
                                         @RequestParam(value = "projects", required = false) String projects,

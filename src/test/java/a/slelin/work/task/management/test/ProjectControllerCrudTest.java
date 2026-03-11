@@ -1,6 +1,9 @@
 package a.slelin.work.task.management.test;
 
 import a.slelin.work.task.management.dto.*;
+import a.slelin.work.task.management.util.filter.Filter;
+import a.slelin.work.task.management.util.filter.FilterChain;
+import a.slelin.work.task.management.util.filter.Operation;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +18,7 @@ import java.net.URI;
 import java.util.List;
 
 import static a.slelin.work.task.management.test.TestConfig.PROJECT_URL;
+import static a.slelin.work.task.management.test.TestConfig.USER_URL;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
@@ -335,4 +339,50 @@ public class ProjectControllerCrudTest {
         assertThrows(HttpClientErrorException.NotFound.class, () ->
                 rest.getForObject(PROJECT_URL + "/" + id, ProjectRD.class));
     }
+
+    @Test
+    @Order(11)
+    @DisplayName("Тестируем получение всех проектов по фильтру")
+    public void getProjectsByFilter() {
+        FilterChain filters = FilterChain.empty()
+                .add(Filter.of("description", Operation.IS_NOT_NULL))
+                .add(Filter.of("user.gender", Operation.EQ, "male"))
+                .add(Filter.of("user.username", Operation.LIKE, "a"));
+
+        ResponseEntity<SheetDto<ProjectRD>> response = rest.exchange(
+                PROJECT_URL + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters),
+                new ParameterizedTypeReference<>() {
+                });
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        SheetDto<ProjectRD> sheet = response.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<ProjectRD> projects = sheet.content();
+        assertNotNull(projects);
+
+        projects.forEach(project -> {
+            assertNotNull(project);
+            assertNotNull(project.id());
+            assertNotNull(project.description());
+            assertNotNull(project.user());
+            assertNull(project.tasks());
+
+            UserRD user = rest.getForObject(USER_URL + "/" + project.user(), UserRD.class);
+            assertNotNull(user);
+            assertNotNull(user.id());
+            assertEquals(project.user(), user.id());
+            assertNotNull(user.gender());
+            assertEquals("male", user.gender());
+            assertNotNull(user.username());
+            assertTrue(user.username().contains("a"));
+        });
+    }
+
 }

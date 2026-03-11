@@ -3,6 +3,9 @@ package a.slelin.work.task.management.test;
 import a.slelin.work.task.management.dto.SheetDto;
 import a.slelin.work.task.management.dto.TaskRD;
 import a.slelin.work.task.management.dto.TaskWD;
+import a.slelin.work.task.management.util.filter.Filter;
+import a.slelin.work.task.management.util.filter.FilterChain;
+import a.slelin.work.task.management.util.filter.Operation;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -182,4 +185,45 @@ public class TaskControllerCrudTest {
         assertThrows(HttpClientErrorException.NotFound.class, () ->
                 rest.getForObject(TASK_URL + "/" + id, TaskRD.class));
     }
+
+    @Test
+    @Order(6)
+    @DisplayName("Тестируем получение задач по фильтру")
+    public void getTasksByFilter() {
+        FilterChain filters = FilterChain.empty()
+                .add(Filter.of("title", Operation.LIKE, "а"))
+                .add(Filter.of("description", Operation.IS_NOT_NULL))
+                .add(Filter.of("status", Operation.EQ, "end"));
+
+        ResponseEntity<SheetDto<TaskRD>> response = rest.exchange(
+                TASK_URL + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters),
+                new ParameterizedTypeReference<>() {
+                });
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        SheetDto<TaskRD> sheet = response.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+        assertNotNull(sheet.content());
+
+        List<TaskRD> tasks = sheet.content();
+        assertNotNull(tasks);
+
+        tasks.forEach(task -> {
+            assertNotNull(task);
+            assertNotNull(task.id());
+            assertNotNull(task.project());
+            assertNotNull(task.title());
+            assertTrue(task.title().contains("а"));
+            assertNotNull(task.status());
+            assertEquals("end", task.status());
+            assertNotNull(task.description());
+            assertNotNull(task.user());
+        });
+    }
+
 }
