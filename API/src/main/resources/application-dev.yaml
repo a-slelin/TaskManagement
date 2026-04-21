@@ -1,28 +1,20 @@
 spring:
-  config:
-    activate:
-      on-profile: test
-
   datasource:
-    url: jdbc:h2:mem:TaskManagement;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
-    username: admin
-    password: admin
+    url: jdbc:postgresql://localhost:5432/APIDB
+    username: api_user
+    password: password
 
   jpa:
     properties:
       hibernate:
         format_sql: true
-        show_sql: true
+        show_sql: false
         hbm2ddl:
           auto: validate
     open-in-view: true
 
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
-    enabled: true
     drop-first: true
-    contexts: test
-
-logging:
-  level:
-    root: info
+    enabled: true
+    contexts: dev

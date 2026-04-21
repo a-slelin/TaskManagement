@@ -1,30 +1,30 @@
 --liquibase formatted sql
 
---changeset a.slelin:002-insert-projects
+--changeset a.slelin:001-insert-projects
 
 DELETE
 FROM project;
 
-INSERT INTO project (name, description, owner_id)
+INSERT INTO project (name, description, user_id)
 VALUES ('Интернет-магазин "Электроника"',
         'Разработка интернет-магазина по продаже электроники с интеграцией 1С и CRM',
-        (SELECT id FROM users WHERE username = 'alex_petrov')),
+        'ff80a205-67e1-4d22-b886-1be26e51ee9f'),
        ('Мобильное приложение для фитнеса',
         'Разработка мобильного приложения для отслеживания тренировок и питания',
-        (SELECT id FROM users WHERE username = 'alex_petrov')),
+        'ff80a205-67e1-4d22-b886-1be26e51ee9f'),
 
        ('Личный блог на React + Node.js',
         'Персональный блог с админкой и комментариями',
-        (SELECT id FROM users WHERE username = 'ekaterina_smirnova')),
+        '5a53277c-487f-4ef8-bd7e-c1256de14785'),
        ('CRM для малого бизнеса',
         'Система управления взаимоотношениями с клиентами для небольших компаний',
-        (SELECT id FROM users WHERE username = 'ekaterina_smirnova')),
+        '5a53277c-487f-4ef8-bd7e-c1256de14785'),
 
        ('Корпоративный портал',
         'Внутренний портал для сотрудников с документами, задачами и новостями',
-        (SELECT id FROM users WHERE username = 'pavel_ivanov')),
+        '5d427038-c6cd-4a23-90d3-c8dece778c44'),
        ('Система управления задачами',
         'Внутренний таск-трекер для команды разработки',
-        (SELECT id FROM users WHERE username = 'pavel_ivanov'));
+        '5d427038-c6cd-4a23-90d3-c8dece778c44');
 
 --rollback DELETE FROM projects;

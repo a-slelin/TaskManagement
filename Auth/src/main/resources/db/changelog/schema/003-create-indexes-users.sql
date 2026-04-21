@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset a.slelin:005-create-indexes-users context:!test
+--changeset a.slelin:003-create-indexes-users context:!test
 
 CREATE INDEX idx_users_id ON users (id);
 CREATE INDEX idx_users_username ON users (username);

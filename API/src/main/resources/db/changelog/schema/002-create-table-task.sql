@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset a.slelin:003-create-table-task
+--changeset a.slelin:002-create-table-task
 
 DROP TABLE IF EXISTS task CASCADE;
 

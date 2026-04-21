@@ -1,11 +1,11 @@
 -- Создаём базу данных;
 CREATE
-DATABASE "TaskManagement";
+DATABASE "APIDB";
 
 -- Создаём пользователя, под которым будем подключаться к СУБД;
 CREATE
-USER admin WITH PASSWORD 'admin';
+USER api_user WITH PASSWORD 'password';
 
 -- Выдаём этому пользователю все права на базу данных;
 ALTER
-DATABASE "TaskManagement" OWNER TO admin;
+DATABASE "APIDB" OWNER TO api_user;

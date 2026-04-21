@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset a.slelin:003-insert-tasks
+--changeset a.slelin:002-insert-tasks
 
 DELETE
 FROM task;

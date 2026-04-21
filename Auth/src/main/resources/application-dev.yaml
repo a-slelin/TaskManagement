@@ -12,6 +12,7 @@ spring:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
     drop-first: true
     enabled: true
+    contexts: dev
 
 server:
   port: 8081
