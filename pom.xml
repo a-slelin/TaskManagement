@@ -16,6 +16,7 @@
 
     <modules>
         <module>API</module>
+        <module>Auth</module>
         <module>Core</module>
     </modules>
 
