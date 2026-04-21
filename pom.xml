@@ -79,6 +79,7 @@
 
         <!--Spring Framework Libraries-->
         <version.spring.framework.data>4.0.5</version.spring.framework.data>
+        <version.spring.framework.web-mvc>7.0.7</version.spring.framework.web-mvc>
 
         <!--Spring Boot Libraries-->
         <version.spring.boot>4.0.5</version.spring.boot>
@@ -86,6 +87,7 @@
 
         <!--Jakarta Specifications-->
         <version.jakarta.validation>3.1.1</version.jakarta.validation>
+        <version.jakarta.servlet-api>6.1.0</version.jakarta.servlet-api>
 
     </properties>
 
@@ -139,6 +141,13 @@
                 <scope>test</scope>
             </dependency>
 
+            <!--Jackson Databind-->
+            <dependency>
+                <groupId>tools.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${version.jackson}</version>
+            </dependency>
+
             <!--Jackson Xml-->
             <dependency>
                 <groupId>tools.jackson.dataformat</groupId>
@@ -160,6 +169,13 @@
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-commons</artifactId>
                 <version>${version.spring.framework.data}</version>
+            </dependency>
+
+            <!--Spring Framework WebMVC-->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${version.spring.framework.web-mvc}</version>
             </dependency>
 
             <!--Spring Boot Libraries Block-->
@@ -228,6 +244,13 @@
                 <groupId>jakarta.validation</groupId>
                 <artifactId>jakarta.validation-api</artifactId>
                 <version>${version.jakarta.validation}</version>
+            </dependency>
+
+            <!--Jakarta Servlet API-->
+            <dependency>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>${version.jakarta.servlet-api}</version>
             </dependency>
 
         </dependencies>
