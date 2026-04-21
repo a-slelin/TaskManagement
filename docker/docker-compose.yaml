@@ -7,20 +7,20 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
-      POSTGRES_DB: TaskManagement
+      POSTGRES_DB: APIDB
     ports:
       - "5432:5432"
     restart: unless-stopped
     volumes:
-      - task_management_data:/var/lib/postgresql/test-data
+      - task_management_api_data:/var/lib/postgresql/test-data
     networks:
       - task-management-network
 
   app:
-    image: aslelin/task-management-system:1.0.0
-    container_name: app
+    image: aslelin/task-management-api:1.0.0
+    container_name: api
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/TaskManagement
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/APIDB
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATASOURCE_PASSWORD: admin
     ports:
@@ -31,7 +31,7 @@ services:
       - task-management-network
 
 volumes:
-  task_management_data:
+  task_management_api_data:
 
 networks:
   task-management-network:
