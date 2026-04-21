@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: Task Management Auth Server
+    version: 1.0-SNAPSHOT
+
+  profiles:
+    active: dev
