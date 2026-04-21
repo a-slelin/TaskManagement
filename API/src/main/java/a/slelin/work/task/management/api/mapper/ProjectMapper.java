@@ -1,11 +1,11 @@
-package a.slelin.work.task.management.api.dto.mapper;
+package a.slelin.work.task.management.api.mapper;
 
-import a.slelin.work.task.management.api.dto.ProjectRD;
-import a.slelin.work.task.management.api.dto.ProjectWD;
-import a.slelin.work.task.management.api.dto.TaskRD;
 import a.slelin.work.task.management.api.entity.Project;
 import a.slelin.work.task.management.api.entity.Task;
 import a.slelin.work.task.management.api.entity.User;
+import a.slelin.work.task.management.core.dto.api.ProjectRD;
+import a.slelin.work.task.management.core.dto.api.ProjectWD;
+import a.slelin.work.task.management.core.dto.api.TaskRD;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -16,7 +16,7 @@ import java.util.List;
 public abstract class ProjectMapper {
 
     @Autowired
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @SuppressWarnings("SpringAutowiredFieldsWarningInspection")
     protected TaskMapper taskMapper;
 
     @Mapping(target = "id", ignore = true)

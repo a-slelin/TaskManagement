@@ -1,11 +1,11 @@
-package a.slelin.work.task.management.api.dto.mapper;
+package a.slelin.work.task.management.api.mapper;
 
-import a.slelin.work.task.management.api.dto.ProjectRD;
-import a.slelin.work.task.management.api.dto.UserRD;
-import a.slelin.work.task.management.api.dto.UserWD;
 import a.slelin.work.task.management.api.entity.Gender;
 import a.slelin.work.task.management.api.entity.Project;
 import a.slelin.work.task.management.api.entity.User;
+import a.slelin.work.task.management.core.dto.api.ProjectRD;
+import a.slelin.work.task.management.core.dto.api.UserRD;
+import a.slelin.work.task.management.core.dto.api.UserWD;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,11 +18,11 @@ import java.util.UUID;
 public abstract class UserMapper {
 
     @Autowired
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @SuppressWarnings("SpringAutowiredFieldsWarningInspection")
     protected PasswordEncoder encoder;
 
     @Autowired
-    @SuppressWarnings("SpringJavaAutowiredFieldsWarningInspection")
+    @SuppressWarnings("SpringAutowiredFieldsWarningInspection")
     protected ProjectMapper projectMapper;
 
     @Mapping(target = "id", ignore = true)

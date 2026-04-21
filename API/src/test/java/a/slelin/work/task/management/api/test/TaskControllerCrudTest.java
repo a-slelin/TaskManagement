@@ -1,11 +1,11 @@
 package a.slelin.work.task.management.api.test;
 
-import a.slelin.work.task.management.api.dto.SheetDto;
-import a.slelin.work.task.management.api.dto.TaskRD;
-import a.slelin.work.task.management.api.dto.TaskWD;
-import a.slelin.work.task.management.api.util.filter.Filter;
-import a.slelin.work.task.management.api.util.filter.FilterChain;
-import a.slelin.work.task.management.api.util.filter.Operation;
+import a.slelin.work.task.management.core.dto.SheetDto;
+import a.slelin.work.task.management.core.dto.api.TaskRD;
+import a.slelin.work.task.management.core.dto.api.TaskWD;
+import a.slelin.work.task.management.core.util.filter.Filter;
+import a.slelin.work.task.management.core.util.filter.FilterChain;
+import a.slelin.work.task.management.core.util.filter.Operation;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

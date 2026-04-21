@@ -1,10 +1,10 @@
-package a.slelin.work.task.management.api.dto.mapper;
+package a.slelin.work.task.management.api.mapper;
 
-import a.slelin.work.task.management.api.dto.TaskRD;
-import a.slelin.work.task.management.api.dto.TaskWD;
 import a.slelin.work.task.management.api.entity.Project;
 import a.slelin.work.task.management.api.entity.Status;
 import a.slelin.work.task.management.api.entity.Task;
+import a.slelin.work.task.management.core.dto.api.TaskRD;
+import a.slelin.work.task.management.core.dto.api.TaskWD;
 import org.mapstruct.*;
 
 @SuppressWarnings("unused")

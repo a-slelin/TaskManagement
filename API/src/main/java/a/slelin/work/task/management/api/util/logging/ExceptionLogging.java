@@ -1,6 +1,6 @@
 package a.slelin.work.task.management.api.util.logging;
 
-import a.slelin.work.task.management.api.exception.ErrorResponse;
+import a.slelin.work.task.management.core.exception.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
@@ -15,18 +15,19 @@ import org.springframework.stereotype.Component;
 @SuppressWarnings("unchecked")
 public class ExceptionLogging {
 
-    @After("execution(* a.slelin.work.task.management.api.exception.handler.BusinessExceptionHandler.*(..)))")
+    @After("execution(* a.slelin.work.task.management.api.exception.handler.BusinessExceptionHandler.*(..)) || " +
+            "execution(* a.slelin.work.task.management.core.exception.handler.BusinessExceptionHandler.*(..))")
     public void after(JoinPoint joinPoint) {
         log.info("\uD83E\uDDF0 Business error has occurred : {}", ((Exception) joinPoint.getArgs()[0]).getMessage());
     }
 
-    @AfterReturning(value = "execution(* a.slelin.work.task.management.api.exception.handler.ServiceExceptionHandler.*(..)))",
+    @AfterReturning(value = "execution(* a.slelin.work.task.management.core.exception.handler.ServiceExceptionHandler.*(..)))",
             returning = "result")
     public void after(Object result) {
         log.warn("⚠️ Service error has occurred : {}", ((ResponseEntity<ErrorResponse>) result).getBody());
     }
 
-    @AfterReturning(pointcut = "execution(* a.slelin.work.task.management.api.exception.handler.GlobalExceptionHandler.*(..))",
+    @AfterReturning(pointcut = "execution(* a.slelin.work.task.management.core.exception.handler.GlobalExceptionHandler.*(..))",
             returning = "result")
     public void after2(Object result) {
         log.error("⛔ Global error has occurred : {}", ((ResponseEntity<ErrorResponse>) result).getBody());

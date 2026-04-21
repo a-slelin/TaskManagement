@@ -1,5 +1,6 @@
 package a.slelin.work.task.management.api.entity;
 
+import a.slelin.work.task.management.core.entity.Audit;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

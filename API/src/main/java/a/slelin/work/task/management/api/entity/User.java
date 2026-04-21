@@ -1,6 +1,7 @@
 package a.slelin.work.task.management.api.entity;
 
 import a.slelin.work.task.management.api.util.validate.Phone;
+import a.slelin.work.task.management.core.entity.Audit;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -48,6 +49,7 @@ public class User extends Audit {
     @Convert(converter = GenderConverter.class)
     private Gender gender;
 
+    @SuppressWarnings("unused")
     public void setGender(Gender gender) {
         this.gender = Objects.requireNonNullElse(gender, Gender.UNDEFINED);
     }
@@ -94,6 +96,7 @@ public class User extends Audit {
         }
     }
 
+    @SuppressWarnings("unused")
     public User(UUID id, String username, String password,
                 Gender gender, String phone, String email,
                 List<Project> projects) {

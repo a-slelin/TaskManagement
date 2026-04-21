@@ -1,17 +1,18 @@
 package a.slelin.work.task.management.api.service;
 
-import a.slelin.work.task.management.api.dto.ProjectRD;
-import a.slelin.work.task.management.api.dto.SheetDto;
-import a.slelin.work.task.management.api.dto.UserRD;
-import a.slelin.work.task.management.api.dto.UserWD;
-import a.slelin.work.task.management.api.dto.mapper.ProjectMapper;
-import a.slelin.work.task.management.api.dto.mapper.UserMapper;
+import a.slelin.work.task.management.api.mapper.ProjectMapper;
+import a.slelin.work.task.management.api.mapper.UserMapper;
 import a.slelin.work.task.management.api.entity.User;
-import a.slelin.work.task.management.api.exception.EntityNotFoundByIdException;
 import a.slelin.work.task.management.api.repository.ProjectRepository;
 import a.slelin.work.task.management.api.repository.UserRepository;
-import a.slelin.work.task.management.api.util.filter.FilterChain;
-import a.slelin.work.task.management.api.util.filter.FilterUtil;
+import a.slelin.work.task.management.core.dto.SheetDto;
+import a.slelin.work.task.management.core.dto.api.ProjectRD;
+import a.slelin.work.task.management.core.dto.api.UserRD;
+import a.slelin.work.task.management.core.dto.api.UserWD;
+import a.slelin.work.task.management.core.exception.EntityNotFoundByIdException;
+import a.slelin.work.task.management.core.service.CrudService;
+import a.slelin.work.task.management.core.util.filter.FilterChain;
+import a.slelin.work.task.management.core.util.filter.FilterUtil;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;

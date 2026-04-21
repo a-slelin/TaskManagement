@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.ServletWebRequest;
 
-@Order(3)
+@Order(10)
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

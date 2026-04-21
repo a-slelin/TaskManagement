@@ -1,6 +1,6 @@
 package a.slelin.work.task.management.api.entity;
 
-import a.slelin.work.task.management.api.exception.EnumParseException;
+import a.slelin.work.task.management.core.exception.EnumParseException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

@@ -1,11 +1,11 @@
 package a.slelin.work.task.management.api.test;
 
-import a.slelin.work.task.management.api.dto.ProjectRD;
-import a.slelin.work.task.management.api.dto.SheetDto;
-import a.slelin.work.task.management.api.dto.TaskRD;
-import a.slelin.work.task.management.api.dto.UserRD;
-import a.slelin.work.task.management.api.exception.ErrorResponse;
 import a.slelin.work.task.management.api.exception.TaskSetProjectException;
+import a.slelin.work.task.management.core.dto.SheetDto;
+import a.slelin.work.task.management.core.dto.api.ProjectRD;
+import a.slelin.work.task.management.core.dto.api.TaskRD;
+import a.slelin.work.task.management.core.dto.api.UserRD;
+import a.slelin.work.task.management.core.exception.ErrorResponse;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

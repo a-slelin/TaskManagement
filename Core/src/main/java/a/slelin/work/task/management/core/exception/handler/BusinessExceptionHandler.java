@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 
-@Order(2)
+@Order(3)
 @RestControllerAdvice
 public class BusinessExceptionHandler {
 

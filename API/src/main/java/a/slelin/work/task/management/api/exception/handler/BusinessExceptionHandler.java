@@ -1,8 +1,7 @@
 package a.slelin.work.task.management.api.exception.handler;
 
-import a.slelin.work.task.management.api.exception.BusinessFault;
-import a.slelin.work.task.management.api.exception.ErrorResponse;
 import a.slelin.work.task.management.api.exception.TaskSetProjectException;
+import a.slelin.work.task.management.core.exception.ErrorResponse;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +20,6 @@ public class BusinessExceptionHandler {
                 .body(ErrorResponse.buildDefault(e, request)
                         .httpStatus(HttpStatus.BAD_REQUEST)
                         .debugMessage("Task set project failed.")
-                        .build());
-    }
-
-    @ExceptionHandler(BusinessFault.class)
-    public ResponseEntity<ErrorResponse> handleBusinessFault(BusinessFault e,
-                                                             ServletWebRequest request) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.buildDefault(e, request)
-                        .httpStatus(HttpStatus.BAD_REQUEST)
-                        .debugMessage("Business fault has occurred.")
                         .build());
     }
 }
