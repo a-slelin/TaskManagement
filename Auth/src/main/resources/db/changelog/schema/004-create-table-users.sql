@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset a.slelin:001-create-table-users
+--changeset a.slelin:004-create-table-users
 
 DROP TABLE IF EXISTS users CASCADE;
 
