@@ -2,8 +2,8 @@ package a.slelin.work.task.management.auth.controller.rest;
 
 import a.slelin.work.task.management.auth.service.UserService;
 import a.slelin.work.task.management.core.dto.SheetDto;
-import a.slelin.work.task.management.core.dto.api.UserRD;
-import a.slelin.work.task.management.core.dto.api.UserWD;
+import a.slelin.work.task.management.core.dto.auth.UserRD;
+import a.slelin.work.task.management.core.dto.auth.UserWD;
 import a.slelin.work.task.management.core.util.filter.FilterChain;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;

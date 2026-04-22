@@ -9,9 +9,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.ServletWebRequest;
 
+import java.nio.file.AccessDeniedException;
+
 @Order(10)
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> accessDeniedHandler(AccessDeniedException e,
+                                                             ServletWebRequest request) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ErrorResponse.buildDefault(e, request)
+                        .httpStatus(HttpStatus.FORBIDDEN)
+                        .debugMessage("Method forbidden.")
+                        .build());
+    }
 
     @ExceptionHandler(HttpClientErrorException.NotFound.class)
     public ResponseEntity<ErrorResponse> notFoundHandler(HttpClientErrorException.NotFound e,

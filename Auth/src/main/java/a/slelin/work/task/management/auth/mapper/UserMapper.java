@@ -2,8 +2,8 @@ package a.slelin.work.task.management.auth.mapper;
 
 import a.slelin.work.task.management.auth.entity.Gender;
 import a.slelin.work.task.management.auth.entity.User;
-import a.slelin.work.task.management.core.dto.api.UserRD;
-import a.slelin.work.task.management.core.dto.api.UserWD;
+import a.slelin.work.task.management.core.dto.auth.UserRD;
+import a.slelin.work.task.management.core.dto.auth.UserWD;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,20 +35,7 @@ public abstract class UserMapper {
 
     @Mapping(target = "id", qualifiedByName = "takeId")
     @Mapping(target = "gender", qualifiedByName = "takeGender")
-    @Mapping(target = "projects", ignore = true)
     public abstract UserRD toDto(User user);
-
-    @Mapping(target = "id", qualifiedByName = "takeId")
-    @Mapping(target = "projects", ignore = true)
-    @Mapping(target = "gender", qualifiedByName = "takeGender")
-//    @Mapping(target = "projects", qualifiedByName = "takeProjects")
-    public abstract UserRD toDtoWithProjects(User user);
-
-    @Mapping(target = "id", qualifiedByName = "takeId")
-    @Mapping(target = "projects", ignore = true)
-    @Mapping(target = "gender", qualifiedByName = "takeGender")
-//    @Mapping(target = "projects", qualifiedByName = "takeProjectsWithTasks")
-    public abstract UserRD toDtoWithProjectsAndTasks(User user);
 
     @Named("takeId")
     protected String takeId(UUID id) {

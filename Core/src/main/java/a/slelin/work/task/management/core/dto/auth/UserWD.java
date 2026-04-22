@@ -1,4 +1,4 @@
-package a.slelin.work.task.management.core.dto.api;
+package a.slelin.work.task.management.core.dto.auth;
 
 import a.slelin.work.task.management.core.dto.WriteDto;
 import lombok.Builder;

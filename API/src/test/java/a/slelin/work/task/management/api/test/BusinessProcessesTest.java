@@ -4,7 +4,7 @@ import a.slelin.work.task.management.api.exception.TaskSetProjectException;
 import a.slelin.work.task.management.core.dto.SheetDto;
 import a.slelin.work.task.management.core.dto.api.ProjectRD;
 import a.slelin.work.task.management.core.dto.api.TaskRD;
-import a.slelin.work.task.management.core.dto.api.UserRD;
+import a.slelin.work.task.management.core.dto.auth.UserRD;
 import a.slelin.work.task.management.core.exception.ErrorResponse;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;

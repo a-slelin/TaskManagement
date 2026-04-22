@@ -2,8 +2,8 @@ package a.slelin.work.task.management.api.test;
 
 import a.slelin.work.task.management.core.dto.*;
 import a.slelin.work.task.management.core.dto.api.*;
-import a.slelin.work.task.management.api.entity.User;
-import a.slelin.work.task.management.api.repository.UserRepository;
+import a.slelin.work.task.management.core.dto.auth.UserRD;
+import a.slelin.work.task.management.core.dto.auth.UserWD;
 import a.slelin.work.task.management.core.util.filter.Filter;
 import a.slelin.work.task.management.core.util.filter.FilterChain;
 import a.slelin.work.task.management.core.util.filter.Operation;

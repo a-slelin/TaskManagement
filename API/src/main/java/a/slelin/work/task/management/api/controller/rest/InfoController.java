@@ -26,7 +26,6 @@ public class InfoController {
                 "description", "REST API for managing tasks and projects",
                 "timestamp", LocalDateTime.now().toString(),
                 "links", Map.of(
-                        "users", "/api/users",
                         "projects", "/api/projects",
                         "tasks", "/api/tasks"
                 ));

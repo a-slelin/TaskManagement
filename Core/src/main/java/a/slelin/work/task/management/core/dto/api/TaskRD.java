@@ -9,7 +9,5 @@ import lombok.Builder;
 public record TaskRD(@NotNull @Min(1) Long id,
                      String title,
                      String description,
-                     String status,
-                     @NotNull @Min(1) Long project,
-                     @NotNull String user) implements ReadDto {
+                     String status) implements ReadDto {
 }

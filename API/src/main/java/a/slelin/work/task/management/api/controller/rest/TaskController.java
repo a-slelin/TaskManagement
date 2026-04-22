@@ -5,15 +5,14 @@ import a.slelin.work.task.management.core.dto.SheetDto;
 import a.slelin.work.task.management.core.dto.api.TaskRD;
 import a.slelin.work.task.management.core.dto.api.TaskWD;
 import a.slelin.work.task.management.core.util.filter.FilterChain;
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Validated
+import java.util.UUID;
+
 @RestController
 @RequestMapping(value = "/api/tasks",
         produces = {"application/json", "application/xml", "application/yaml"},
@@ -23,45 +22,51 @@ public class TaskController {
 
     private final TaskService service;
 
-    @GetMapping(consumes = "*/*")
-    public SheetDto<TaskRD> getTasks(@PageableDefault(sort = "id") Pageable pageable) {
-        return service.getAll(pageable);
-    }
-
-    @GetMapping(path = "/{id}", consumes = "*/*")
-    public TaskRD getTask(@PathVariable @Min(1) Long id) {
-        return service.getById(id);
+    @GetMapping(path = "/{task}", consumes = "*/*")
+    public TaskRD getTask(@PathVariable Long task) {
+        UUID user = getUserFromSecurityContext();
+        return service.getUserTask(user, task);
     }
 
     @PostMapping({"/search", "/filter"})
-    public SheetDto<TaskRD> search(@PageableDefault(sort = "id") Pageable pageable,
+    public SheetDto<TaskRD> search(@PageableDefault(sort = "title") Pageable pageable,
                                    @RequestBody FilterChain filters) {
-        return service.search(pageable, filters);
+        UUID user = getUserFromSecurityContext();
+        return service.searchUserTasks(user, filters, pageable);
     }
 
-    @PutMapping(path = "/{id}")
-    public TaskRD updateTask(@PathVariable @Min(1) Long id,
-                             @RequestBody TaskWD task) {
-        return service.update(id, task);
+    @PutMapping(path = "/{task}")
+    public TaskRD updateTask(@PathVariable Long task,
+                             @RequestBody TaskWD updTask) {
+        UUID user = getUserFromSecurityContext();
+        return service.updateUserTask(user, task, updTask);
     }
 
-    @PatchMapping(path = "/{id}")
-    public TaskRD patchTask(@PathVariable @Min(1) Long id,
-                            @RequestBody TaskWD task) {
-        return service.patch(id, task);
+    @PatchMapping(path = "/{task}")
+    public TaskRD patchTask(@PathVariable Long task,
+                            @RequestBody TaskWD pthTask) {
+        UUID user = getUserFromSecurityContext();
+        return service.patchUserTask(user, task, pthTask);
     }
 
-    @PostMapping(path = "/{id}/project/{projectId}", consumes = "*/*")
-    public TaskRD setProject(@PathVariable @Min(1) Long id,
-                             @PathVariable @Min(1) Long projectId) {
-        return service.drawToProject(projectId, id);
+    @PostMapping(path = "/{task}/project/{newProject}", consumes = "*/*")
+    public TaskRD setProject(@PathVariable Long task,
+                             @PathVariable Long newProject) {
+        UUID user = getUserFromSecurityContext();
+        return service.drawToProject(user, task, newProject);
     }
 
-    @DeleteMapping(path = "/{id}",
+    @DeleteMapping(path = "/{task}",
             consumes = "*/*",
             produces = "*/*")
-    public ResponseEntity<Void> deleteTask(@PathVariable @Min(1) Long id) {
-        service.delete(id);
+    public ResponseEntity<Void> deleteTask(@PathVariable Long task) {
+        UUID user = getUserFromSecurityContext();
+
+        service.deleteUserTask(user, task);
         return ResponseEntity.noContent().build();
+    }
+
+    private UUID getUserFromSecurityContext() {
+        return UUID.randomUUID();
     }
 }
