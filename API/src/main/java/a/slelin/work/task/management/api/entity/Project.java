@@ -8,6 +8,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,7 +19,7 @@ import java.util.List;
 @Entity(name = Project.ENTITY_NAME)
 @EqualsAndHashCode(callSuper = false)
 @Table(name = Project.TABLE_NAME,
-        uniqueConstraints = @UniqueConstraint(columnNames = {"name", "owner_id"}))
+        uniqueConstraints = @UniqueConstraint(columnNames = {"name", "user_id"}))
 public class Project extends Audit {
 
     public static final String ENTITY_NAME = "Project";
@@ -36,11 +37,8 @@ public class Project extends Audit {
 
     private String description;
 
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "owner_id", nullable = false)
-    private User user;
+    @Column(nullable = false, name = "user_id")
+    private UUID user;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

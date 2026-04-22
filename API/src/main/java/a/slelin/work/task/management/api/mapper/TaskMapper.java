@@ -1,6 +1,5 @@
 package a.slelin.work.task.management.api.mapper;
 
-import a.slelin.work.task.management.api.entity.Project;
 import a.slelin.work.task.management.api.entity.Status;
 import a.slelin.work.task.management.api.entity.Task;
 import a.slelin.work.task.management.core.dto.api.TaskRD;
@@ -22,23 +21,11 @@ public interface TaskMapper {
     }
 
     @Mapping(target = "status", qualifiedByName = "takeStatus")
-    @Mapping(target = "project", qualifiedByName = "takeProject")
-    @Mapping(target = "user", source = ".", qualifiedByName = "takeUser")
     TaskRD toDto(Task task);
 
     @Named("takeStatus")
     default String takeStatus(Status status) {
         return status.getDisplayName();
-    }
-
-    @Named("takeProject")
-    default Long takeProject(Project project) {
-        return project.getId();
-    }
-
-    @Named("takeUser")
-    default String takeUser(Task task) {
-        return task.getProject().getUser().getId().toString();
     }
 
     @Mapping(target = "id", ignore = true)
