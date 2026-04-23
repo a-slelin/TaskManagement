@@ -14,8 +14,6 @@ public interface ProjectMapper {
     @Mapping(target = "user", ignore = true)
     Project toEntity(ProjectWD project);
 
-    @Mapping(target = "user", ignore = true)
-    @Mapping(target = "tasks", ignore = true)
     ProjectRD toDto(Project project);
 
     @Mapping(target = "id", ignore = true)

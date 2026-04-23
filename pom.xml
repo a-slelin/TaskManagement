@@ -76,6 +76,7 @@
         <version.h2>2.4.240</version.h2>
         <version.httpclient>5.6</version.httpclient>
         <version.jackson>3.1.2</version.jackson>
+        <version.jwt>0.13.0</version.jwt>
 
         <!--Spring Framework Libraries-->
         <version.spring.framework.data>4.0.5</version.spring.framework.data>
@@ -163,6 +164,29 @@
                 <version>${version.jackson}</version>
             </dependency>
 
+            <!--JWT API-->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${version.jwt}</version>
+            </dependency>
+
+            <!--JWT Impl-->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${version.jwt}</version>
+                <scope>runtime</scope>
+            </dependency>
+
+            <!--JWT Jackson-->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${version.jwt}</version>
+                <scope>runtime</scope>
+            </dependency>
+
             <!--Spring Framework Libraries Block-->
 
             <!--Spring Framework Data JPA-->
@@ -206,6 +230,13 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-security</artifactId>
+                <version>${version.spring.boot}</version>
+            </dependency>
+
+            <!--Spring Boot Security Oauth2 Resource Server-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
                 <version>${version.spring.boot}</version>
             </dependency>
 
