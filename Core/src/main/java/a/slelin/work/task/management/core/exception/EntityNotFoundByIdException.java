@@ -1,13 +1,6 @@
 package a.slelin.work.task.management.core.exception;
 
-import lombok.Getter;
-
-@Getter
-public class EntityNotFoundByIdException extends RuntimeException {
-
-    private final Class<?> entity;
-
-    private final Object invalidKey;
+public class EntityNotFoundByIdException extends EntityNotFoundByPropertyException {
 
     @SuppressWarnings("unused")
     public EntityNotFoundByIdException(Class<?> entity, Object invalidKey) {
@@ -16,8 +9,6 @@ public class EntityNotFoundByIdException extends RuntimeException {
     }
 
     public EntityNotFoundByIdException(Class<?> entity, Object invalidKey, String message) {
-        this.entity = entity;
-        this.invalidKey = invalidKey;
-        super(message);
+        super(entity, "id", invalidKey, message);
     }
 }

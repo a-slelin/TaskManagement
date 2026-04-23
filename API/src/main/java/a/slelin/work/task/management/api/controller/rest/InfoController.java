@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/api", produces = {"application/json", "application/xml", "application/yaml"})
+@RequestMapping(value = "/api",
+        produces = {"application/json", "application/xml", "application/yaml"})
 public class InfoController {
 
     @Value("${spring.application.name}")

@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -23,50 +25,51 @@ public class TaskController {
     private final TaskService service;
 
     @GetMapping(path = "/{task}", consumes = "*/*")
-    public TaskRD getTask(@PathVariable Long task) {
-        UUID user = getUserFromSecurityContext();
-        return service.getUserTask(user, task);
+    public TaskRD getTask(@AuthenticationPrincipal Jwt jwt,
+                          @PathVariable Long task) {
+        return service.getUserTask(extractUserId(jwt), task);
     }
 
     @PostMapping({"/search", "/filter"})
-    public SheetDto<TaskRD> search(@PageableDefault(sort = "title") Pageable pageable,
+    public SheetDto<TaskRD> search(@AuthenticationPrincipal Jwt jwt,
+                                   @PageableDefault(sort = "title") Pageable pageable,
                                    @RequestBody FilterChain filters) {
-        UUID user = getUserFromSecurityContext();
-        return service.searchUserTasks(user, filters, pageable);
+        return service.searchUserTasks(extractUserId(jwt), filters, pageable);
     }
 
     @PutMapping(path = "/{task}")
-    public TaskRD updateTask(@PathVariable Long task,
+    public TaskRD updateTask(@AuthenticationPrincipal Jwt jwt,
+                             @PathVariable Long task,
                              @RequestBody TaskWD updTask) {
-        UUID user = getUserFromSecurityContext();
-        return service.updateUserTask(user, task, updTask);
+        return service.updateUserTask(extractUserId(jwt), task, updTask);
     }
 
     @PatchMapping(path = "/{task}")
-    public TaskRD patchTask(@PathVariable Long task,
+    public TaskRD patchTask(@AuthenticationPrincipal Jwt jwt,
+                            @PathVariable Long task,
                             @RequestBody TaskWD pthTask) {
-        UUID user = getUserFromSecurityContext();
-        return service.patchUserTask(user, task, pthTask);
+        return service.patchUserTask(extractUserId(jwt), task, pthTask);
     }
 
     @PostMapping(path = "/{task}/project/{newProject}", consumes = "*/*")
-    public TaskRD setProject(@PathVariable Long task,
+    public TaskRD setProject(@AuthenticationPrincipal Jwt jwt,
+                             @PathVariable Long task,
                              @PathVariable Long newProject) {
-        UUID user = getUserFromSecurityContext();
-        return service.drawToProject(user, task, newProject);
+        return service.drawToProject(extractUserId(jwt), task, newProject);
     }
 
     @DeleteMapping(path = "/{task}",
             consumes = "*/*",
             produces = "*/*")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long task) {
-        UUID user = getUserFromSecurityContext();
+    public ResponseEntity<Void> deleteTask(@AuthenticationPrincipal Jwt jwt,
+                                           @PathVariable Long task) {
+        UUID user = extractUserId(jwt);
 
         service.deleteUserTask(user, task);
         return ResponseEntity.noContent().build();
     }
 
-    private UUID getUserFromSecurityContext() {
-        return UUID.randomUUID();
+    private UUID extractUserId(Jwt jwt) {
+        return UUID.fromString(jwt.getClaimAsString("sub"));
     }
 }

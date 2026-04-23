@@ -23,7 +23,7 @@ public class ServiceExceptionHandler {
                         .httpStatus(HttpStatus.NOT_FOUND)
                         .debugMessage("Cannot find entity by id. Check input id.")
                         .details(Map.of("entity", e.getEntity().getSimpleName(),
-                                "invalidId", e.getInvalidKey().toString()))
+                                "invalidId", e.getInvalidProperty().toString()))
                         .build());
     }
 
