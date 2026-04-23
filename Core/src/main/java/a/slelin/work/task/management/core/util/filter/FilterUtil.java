@@ -9,7 +9,6 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 @SuppressWarnings("unused")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -43,18 +42,8 @@ public final class FilterUtil {
         Path<T> path = getNestedPath(root, field);
 
         return switch (operation) {
-            case EQ -> {
-                if (path.getJavaType() == UUID.class) {
-                    value = UUID.fromString((String) value);
-                }
-                yield cb.equal(path, value);
-            }
-            case NEQ -> {
-                if (path.getJavaType() == UUID.class) {
-                    value = UUID.fromString((String) value);
-                }
-                yield cb.notEqual(path, value);
-            }
+            case EQ -> cb.equal(path, value);
+            case NEQ -> cb.notEqual(path, value);
 
             case IS_NULL -> cb.isNull(path);
             case IS_NOT_NULL -> cb.isNotNull(path);

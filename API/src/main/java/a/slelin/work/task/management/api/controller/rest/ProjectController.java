@@ -64,7 +64,7 @@ public class ProjectController {
 
         ProjectRD savedProject = service.createUserProject(user, newProject);
         URI location = MvcUriComponentsBuilder
-                .fromMethodName(ProjectController.class, "getProject", savedProject.id())
+                .fromMethodName(ProjectController.class, "getProject", jwt, savedProject.id())
                 .build()
                 .toUri();
 
@@ -81,7 +81,7 @@ public class ProjectController {
 
         TaskRD savedTask = taskService.createUserTask(user, project, newTask);
         URI location = MvcUriComponentsBuilder
-                .fromMethodName(TaskController.class, "getTask", savedTask.id())
+                .fromMethodName(TaskController.class, "getTask", jwt, savedTask.id())
                 .build()
                 .toUri();
 

@@ -66,7 +66,7 @@ public class ProjectService {
     public SheetDto<ProjectRD> searchUserProjects(@NotNull @Valid UUID user,
                                                   @NotNull @Valid FilterChain filters,
                                                   @NotNull @Valid Pageable pageable) {
-        filters.add(Filter.of("user_id", Operation.EQ, user));
+        filters.add(Filter.of("user", Operation.EQ, user));
         Specification<Project> specification = FilterUtil.toSpecification(filters);
 
         return SheetDto.of(projectRepository.findAll(specification, pageable), projectMapper::toDto);
