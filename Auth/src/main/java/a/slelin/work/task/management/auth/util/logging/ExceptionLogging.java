@@ -15,8 +15,7 @@ import org.springframework.stereotype.Component;
 @SuppressWarnings("unchecked")
 public class ExceptionLogging {
 
-    @After("execution(* a.slelin.work.task.management.api.exception.handler.BusinessExceptionHandler.*(..)) || " +
-            "execution(* a.slelin.work.task.management.core.exception.handler.BusinessExceptionHandler.*(..))")
+    @After("execution(* a.slelin.work.task.management.core.exception.handler.BusinessExceptionHandler.*(..))")
     public void after(JoinPoint joinPoint) {
         log.info("\uD83E\uDDF0 Business error has occurred : {}", ((Exception) joinPoint.getArgs()[0]).getMessage());
     }

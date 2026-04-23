@@ -19,6 +19,8 @@ public abstract class UserMapper {
     protected PasswordEncoder encoder;
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "refreshTokens", ignore = true)
     @Mapping(target = "password", qualifiedByName = "getPassword")
     @Mapping(target = "gender", qualifiedByName = "getGender")
     public abstract User toEntity(UserWD user);
@@ -48,6 +50,8 @@ public abstract class UserMapper {
     }
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "refreshTokens", ignore = true)
     @Mapping(target = "gender", qualifiedByName = "getGender")
     @Mapping(target = "password", qualifiedByName = "getPassword")
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
