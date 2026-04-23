@@ -22,3 +22,9 @@ spring:
     enabled: true
     drop-first: true
     contexts: test
+
+jwt:
+  secret: FwJAWeXDnVbY9ZSV7VsBIp616bKUMy46Tc1ZrzkLT0Kn48HR78f+o2fbcRmkjR6IkiqNyMtLdU9987b7grHr0w==
+
+server:
+  port: 8080
