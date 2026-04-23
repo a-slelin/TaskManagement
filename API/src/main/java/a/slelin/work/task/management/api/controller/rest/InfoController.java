@@ -1,34 +1,37 @@
 package a.slelin.work.task.management.api.controller.rest;
 
-import org.springframework.beans.factory.annotation.Value;
+import a.slelin.work.task.management.api.util.ApplicationHolder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/api",
+@RequestMapping(value = "/",
         produces = {"application/json", "application/xml", "application/yaml"})
 public class InfoController {
 
-    @Value("${spring.application.name}")
-    private String name;
+    @Autowired
+    @SuppressWarnings("SpringAutowiredFieldsWarningInspection")
+    private ApplicationHolder applicationHolder;
 
-    @Value("${spring.application.version}")
-    private String version;
-
-    @GetMapping({"", "/", "/help", "/help/", "/info", "/info/"})
+    @GetMapping({"/help", "/help/", "/info", "/info/",
+            "/api", "/api/", "/api/help", "/api/help/",
+            "/api/info", "/api/info/"})
     public Map<String, Object> getInfo() {
-        return Map.of(
-                "name", name,
-                "version", version,
-                "description", "REST API for managing tasks and projects",
-                "timestamp", LocalDateTime.now().toString(),
-                "links", Map.of(
-                        "projects", "/api/projects",
-                        "tasks", "/api/tasks"
-                ));
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("name", applicationHolder.name());
+        map.put("version", applicationHolder.version());
+        map.put("description", applicationHolder.description());
+        map.put("timestamp", LocalDateTime.now().toString());
+        map.put("links", Map.of(
+                "/api/projects/**", "Management of your projects.",
+                "/api/tasks/**", "Management of your tasks."
+        ));
+        return map;
     }
 }

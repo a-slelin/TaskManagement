@@ -22,7 +22,3 @@ spring:
     enabled: true
     drop-first: true
     contexts: test
-
-logging:
-  level:
-    root: info

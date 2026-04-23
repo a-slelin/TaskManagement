@@ -1,6 +1,8 @@
+-- noinspection SqlWithoutWhereForFile
+
 --liquibase formatted sql
 
---changeset a.slelin:002-insert-tasks
+--changeset a.slelin:002-insert-tasks context:!prod
 
 DELETE
 FROM task;

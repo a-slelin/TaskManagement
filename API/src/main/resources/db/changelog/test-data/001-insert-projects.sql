@@ -1,6 +1,8 @@
+-- noinspection SqlWithoutWhereForFile
+
 --liquibase formatted sql
 
---changeset a.slelin:001-insert-projects
+--changeset a.slelin:001-insert-projects context:!prod
 
 DELETE
 FROM project;
