@@ -18,6 +18,7 @@
         <module>API</module>
         <module>Auth</module>
         <module>Core</module>
+        <module>E2E</module>
     </modules>
 
     <developers>
@@ -63,6 +64,7 @@
         <version.plugin.clean>3.5.0</version.plugin.clean>
         <version.plugin.compile>3.15.0</version.plugin.compile>
         <version.plugin.surefire>3.5.5</version.plugin.surefire>
+        <version.plugin.failsafe>3.5.5</version.plugin.failsafe>
         <version.plugin.jar>3.5.0</version.plugin.jar>
         <version.plugin.install>3.1.4</version.plugin.install>
 
@@ -74,6 +76,8 @@
         <version.mapstruct>1.6.3</version.mapstruct>
         <version.postgresql>42.7.10</version.postgresql>
         <version.h2>2.4.240</version.h2>
+        <version.junit>6.0.3</version.junit>
+        <version.testcontainers>2.0.5</version.testcontainers>
         <version.httpclient>5.6</version.httpclient>
         <version.jackson>3.1.2</version.jackson>
         <version.jwt>0.13.0</version.jwt>
@@ -133,6 +137,22 @@
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>${version.h2}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!--Junit API-->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${version.junit}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!--Testcontainers-->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${version.testcontainers}</version>
                 <scope>test</scope>
             </dependency>
 
@@ -348,6 +368,21 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${version.plugin.surefire}</version>
+                </plugin>
+
+                <!--Failsafe plugin-->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${version.plugin.failsafe}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
 
                 <!--Jar plugin -->
