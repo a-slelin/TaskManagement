@@ -31,7 +31,7 @@ public class UserController {
         return service.patch(extractUserId(jwt), pthUser);
     }
 
-    @DeleteMapping
+    @DeleteMapping(consumes = "*/*", produces = "*/*")
     public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal Jwt jwt) {
         service.delete(extractUserId(jwt));
         return ResponseEntity.noContent().build();
