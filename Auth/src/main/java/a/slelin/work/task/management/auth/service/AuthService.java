@@ -92,6 +92,11 @@ public class AuthService {
     }
 
     public void logout(@NotNull String refreshToken) {
+
+        if (refreshToken.startsWith("Bearer")) {
+            refreshToken = refreshToken.substring("Bearer".length()).trim();
+        }
+
         if (!jwtService.isTokenValid(refreshToken)) {
             throw new AuthenticationCredentialsNotFoundException("Invalid refresh token.");
         }
@@ -131,6 +136,11 @@ public class AuthService {
     }
 
     public void logoutAll(@NotNull String refreshToken) {
+
+        if (refreshToken.startsWith("Bearer")) {
+            refreshToken = refreshToken.substring("Bearer".length()).trim();
+        }
+
         if (!jwtService.isTokenValid(refreshToken)) {
             throw new AuthenticationCredentialsNotFoundException("Invalid refresh token.");
         }

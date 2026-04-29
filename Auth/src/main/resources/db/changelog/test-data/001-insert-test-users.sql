@@ -4,9 +4,6 @@
 
 --changeset a.slelin:001-insert-test-users context:!prod
 
-DELETE
-FROM users;
-
 INSERT INTO users (id, username, password, gender, phone, email)
 VALUES ('ff80a205-67e1-4d22-b886-1be26e51ee9f', 'alex_petrov',
         '$2a$10$u9koaSYf1BfoPPYOiPJHS.gW78bKHJ0QcI1GkrS38YjuQbIX5zBs2',

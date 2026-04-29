@@ -1,6 +1,8 @@
 package a.slelin.work.task.management.auth.service;
 
 import a.slelin.work.task.management.auth.entity.Role;
+import a.slelin.work.task.management.auth.exception.DeleteSystemRoleException;
+import a.slelin.work.task.management.auth.exception.UpdateNameSystemRoleException;
 import a.slelin.work.task.management.auth.mapper.RoleMapper;
 import a.slelin.work.task.management.auth.repository.RoleRepository;
 import a.slelin.work.task.management.core.dto.SheetDto;
@@ -71,6 +73,8 @@ public class RolesService {
         Role role = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundByIdException(Role.class, id));
 
+        UpdateNameSystemRoleException.checkAndThrow(role);
+
         Role updatedRole = mapper.toEntity(updRole);
         updatedRole.setId(id);
         updatedRole.setUsers(role.getUsers());
@@ -84,6 +88,10 @@ public class RolesService {
         Role role = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundByIdException(Role.class, id));
 
+        if (ptcRole.name() != null) {
+            UpdateNameSystemRoleException.checkAndThrow(role);
+        }
+
         role = mapper.patch(role, ptcRole);
         role = repo.save(role);
 
@@ -91,9 +99,10 @@ public class RolesService {
     }
 
     public void deleteRole(@NotNull @Min(1) Long id) {
-        if (!repo.existsById(id)) {
-            throw new EntityNotFoundByIdException(Role.class, id);
-        }
+        Role role = repo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundByIdException(Role.class, id));
+
+        DeleteSystemRoleException.checkAndThrow(role);
 
         repo.deleteById(id);
     }

@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ActiveProfiles("test")
 @DisplayName("Тест приветственной страницы")
-@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class WelcomePageControllerTest {
 

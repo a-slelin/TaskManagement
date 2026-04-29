@@ -1,20 +1,68 @@
 package a.slelin.work.task.management.auth.security;
 
+import a.slelin.work.task.management.auth.util.JwtHolder;
+import io.jsonwebtoken.io.Decoders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+
+import javax.crypto.spec.SecretKeySpec;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
 
+    @Autowired
+    private JwtHolder jwtHolder;
+
     @Bean
     public PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        byte[] secretBytes = Decoders.BASE64.decode(jwtHolder.secret());
+        SecretKeySpec secretKey = new SecretKeySpec(secretBytes, "HmacSHA512");
+        return NimbusJwtDecoder
+                .withSecretKey(secretKey)
+                .macAlgorithm(MacAlgorithm.HS512)
+                .build();
+    }
+
+    @Bean
+    public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+
+        converter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            Collection<GrantedAuthority> authorities = new ArrayList<>();
+            List<String> roles = jwt.getClaimAsStringList("roles");
+            if (roles != null) {
+                for (String role : roles) {
+                    authorities.add(new SimpleGrantedAuthority(role));
+                }
+            }
+            return authorities;
+        });
+
+        return converter;
     }
 
     @Bean
@@ -38,14 +86,21 @@ public class SecurityConfig {
                         auth.requestMatchers("/images/**").permitAll())
 
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/api/users/**",
-                                "/api/roles/**", "/api/tokens/**").hasRole("ADMIN"))
+                        auth.requestMatchers("/api/user/**").hasRole("USER"))
+
+                .authorizeHttpRequests(auth ->
+                        auth.requestMatchers("/api/admin/**").hasRole("ADMIN"))
 
                 .authorizeHttpRequests(auth ->
                         auth.anyRequest().authenticated())
 
                 .sessionManagement(s ->
                         s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt ->
+                                jwt.decoder(jwtDecoder())
+                                        .jwtAuthenticationConverter(jwtAuthenticationConverter())))
                 .build();
     }
 }
