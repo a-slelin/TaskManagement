@@ -156,6 +156,22 @@
                 <scope>test</scope>
             </dependency>
 
+            <!--Testcontainers Junit-->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-junit-jupiter</artifactId>
+                <version>${version.testcontainers}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!--Testcontainers PostgreSQL-->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-postgresql</artifactId>
+                <version>${version.testcontainers}</version>
+                <scope>test</scope>
+            </dependency>
+
             <!--HttpClient-->
             <dependency>
                 <groupId>org.apache.httpcomponents.client5</groupId>
