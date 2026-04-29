@@ -1,14 +1,17 @@
 package a.slelin.work.task.management.auth.service;
 
 import a.slelin.work.task.management.auth.entity.RefreshToken;
+import a.slelin.work.task.management.auth.entity.Role;
 import a.slelin.work.task.management.auth.entity.User;
 import a.slelin.work.task.management.auth.mapper.UserMapper;
 import a.slelin.work.task.management.auth.repository.RefreshTokenRepository;
+import a.slelin.work.task.management.auth.repository.RoleRepository;
 import a.slelin.work.task.management.auth.repository.UserRepository;
 import a.slelin.work.task.management.auth.util.JwtHolder;
 import a.slelin.work.task.management.core.dto.auth.JwtResponse;
 import a.slelin.work.task.management.core.dto.auth.LoginRequest;
 import a.slelin.work.task.management.core.dto.auth.UserWD;
+import a.slelin.work.task.management.core.exception.EntityNotFoundByPropertyException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @Validated
@@ -34,13 +39,14 @@ public class AuthService {
 
     private final UserRepository userRepository;
 
+    private final RoleRepository roleRepository;
+
     private final RefreshTokenRepository refreshTokenRepository;
 
     private final JwtHolder jwtHolder;
 
     private final JwtService jwtService;
 
-    @Transactional(readOnly = true)
     public JwtResponse login(@NotNull @Valid LoginRequest login) {
         User user = userRepository.findByFactor(login.factor())
                 .orElseThrow(() -> new BadCredentialsException("Invalid factor or password."));
@@ -64,6 +70,11 @@ public class AuthService {
 
     @Transactional(readOnly = true)
     public JwtResponse refresh(@NotNull String refreshToken) {
+
+        if (refreshToken.startsWith("Bearer")) {
+            refreshToken = refreshToken.substring("Bearer".length()).trim();
+        }
+
         if (!jwtService.isTokenValid(refreshToken)) {
             throw new AuthenticationCredentialsNotFoundException("Invalid refresh token.");
         }
@@ -97,6 +108,13 @@ public class AuthService {
 
     public JwtResponse register(@NotNull @Valid UserWD newUser) {
         User user = userMapper.toEntity(newUser);
+
+        Role role = roleRepository.findByName("ROLE_USER")
+                .orElseThrow(() -> new EntityNotFoundByPropertyException(Role.class, "name", "ROLE_USER"));
+        Set<Role> roles = new HashSet<>();
+        roles.add(role);
+        user.setRoles(roles);
+
         user = userRepository.save(user);
 
         String refreshToken = jwtService.generateRefreshToken(user);

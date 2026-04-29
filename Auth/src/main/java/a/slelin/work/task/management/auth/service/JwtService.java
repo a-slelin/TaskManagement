@@ -27,6 +27,7 @@ public class JwtService {
                 .toList();
 
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .subject(user.getId().toString())
                 .claim("roles", roles)
                 .issuedAt(new Date())
@@ -37,6 +38,7 @@ public class JwtService {
 
     public String generateRefreshToken(User user) {
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .subject(user.getId().toString())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtHolder.refreshExpiration()))

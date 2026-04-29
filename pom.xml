@@ -81,6 +81,7 @@
         <!--Spring Framework Libraries-->
         <version.spring.framework.data>4.0.5</version.spring.framework.data>
         <version.spring.framework.web-mvc>7.0.7</version.spring.framework.web-mvc>
+        <version.spring.framework.security>7.0.5</version.spring.framework.security>
 
         <!--Spring Boot Libraries-->
         <version.spring.boot>4.0.5</version.spring.boot>
@@ -201,6 +202,13 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-webmvc</artifactId>
                 <version>${version.spring.framework.web-mvc}</version>
+            </dependency>
+
+            <!--Spring Framework Security Core-->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-core</artifactId>
+                <version>${version.spring.framework.security}</version>
             </dependency>
 
             <!--Spring Boot Libraries Block-->

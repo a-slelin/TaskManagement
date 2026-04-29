@@ -4,6 +4,7 @@ import a.slelin.work.task.management.core.exception.ErrorResponse;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
@@ -14,6 +15,16 @@ import java.nio.file.AccessDeniedException;
 @Order(10)
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> badCredentialsException(BadCredentialsException e,
+                                                                 ServletWebRequest request) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ErrorResponse.buildDefault(e, request)
+                        .httpStatus(HttpStatus.CONFLICT)
+                        .debugMessage("Fail login.")
+                        .build());
+    }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> accessDeniedHandler(AccessDeniedException e,

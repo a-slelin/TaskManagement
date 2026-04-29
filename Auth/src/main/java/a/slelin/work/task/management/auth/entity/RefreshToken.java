@@ -29,8 +29,10 @@ public class RefreshToken {
     private UUID id;
 
     @NotBlank
-    @Size(min = 3, max = 255)
-    @Column(nullable = false, unique = true)
+    @Size(min = 3, max = 1024)
+    @Column(nullable = false,
+            unique = true,
+            length = 1024)
     private String token;
 
     @NotNull

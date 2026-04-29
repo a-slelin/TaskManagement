@@ -8,7 +8,7 @@ CREATE TABLE refresh_token
 (
     id          UUID                  DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id     UUID REFERENCES users (id) ON DELETE CASCADE,
-    token       VARCHAR(255) NOT NULL UNIQUE,
+    token       VARCHAR(1024) NOT NULL UNIQUE,
     created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     expiry_date TIMESTAMP    NOT NULL
 );
