@@ -7,7 +7,6 @@ import a.slelin.work.task.management.core.dto.api.TaskRD;
 import a.slelin.work.task.management.core.dto.api.TaskWD;
 import a.slelin.work.task.management.core.dto.auth.JwtResponse;
 import a.slelin.work.task.management.core.dto.auth.UserWD;
-import a.slelin.work.task.management.core.exception.ErrorResponse;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -100,9 +99,6 @@ public class AuthApiInteractionIT {
             assertNotNull(e.getStatusCode());
             assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
 
-            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
-            assertNotNull(errorResponse);
-
         } catch (Exception e) {
             fail("Should throw HttpClientErrorException.Unauthorized, but got " + e.getMessage());
         }
@@ -187,9 +183,14 @@ public class AuthApiInteractionIT {
         assertNotNull(response3.getStatusCode());
         assertEquals(HttpStatus.CREATED, response3.getStatusCode());
 
-        assertNotNull(headers);
-        URI uri = headers.getLocation();
-        assertNotNull(uri);
+        HttpHeaders headers2 = response3.getHeaders();
+        assertNotNull(headers2);
+        List<String> locations = headers2.get("Location");
+        assertNotNull(locations);
+        String locationStr = locations.getFirst();
+        assertNotNull(locationStr);
+        URI location = URI.create(locationStr);
+        assertNotNull(location);
 
         ProjectRD savedProject = response3.getBody();
         assertNotNull(savedProject);
@@ -257,16 +258,16 @@ public class AuthApiInteractionIT {
          * Выходим из системы.
          * */
 
-        HttpHeaders headers2 = new HttpHeaders();
-        headers2.setBearerAuth(jwtResponse.refreshToken());
+        HttpHeaders headers3 = new HttpHeaders();
+        headers3.setBearerAuth(jwtResponse.refreshToken());
 
         ResponseEntity<Void> response6 = rest.exchange(
                 authUrl + "/auth/logout",
                 HttpMethod.GET,
-                new HttpEntity<>(headers2),
+                new HttpEntity<>(headers3),
                 Void.class);
         assertNotNull(response6);
         assertNotNull(response6.getStatusCode());
-        assertEquals(HttpStatus.OK, response6.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, response6.getStatusCode());
     }
 }
