@@ -14,6 +14,7 @@ import java.nio.file.AccessDeniedException;
 
 @Order(10)
 @RestControllerAdvice
+@SuppressWarnings("unused")
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)

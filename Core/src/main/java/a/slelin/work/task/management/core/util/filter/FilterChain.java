@@ -1,6 +1,7 @@
 package a.slelin.work.task.management.core.util.filter;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 @SuppressWarnings("unused")
-public record FilterChain(@NotNull List<Filter> filters) {
+public record FilterChain(@NotNull List<@NotNull Filter> filters) {
 
     public boolean isEmpty() {
         return filters.isEmpty();
@@ -53,5 +54,26 @@ public record FilterChain(@NotNull List<Filter> filters) {
     public FilterChain remove(@NotNull Filter filter) {
         filters.remove(filter);
         return this;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "FilterChain: [hashCode = %d]".formatted(this.hashCode());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        FilterChain that = (FilterChain) o;
+        return Objects.equals(filters, that.filters);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(filters);
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 
 @Order(3)
 @RestControllerAdvice
+@SuppressWarnings("unused")
 public class BusinessExceptionHandler {
 
     @ExceptionHandler(BusinessFault.class)

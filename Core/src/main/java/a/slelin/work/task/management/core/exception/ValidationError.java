@@ -6,9 +6,11 @@ import jakarta.validation.Path;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import lombok.NonNull;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Builder
 public record ValidationError(@NotBlank String field,
@@ -41,6 +43,33 @@ public record ValidationError(@NotBlank String field,
         String fullPath = path.toString();
         return fullPath.contains(".") ?
                 fullPath.substring(fullPath.lastIndexOf('.') + 1) : fullPath;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "ValidationError: [field = %s, message = %s, value = %s, type = %s, path = %s, details = %s]"
+                .formatted(field, message, value, type, path, details);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ValidationError that = (ValidationError) o;
+        return Objects.equals(type, that.type) &&
+                Objects.equals(path, that.path) &&
+                Objects.equals(field, that.field) &&
+                Objects.equals(value, that.value) &&
+                Objects.equals(message, that.message) &&
+                Objects.equals(details, that.details);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(field, message, value, type, path, details);
     }
 }
 

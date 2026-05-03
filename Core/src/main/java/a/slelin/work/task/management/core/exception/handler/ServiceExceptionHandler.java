@@ -13,6 +13,7 @@ import java.util.Map;
 
 @Order(1)
 @RestControllerAdvice
+@SuppressWarnings("unused")
 public class ServiceExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundByIdException.class)

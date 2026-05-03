@@ -4,9 +4,11 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import lombok.NonNull;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Objects;
 
 @Builder
 public record PageDto(@NotNull @Min(0) Integer number,
@@ -33,5 +35,34 @@ public record PageDto(@NotNull @Min(0) Integer number,
                 .last(page.isLast())
                 .empty(page.isEmpty())
                 .build();
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "PageDto: [number = %d, size = %d, totalElements = %d, totalPages = %d]"
+                .formatted(number, size, totalElements, totalPages);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        PageDto page = (PageDto) o;
+        return last == page.last &&
+                first == page.first &&
+                empty == page.empty &&
+                Objects.equals(size, page.size) &&
+                Objects.equals(number, page.number) &&
+                Objects.equals(totalElements, page.totalElements) &&
+                Objects.equals(totalPages, page.totalPages) &&
+                Objects.equals(sorts, page.sorts);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(number, size, sorts, totalElements, totalPages, first, last, empty);
     }
 }

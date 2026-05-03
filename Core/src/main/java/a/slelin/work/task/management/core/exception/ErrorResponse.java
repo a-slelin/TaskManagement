@@ -5,6 +5,7 @@ import a.slelin.work.task.management.core.util.HttpMethodSerializer;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import lombok.NonNull;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -12,8 +13,10 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.Objects;
+
+import static a.slelin.work.task.management.core.util.DateTimeUtil.UNIVERSE_DATETIME_FORMATTER;
 
 @Builder
 public record ErrorResponse(@NotBlank String path,
@@ -27,10 +30,6 @@ public record ErrorResponse(@NotBlank String path,
                             String causeException,
                             Map<String, Object> details,
                             @NotNull LocalDateTime timeStamp) {
-
-    public final static String TIME_STAMP_PATTERN = "dd.MM.yyyy HH:mm:ss";
-
-    public final static DateTimeFormatter TIME_STAMP_FORMATTER = DateTimeFormatter.ofPattern(TIME_STAMP_PATTERN);
 
     public static ErrorResponse.ErrorResponseBuilder buildDefault(Exception e) {
         if (e == null) {
@@ -55,5 +54,52 @@ public record ErrorResponse(@NotBlank String path,
                 .httpMethod(request.getHttpMethod())
                 .details(Map.of())
                 .timeStamp(LocalDateTime.now());
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        String result = "ErrorResponse: [path = %s, method = %s, status = %s, message = %s"
+                .formatted(path, httpMethod, httpStatus, message);
+
+        if (debugMessage != null) {
+            result += ", debugMessage = " + debugMessage;
+        }
+
+        result += ", exception = %s".formatted(exception);
+
+        if (causeException != null) {
+            result += ", causeException = %s".formatted(causeException);
+        }
+
+        if (details != null) {
+            result += ", details = %s".formatted(details.toString());
+        }
+
+        return "%s, timestamp = %s]".formatted(result, timeStamp.format(UNIVERSE_DATETIME_FORMATTER));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ErrorResponse that = (ErrorResponse) o;
+        return Objects.equals(path, that.path) &&
+                Objects.equals(message, that.message) &&
+                Objects.equals(exception, that.exception) &&
+                Objects.equals(debugMessage, that.debugMessage) &&
+                Objects.equals(httpMethod, that.httpMethod) &&
+                httpStatus == that.httpStatus &&
+                Objects.equals(causeException, that.causeException) &&
+                Objects.equals(timeStamp, that.timeStamp) &&
+                Objects.equals(details, that.details);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(path, httpMethod, httpStatus, debugMessage,
+                message, exception, causeException, details, timeStamp);
     }
 }
