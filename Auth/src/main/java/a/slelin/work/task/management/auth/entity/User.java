@@ -1,5 +1,6 @@
 package a.slelin.work.task.management.auth.entity;
 
+import a.slelin.work.task.management.auth.util.SystemRole;
 import a.slelin.work.task.management.auth.util.validate.Phone;
 import a.slelin.work.task.management.core.entity.Audit;
 import jakarta.persistence.*;
@@ -158,5 +159,9 @@ public class User extends Audit {
 
         refreshTokens.remove(refreshToken);
         refreshToken.setUser(null);
+    }
+
+    public boolean isAdmin() {
+        return SystemRole.hasAdminRole(roles);
     }
 }

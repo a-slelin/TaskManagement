@@ -28,12 +28,14 @@ public class UserController {
     @PatchMapping
     public UserRD patchUser(@AuthenticationPrincipal Jwt jwt,
                             @RequestBody UserWD pthUser) {
-        return service.patch(extractUserId(jwt), pthUser);
+        UUID id = extractUserId(jwt);
+        return service.patch(id, id, pthUser);
     }
 
     @DeleteMapping(consumes = "*/*", produces = "*/*")
     public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal Jwt jwt) {
-        service.delete(extractUserId(jwt));
+        UUID id = extractUserId(jwt);
+        service.delete(id, id);
         return ResponseEntity.noContent().build();
     }
 

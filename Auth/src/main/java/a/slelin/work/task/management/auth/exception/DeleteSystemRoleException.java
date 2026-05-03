@@ -1,6 +1,7 @@
 package a.slelin.work.task.management.auth.exception;
 
 import a.slelin.work.task.management.auth.entity.Role;
+import a.slelin.work.task.management.auth.util.SystemRole;
 
 public class DeleteSystemRoleException extends ModifySystemRoleException {
 
@@ -9,7 +10,7 @@ public class DeleteSystemRoleException extends ModifySystemRoleException {
     }
 
     public static void checkAndThrow(Role role) {
-        if (isSystemRole(role)) {
+        if (SystemRole.isSystemRole(role)) {
             throw new DeleteSystemRoleException(role.getName());
         }
     }
