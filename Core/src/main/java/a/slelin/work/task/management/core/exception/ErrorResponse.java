@@ -2,6 +2,10 @@ package a.slelin.work.task.management.core.exception;
 
 import a.slelin.work.task.management.core.util.HttpMethodDeserializer;
 import a.slelin.work.task.management.core.util.HttpMethodSerializer;
+import a.slelin.work.task.management.core.util.LocalDateTimeSerializer;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -19,17 +23,36 @@ import java.util.Objects;
 import static a.slelin.work.task.management.core.util.DateTimeUtil.UNIVERSE_DATETIME_FORMATTER;
 
 @Builder
+@JsonPropertyOrder({
+        "path",
+        "httpMethod",
+        "httpStatus",
+        "message",
+        "debugMessage",
+        "exception",
+        "causeException",
+        "details",
+        "timestamp"
+})
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record ErrorResponse(@NotBlank String path,
+
                             @JsonSerialize(using = HttpMethodSerializer.class)
                             @JsonDeserialize(using = HttpMethodDeserializer.class)
+                            @JsonProperty("method")
                             @NotNull HttpMethod httpMethod,
+
+                            @JsonProperty("status")
                             @NotNull HttpStatus httpStatus,
+
                             String debugMessage,
                             @NotNull String message,
                             @NotNull String exception,
                             String causeException,
                             Map<String, Object> details,
-                            @NotNull LocalDateTime timeStamp) {
+
+                            @JsonSerialize(using = LocalDateTimeSerializer.class)
+                            @NotNull LocalDateTime timestamp) {
 
     public static ErrorResponse.ErrorResponseBuilder buildDefault(Exception e) {
         if (e == null) {
@@ -39,9 +62,9 @@ public record ErrorResponse(@NotBlank String path,
         return ErrorResponse.builder()
                 .message(e.getMessage())
                 .exception(e.getClass().getSimpleName())
-                .causeException(e.getCause() == null ? "" : ((Exception) e.getCause()).getClass().getSimpleName())
-                .details(Map.of())
-                .timeStamp(LocalDateTime.now());
+                .causeException(e.getCause() == null ? null
+                        : ((Exception) e.getCause()).getClass().getSimpleName())
+                .timestamp(LocalDateTime.now());
     }
 
     public static ErrorResponse.ErrorResponseBuilder buildDefault(Exception e, ServletWebRequest request) {
@@ -51,9 +74,7 @@ public record ErrorResponse(@NotBlank String path,
 
         return buildDefault(e)
                 .path(request.getRequest().getRequestURL().toString())
-                .httpMethod(request.getHttpMethod())
-                .details(Map.of())
-                .timeStamp(LocalDateTime.now());
+                .httpMethod(request.getHttpMethod());
     }
 
     @NonNull
@@ -76,7 +97,7 @@ public record ErrorResponse(@NotBlank String path,
             result += ", details = %s".formatted(details.toString());
         }
 
-        return "%s, timestamp = %s]".formatted(result, timeStamp.format(UNIVERSE_DATETIME_FORMATTER));
+        return "%s, timestamp = %s]".formatted(result, timestamp.format(UNIVERSE_DATETIME_FORMATTER));
     }
 
     @Override
@@ -93,13 +114,13 @@ public record ErrorResponse(@NotBlank String path,
                 Objects.equals(httpMethod, that.httpMethod) &&
                 httpStatus == that.httpStatus &&
                 Objects.equals(causeException, that.causeException) &&
-                Objects.equals(timeStamp, that.timeStamp) &&
+                Objects.equals(timestamp, that.timestamp) &&
                 Objects.equals(details, that.details);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(path, httpMethod, httpStatus, debugMessage,
-                message, exception, causeException, details, timeStamp);
+                message, exception, causeException, details, timestamp);
     }
 }
