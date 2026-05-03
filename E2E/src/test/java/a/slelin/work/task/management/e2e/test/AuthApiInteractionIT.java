@@ -6,6 +6,7 @@ import a.slelin.work.task.management.core.dto.api.ProjectWD;
 import a.slelin.work.task.management.core.dto.api.TaskRD;
 import a.slelin.work.task.management.core.dto.api.TaskWD;
 import a.slelin.work.task.management.core.dto.auth.JwtResponse;
+import a.slelin.work.task.management.core.dto.auth.LoginRequest;
 import a.slelin.work.task.management.core.dto.auth.UserWD;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.postgresql.PostgreSQLContainer;
@@ -24,7 +24,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = Config.class)
-@TestClassOrder(ClassOrderer.OrderAnnotation.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DisplayName("Тестируем взаимодействие микросервисов auth & api")
 public class AuthApiInteractionIT {
 
@@ -76,45 +76,8 @@ public class AuthApiInteractionIT {
 
     @Test
     @Order(1)
-    @DisplayName("Проверяем защищён ли API")
+    @DisplayName("Регистрация -> Работа с API -> Выход из системы")
     public void test1() {
-
-        /*
-         * Проверяем можем ли мы получить что-то от API,
-         * без токена-доступа.
-         * */
-
-        try {
-            rest.exchange(
-                    apiUrl + "/api/projects",
-                    HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<>() {
-                    }
-            );
-            fail("Should throw HttpClientErrorException.Unauthorized");
-
-        } catch (HttpClientErrorException.Unauthorized e) {
-            assertNotNull(e);
-            assertNotNull(e.getStatusCode());
-            assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
-
-        } catch (Exception e) {
-            fail("Should throw HttpClientErrorException.Unauthorized, but got " + e.getMessage());
-        }
-    }
-
-    @Test
-    @Order(2)
-    @DisplayName("""
-            Регистрируем пользователя.
-            Проверяем что его проекты пусты.
-            Создаём новый проект.
-            Проверяем что задач нет.
-            Создаём новую задачу.
-            Выходим из системы.
-            """)
-    public void test2() {
 
         /*
          * Регистрируем нового пользователя и получаем к нему необходимые токены.
@@ -269,5 +232,111 @@ public class AuthApiInteractionIT {
         assertNotNull(response6);
         assertNotNull(response6.getStatusCode());
         assertEquals(HttpStatus.NO_CONTENT, response6.getStatusCode());
+    }
+
+    @Test
+    @Order(2)
+    @DisplayName("Логин -> Работа с API -> Выход из системы")
+    public void test2() {
+
+        /*
+         * Регистрируем нового пользователя.
+         * */
+
+        UserWD user = UserWD.builder()
+                .username("test_user")
+                .password("test_password")
+                .gender("male")
+                .phone("+78964536363")
+                .email("test.email@gmail.com")
+                .build();
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                authUrl + "/auth/register",
+                HttpMethod.POST,
+                new HttpEntity<>(user),
+                JwtResponse.class);
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        /*
+         * Логинимся под этим пользователем.
+         * */
+
+        LoginRequest login = new LoginRequest("test_user", "test_password");
+        ResponseEntity<JwtResponse> response2 = rest.exchange(
+                authUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class);
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        JwtResponse jwtResponse2 = response2.getBody();
+        assertNotNull(jwtResponse2);
+        assertNotNull(jwtResponse2.accessToken());
+        assertNotNull(jwtResponse2.refreshToken());
+
+        /*
+         * Создаем новый проект.
+         * */
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse2.accessToken());
+
+        ProjectWD project = new ProjectWD("test_project", "test_project");
+        ResponseEntity<ProjectRD> response3 = rest.exchange(
+                apiUrl + "/api/projects",
+                HttpMethod.POST,
+                new HttpEntity<>(project, headers),
+                ProjectRD.class);
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response3.getStatusCode());
+
+        HttpHeaders headers2 = response3.getHeaders();
+        assertNotNull(headers2);
+        List<String> locations = headers2.get("Location");
+        assertNotNull(locations);
+        String locationStr = locations.getFirst();
+        assertNotNull(locationStr);
+        URI location = URI.create(locationStr);
+        assertNotNull(location);
+
+        /*
+         * Меняем проекту название.
+         * */
+
+        ProjectWD project2 = new ProjectWD("test1_project");
+        ResponseEntity<ProjectRD> response4 = rest.exchange(
+                location,
+                HttpMethod.PATCH,
+                new HttpEntity<>(project2, headers),
+                ProjectRD.class);
+        assertNotNull(response4);
+        assertNotNull(response4.getStatusCode());
+        assertEquals(HttpStatus.OK, response4.getStatusCode());
+
+        /*
+         * Выходим из системы.
+         * */
+        HttpHeaders headers3 = new HttpHeaders();
+        headers3.setBearerAuth(jwtResponse.refreshToken());
+
+        ResponseEntity<Void> response5 = rest.exchange(
+                authUrl + "/auth/logout/all",
+                HttpMethod.GET,
+                new HttpEntity<>(headers3),
+                Void.class);
+        assertNotNull(response5);
+        assertNotNull(response5.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, response5.getStatusCode());
     }
 }

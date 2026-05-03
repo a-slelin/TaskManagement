@@ -7,4 +7,8 @@ import lombok.Builder;
 @SuppressWarnings("unused")
 public record ProjectWD(String name,
                         String description) implements WriteDto {
+
+    public ProjectWD(String name) {
+        this(name, null);
+    }
 }
