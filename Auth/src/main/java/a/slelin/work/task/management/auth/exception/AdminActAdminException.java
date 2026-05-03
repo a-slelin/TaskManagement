@@ -13,7 +13,8 @@ public class AdminActAdminException extends RuntimeException {
     public enum Operation {
         PATCH("patch", "Admin cannot update another admin."),
         DELETE("delete", "Admin cannot delete another admin."),
-        REVOKE("revoke", "Admin cannot revoke any role from another admin.");
+        REVOKE("revoke", "Admin cannot revoke any role from another admin."),
+        TERMINATE_SESSION("terminate_session", "Admin cannot terminate sessions another admin.");
 
         private final String displayName;
 
