@@ -115,11 +115,12 @@ public class AuthControllerTest {
                     HttpMethod.POST,
                     new HttpEntity<>(login),
                     JwtResponse.class);
-            fail("Should throw HttpClientErrorException.Conflict");
-        } catch (HttpClientErrorException.Conflict e) {
+            fail("Should throw HttpClientErrorException.Unauthorized");
+
+        } catch (HttpClientErrorException.Unauthorized e) {
             assertNotNull(e);
             assertNotNull(e.getStatusCode());
-            assertEquals(HttpStatus.CONFLICT, e.getStatusCode());
+            assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
 
             ErrorResponse response = e.getResponseBodyAs(ErrorResponse.class);
             assertNotNull(response);
@@ -139,11 +140,11 @@ public class AuthControllerTest {
                     HttpMethod.POST,
                     new HttpEntity<>(login),
                     JwtResponse.class);
-            fail("Should throw HttpClientErrorException.Conflict");
-        } catch (HttpClientErrorException.Conflict e) {
+            fail("Should throw HttpClientErrorException.Unauthorized");
+        } catch (HttpClientErrorException.Unauthorized e) {
             assertNotNull(e);
             assertNotNull(e.getStatusCode());
-            assertEquals(HttpStatus.CONFLICT, e.getStatusCode());
+            assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
 
             ErrorResponse response = e.getResponseBodyAs(ErrorResponse.class);
             assertNotNull(response);
@@ -271,11 +272,11 @@ public class AuthControllerTest {
                     HttpMethod.POST,
                     new HttpEntity<>(login),
                     JwtResponse.class);
-            fail("Should throw HttpClientErrorException.Conflict");
-        } catch (HttpClientErrorException.Conflict e) {
+            fail("Should throw HttpClientErrorException.Unauthorized");
+        } catch (HttpClientErrorException.Unauthorized e) {
             assertNotNull(e);
             assertNotNull(e.getStatusCode());
-            assertEquals(HttpStatus.CONFLICT, e.getStatusCode());
+            assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
 
             ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
             assertNotNull(errorResponse);

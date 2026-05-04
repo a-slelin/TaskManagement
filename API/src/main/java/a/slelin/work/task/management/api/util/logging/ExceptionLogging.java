@@ -21,7 +21,7 @@ public class ExceptionLogging {
         log.info("\uD83E\uDDF0 Business error has occurred : {}", ((Exception) joinPoint.getArgs()[0]).getMessage());
     }
 
-    @AfterReturning(value = "execution(* a.slelin.work.task.management.core.exception.handler.ServiceExceptionHandler.*(..)))",
+    @AfterReturning(value = "execution(* a.slelin.work.task.management.core.exception.handler.CustomExceptionHandler.*(..)))",
             returning = "result")
     public void after(Object result) {
         log.warn("⚠️ Service error has occurred : {}", ((ResponseEntity<ErrorResponse>) result).getBody());

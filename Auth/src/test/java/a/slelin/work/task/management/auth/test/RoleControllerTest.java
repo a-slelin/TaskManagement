@@ -70,6 +70,9 @@ public class RoleControllerTest {
             assertNotNull(e.getStatusCode());
             assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
 
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+
         } catch (Exception e) {
             fail("Should throw HttpClientErrorException.Unauthorized, but got " + e.getMessage());
         }
@@ -108,12 +111,15 @@ public class RoleControllerTest {
                     new ParameterizedTypeReference<>() {
                     }
             );
-            fail("Should throw HttpClientErrorException.Unauthorized");
+            fail("Should throw HttpClientErrorException.Forbidden");
 
         } catch (HttpClientErrorException.Forbidden e) {
             assertNotNull(e);
             assertNotNull(e.getStatusCode());
             assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
 
         } catch (Exception e) {
             fail("Should throw HttpClientErrorException.Unauthorized, but got " + e.getMessage());
@@ -764,18 +770,18 @@ public class RoleControllerTest {
                     new HttpEntity<>(updRole, headers),
                     RoleRD.class,
                     role.id());
-            fail("Should throw HttpClientErrorException.BadRequest");
+            fail("Should throw HttpClientErrorException.UnprocessableContent");
 
-        } catch (HttpClientErrorException.BadRequest e) {
+        } catch (HttpClientErrorException.UnprocessableContent e) {
             assertNotNull(e);
             assertNotNull(e.getStatusCode());
-            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, e.getStatusCode());
 
             ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
             assertNotNull(errorResponse);
 
         } catch (Exception e) {
-            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+            fail("Should throw HttpClientErrorException.UnprocessableContent, but got " + e.getMessage());
         }
     }
 
@@ -826,18 +832,18 @@ public class RoleControllerTest {
                     new HttpEntity<>(updRole, headers),
                     RoleRD.class,
                     role.id());
-            fail("Should throw HttpClientErrorException.BadRequest");
+            fail("Should throw HttpClientErrorException.UnprocessableContent");
 
-        } catch (HttpClientErrorException.BadRequest e) {
+        } catch (HttpClientErrorException.UnprocessableContent e) {
             assertNotNull(e);
             assertNotNull(e.getStatusCode());
-            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, e.getStatusCode());
 
             ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
             assertNotNull(errorResponse);
 
         } catch (Exception e) {
-            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+            fail("Should throw HttpClientErrorException.UnprocessableContent, but got " + e.getMessage());
         }
     }
 
@@ -944,18 +950,18 @@ public class RoleControllerTest {
                     new HttpEntity<>(headers),
                     Void.class,
                     role.id());
-            fail("Should throw HttpClientErrorException.BadRequest");
+            fail("Should throw HttpClientErrorException.UnprocessableContent");
 
-        } catch (HttpClientErrorException.BadRequest e) {
+        } catch (HttpClientErrorException.UnprocessableContent e) {
             assertNotNull(e);
             assertNotNull(e.getStatusCode());
-            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, e.getStatusCode());
 
             ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
             assertNotNull(errorResponse);
 
         } catch (Exception e) {
-            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+            fail("Should throw HttpClientErrorException.UnprocessableContent, but got " + e.getMessage());
         }
     }
 }

@@ -23,4 +23,10 @@ public interface UserRepository extends JpaRepository<User, UUID>,
             OR u.email = :factor
             """)
     Optional<User> findByFactor(@Param("factor") String factor);
+
+    boolean existsByUsername(String username);
+
+    boolean existsByPhone(String phone);
+
+    boolean existsByEmail(String email);
 }

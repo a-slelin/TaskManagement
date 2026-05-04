@@ -2,6 +2,7 @@ package a.slelin.work.task.management.core.exception;
 
 import a.slelin.work.task.management.core.util.HttpMethodDeserializer;
 import a.slelin.work.task.management.core.util.HttpMethodSerializer;
+import a.slelin.work.task.management.core.util.LocalDateTimeDeserializer;
 import a.slelin.work.task.management.core.util.LocalDateTimeSerializer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -52,6 +53,7 @@ public record ErrorResponse(@NotBlank String path,
                             Map<String, Object> details,
 
                             @JsonSerialize(using = LocalDateTimeSerializer.class)
+                            @JsonDeserialize(using = LocalDateTimeDeserializer.class)
                             @NotNull LocalDateTime timestamp) {
 
     public static ErrorResponse.ErrorResponseBuilder buildDefault(Exception e) {

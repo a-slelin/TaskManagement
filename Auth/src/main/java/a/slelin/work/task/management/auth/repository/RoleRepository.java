@@ -13,4 +13,6 @@ public interface RoleRepository extends JpaRepository<Role, Long>,
         PagingAndSortingRepository<Role, Long>, JpaSpecificationExecutor<Role> {
 
     Optional<Role> findByName(String name);
+
+    boolean existsByName(String name);
 }

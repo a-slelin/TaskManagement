@@ -25,5 +25,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long>,
             """)
     boolean isProjectOfUser(@Param("user") UUID user, @Param("project") Long project);
 
+    boolean existsByUserAndName(UUID user, String name);
+
     void deleteByUser(UUID id);
 }

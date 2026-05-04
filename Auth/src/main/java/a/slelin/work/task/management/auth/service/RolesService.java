@@ -10,6 +10,7 @@ import a.slelin.work.task.management.core.dto.auth.RoleRD;
 import a.slelin.work.task.management.core.dto.auth.RoleWD;
 import a.slelin.work.task.management.core.exception.EntityNotFoundByIdException;
 import a.slelin.work.task.management.core.exception.EntityNotFoundByPropertyException;
+import a.slelin.work.task.management.core.exception.UniqueFieldEntityException;
 import a.slelin.work.task.management.core.util.filter.FilterChain;
 import a.slelin.work.task.management.core.util.filter.FilterUtil;
 import jakarta.validation.Valid;
@@ -63,6 +64,11 @@ public class RolesService {
     }
 
     public RoleRD createRole(@NotNull @Valid RoleWD newRole) {
+
+        if (repo.existsByName(newRole.name())) {
+            throw new UniqueFieldEntityException(Role.class, "name", newRole.name());
+        }
+
         Role role = mapper.toEntity(newRole);
         role = repo.save(role);
         return mapper.toDTO(role);
@@ -74,6 +80,10 @@ public class RolesService {
                 .orElseThrow(() -> new EntityNotFoundByIdException(Role.class, id));
 
         UpdateNameSystemRoleException.checkAndThrow(role);
+
+        if (repo.existsByName(updRole.name())) {
+            throw new UniqueFieldEntityException(Role.class, "name", updRole.name());
+        }
 
         Role updatedRole = mapper.toEntity(updRole);
         updatedRole.setId(id);
@@ -90,6 +100,10 @@ public class RolesService {
 
         if (ptcRole.name() != null) {
             UpdateNameSystemRoleException.checkAndThrow(role);
+
+            if (repo.existsByName(ptcRole.name())) {
+                throw new UniqueFieldEntityException(Role.class, "name", ptcRole.name());
+            }
         }
 
         role = mapper.patch(role, ptcRole);

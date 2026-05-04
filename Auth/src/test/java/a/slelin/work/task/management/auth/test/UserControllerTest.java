@@ -64,6 +64,9 @@ public class UserControllerTest {
             assertNotNull(e.getStatusCode());
             assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
 
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+
         } catch (Exception e) {
             fail("Should throw HttpClientErrorException.Unauthorized, but got " + e.getMessage());
         }
@@ -169,18 +172,18 @@ public class UserControllerTest {
                     HttpMethod.POST,
                     new HttpEntity<>(login2),
                     JwtResponse.class);
-            fail("Should throw HttpClientErrorException.Conflict");
+            fail("Should throw HttpClientErrorException.Unauthorized");
 
-        } catch (HttpClientErrorException.Conflict e) {
+        } catch (HttpClientErrorException.Unauthorized e) {
             assertNotNull(e);
             assertNotNull(e.getStatusCode());
-            assertEquals(HttpStatus.CONFLICT, e.getStatusCode());
+            assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
 
             ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
             assertNotNull(errorResponse);
 
         } catch (Exception e) {
-            fail("Should throw HttpClientErrorException.Conflict, but got " + e.getMessage());
+            fail("Should throw HttpClientErrorException.Unauthorized, but got " + e.getMessage());
         }
 
         LoginRequest login3 = new LoginRequest("alex_petrov", "new_password");
@@ -265,18 +268,18 @@ public class UserControllerTest {
                     HttpMethod.POST,
                     new HttpEntity<>(login2),
                     JwtResponse.class);
-            fail("Should throw HttpClientErrorException.Conflict");
+            fail("Should throw HttpClientErrorException.Unauthorized");
 
-        } catch (HttpClientErrorException.Conflict e) {
+        } catch (HttpClientErrorException.Unauthorized e) {
             assertNotNull(e);
             assertNotNull(e.getStatusCode());
-            assertEquals(HttpStatus.CONFLICT, e.getStatusCode());
+            assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
 
             ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
             assertNotNull(errorResponse);
 
         } catch (Exception e) {
-            fail("Should throw HttpClientErrorException.Conflict, but got " + e.getMessage());
+            fail("Should throw HttpClientErrorException.Unauthorized, but got " + e.getMessage());
         }
     }
 

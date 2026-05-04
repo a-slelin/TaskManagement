@@ -14,6 +14,7 @@ import a.slelin.work.task.management.core.dto.auth.UserRD;
 import a.slelin.work.task.management.core.dto.auth.UserWD;
 import a.slelin.work.task.management.core.exception.EntityNotFoundByIdException;
 import a.slelin.work.task.management.core.exception.EntityNotFoundByPropertyException;
+import a.slelin.work.task.management.core.exception.UniqueFieldEntityException;
 import a.slelin.work.task.management.core.util.filter.FilterChain;
 import a.slelin.work.task.management.core.util.filter.FilterUtil;
 import jakarta.validation.Valid;
@@ -57,7 +58,7 @@ public class UserService {
     public UserRD getByFactor(@NotBlank String factor) {
         User user = userRepository.findByFactor(factor)
                 .orElseThrow(() -> new EntityNotFoundByPropertyException(User.class,
-                        "factor (username, phone of email)", factor));
+                        "factor (username, phone or email)", factor));
 
         return userMapper.toDto(user);
     }
@@ -70,6 +71,19 @@ public class UserService {
     }
 
     public UserRD create(@NotNull @Valid UserWD newUser) {
+
+        if (userRepository.existsByUsername(newUser.username())) {
+            throw new UniqueFieldEntityException(User.class, "username", newUser.username());
+        }
+
+        if (newUser.phone() != null && userRepository.existsByPhone(newUser.phone())) {
+            throw new UniqueFieldEntityException(User.class, "phone", newUser.phone());
+        }
+
+        if (newUser.email() != null && userRepository.existsByEmail(newUser.email())) {
+            throw new UniqueFieldEntityException(User.class, "email", newUser.email());
+        }
+
         User user = userMapper.toEntity(newUser);
         user = userRepository.save(user);
         return userMapper.toDto(user);
@@ -83,6 +97,18 @@ public class UserService {
 
         if (user.isAdmin() && !id.equals(actor)) {
             throw new AdminActAdminException(AdminActAdminException.Operation.PATCH);
+        }
+
+        if (ptcUser.username() != null && userRepository.existsByUsername(ptcUser.username())) {
+            throw new UniqueFieldEntityException(User.class, "username", ptcUser.username());
+        }
+
+        if (ptcUser.phone() != null && userRepository.existsByPhone(ptcUser.phone())) {
+            throw new UniqueFieldEntityException(User.class, "phone", ptcUser.phone());
+        }
+
+        if (ptcUser.email() != null && userRepository.existsByEmail(ptcUser.email())) {
+            throw new UniqueFieldEntityException(User.class, "email", ptcUser.email());
         }
 
         user = userMapper.patch(user, ptcUser);

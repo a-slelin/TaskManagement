@@ -1,8 +1,6 @@
 package a.slelin.work.task.management.auth.exception.handler;
 
-import a.slelin.work.task.management.auth.exception.DeleteSystemRoleException;
-import a.slelin.work.task.management.auth.exception.ModifySystemRoleException;
-import a.slelin.work.task.management.auth.exception.UpdateNameSystemRoleException;
+import a.slelin.work.task.management.auth.exception.*;
 import a.slelin.work.task.management.core.exception.ErrorResponse;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -15,14 +13,35 @@ import java.util.Map;
 
 @Order(2)
 @RestControllerAdvice
+@SuppressWarnings("unused")
 public class BusinessExceptionHandler {
+
+    @ExceptionHandler(UserRoleRevokeException.class)
+    public ResponseEntity<ErrorResponse> handleUserRoleRevokeException(UserRoleRevokeException e,
+                                                                       ServletWebRequest request) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .body(ErrorResponse.buildDefault(e, request)
+                        .httpStatus(HttpStatus.UNPROCESSABLE_CONTENT)
+                        .debugMessage("Role \"USER\" cannot be revoked")
+                        .build());
+    }
+
+    @ExceptionHandler(AdminActAdminException.class)
+    public ResponseEntity<ErrorResponse> handleAdminActAdminException(AdminActAdminException e,
+                                                                      ServletWebRequest request) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
+                .body(ErrorResponse.buildDefault(e, request)
+                        .httpStatus(HttpStatus.UNPROCESSABLE_CONTENT)
+                        .debugMessage("Admin cannot influence on another admin.")
+                        .build());
+    }
 
     @ExceptionHandler(UpdateNameSystemRoleException.class)
     public ResponseEntity<ErrorResponse> handleUpdateNameSystemRoleException(UpdateNameSystemRoleException e,
                                                                              ServletWebRequest request) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
                 .body(ErrorResponse.buildDefault(e, request)
-                        .httpStatus(HttpStatus.BAD_REQUEST)
+                        .httpStatus(HttpStatus.UNPROCESSABLE_CONTENT)
                         .debugMessage("Updating of system role's name '%s' is denied.".formatted(e.getRole()))
                         .details(Map.of(
                                 "role", e.getRole()
@@ -33,9 +52,9 @@ public class BusinessExceptionHandler {
     @ExceptionHandler(DeleteSystemRoleException.class)
     public ResponseEntity<ErrorResponse> handleDeleteSystemRoleException(DeleteSystemRoleException e,
                                                                          ServletWebRequest request) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
                 .body(ErrorResponse.buildDefault(e, request)
-                        .httpStatus(HttpStatus.BAD_REQUEST)
+                        .httpStatus(HttpStatus.UNPROCESSABLE_CONTENT)
                         .debugMessage("Removing of system role '%s' is denied.".formatted(e.getRole()))
                         .details(Map.of(
                                 "role", e.getRole()
@@ -46,9 +65,9 @@ public class BusinessExceptionHandler {
     @ExceptionHandler(ModifySystemRoleException.class)
     public ResponseEntity<ErrorResponse> handleModifySystemRoleException(ModifySystemRoleException e,
                                                                          ServletWebRequest request) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
                 .body(ErrorResponse.buildDefault(e, request)
-                        .httpStatus(HttpStatus.BAD_REQUEST)
+                        .httpStatus(HttpStatus.UNPROCESSABLE_CONTENT)
                         .debugMessage("Modifying of system role '%s' is denied.".formatted(e.getRole()))
                         .details(Map.of(
                                 "role", e.getRole()

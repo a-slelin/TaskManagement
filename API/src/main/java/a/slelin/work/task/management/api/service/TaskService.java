@@ -3,13 +3,13 @@ package a.slelin.work.task.management.api.service;
 import a.slelin.work.task.management.api.mapper.TaskMapper;
 import a.slelin.work.task.management.api.entity.Project;
 import a.slelin.work.task.management.api.entity.Task;
-import a.slelin.work.task.management.api.exception.TaskSetProjectException;
 import a.slelin.work.task.management.api.repository.ProjectRepository;
 import a.slelin.work.task.management.api.repository.TaskRepository;
 import a.slelin.work.task.management.core.dto.SheetDto;
 import a.slelin.work.task.management.core.dto.api.TaskRD;
 import a.slelin.work.task.management.core.dto.api.TaskWD;
 import a.slelin.work.task.management.core.exception.EntityNotFoundByIdException;
+import a.slelin.work.task.management.core.exception.Unique2FieldsEntityException;
 import a.slelin.work.task.management.core.util.filter.Filter;
 import a.slelin.work.task.management.core.util.filter.FilterChain;
 import a.slelin.work.task.management.core.util.filter.FilterUtil;
@@ -74,6 +74,10 @@ public class TaskService {
             throw new AccessDeniedException("Access denied: an attempt to create a task in a project that is not your own.");
         }
 
+        if (repository.existsByProjectIdAndTitle(project, newTask.title())) {
+            throw new Unique2FieldsEntityException(Task.class, "project", project, "title", newTask.title());
+        }
+
         Task task = mapper.toEntity(newTask);
         task.setProject(entity);
         task = repository.save(task);
@@ -87,9 +91,14 @@ public class TaskService {
 
         Task entity = repository.findById(task)
                 .orElseThrow(() -> new EntityNotFoundByIdException(Task.class, task));
+        Long projectId = entity.getProject().getId();
 
         if (!repository.isTaskOfUser(user, task)) {
             throw new AccessDeniedException("Access denied: an attempt to update a task that is not your own.");
+        }
+
+        if (repository.existsByProjectIdAndTitle(projectId, updTask.title())) {
+            throw new Unique2FieldsEntityException(Task.class, "project", projectId, "title", updTask.title());
         }
 
         Task updatedTask = mapper.toEntity(updTask);
@@ -106,9 +115,14 @@ public class TaskService {
 
         Task entity = repository.findById(task)
                 .orElseThrow(() -> new EntityNotFoundByIdException(Task.class, task));
+        Long projectId = entity.getProject().getId();
 
         if (!repository.isTaskOfUser(user, task)) {
             throw new AccessDeniedException("Access denied: an attempt to patch a task that is not your own.");
+        }
+
+        if (pthTask.title() != null && repository.existsByProjectIdAndTitle(projectId, pthTask.title())) {
+            throw new Unique2FieldsEntityException(Task.class, "project", projectId, "title", pthTask.title());
         }
 
         entity = mapper.patch(entity, pthTask);
@@ -132,12 +146,16 @@ public class TaskService {
                 .orElseThrow(() -> new EntityNotFoundByIdException(Project.class, newProject));
 
         if (!projectRepository.isProjectOfUser(user, newProject)) {
-            throw new TaskSetProjectException("Try set project from other user.");
+            throw new AccessDeniedException("Access denied: an attempt to draw a task to project that is not your own.");
         }
 
         Long oldProject = entity.getProject().getId();
         if (newProject.equals(oldProject)) {
-            throw new TaskSetProjectException("Try set the same project.");
+            return mapper.toDto(entity);
+        }
+
+        if (repository.existsByProjectIdAndTitle(newProject, entity.getTitle())) {
+            throw new Unique2FieldsEntityException(Task.class, "project", newProject, "title", entity.getTitle());
         }
 
         entity.setProject(newProjectEntity);

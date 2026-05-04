@@ -11,6 +11,7 @@ import a.slelin.work.task.management.core.dto.api.ProjectRD;
 import a.slelin.work.task.management.core.dto.api.ProjectWD;
 import a.slelin.work.task.management.core.dto.api.TaskRD;
 import a.slelin.work.task.management.core.exception.EntityNotFoundByIdException;
+import a.slelin.work.task.management.core.exception.Unique2FieldsEntityException;
 import a.slelin.work.task.management.core.util.filter.Filter;
 import a.slelin.work.task.management.core.util.filter.FilterChain;
 import a.slelin.work.task.management.core.util.filter.FilterUtil;
@@ -91,6 +92,10 @@ public class ProjectService {
     public ProjectRD createUserProject(@NotNull @Valid UUID user,
                                        @NotNull @Valid ProjectWD newProject) {
 
+        if (projectRepository.existsByUserAndName(user, newProject.name())) {
+            throw new Unique2FieldsEntityException(Project.class, "user", user, "name", newProject.name());
+        }
+
         Project project = projectMapper.toEntity(newProject);
         project.setUser(user);
         project = projectRepository.save(project);
@@ -107,6 +112,10 @@ public class ProjectService {
 
         if (!entity.getUser().equals(user)) {
             throw new AccessDeniedException("Access denied: an attempt to update a project that is not your own.");
+        }
+
+        if (projectRepository.existsByUserAndName(user, updProject.name())) {
+            throw new Unique2FieldsEntityException(Project.class, "user", user, "name", updProject.name());
         }
 
         Project updatedProject = projectMapper.toEntity(updProject);
@@ -127,6 +136,10 @@ public class ProjectService {
 
         if (!entity.getUser().equals(user)) {
             throw new AccessDeniedException("Access denied: an attempt to patch a project that is not your own.");
+        }
+
+        if (pthProject.name() != null && projectRepository.existsByUserAndName(user, pthProject.name())) {
+            throw new Unique2FieldsEntityException(Project.class, "user", user, "name", pthProject.name());
         }
 
         entity = projectMapper.patch(entity, pthProject);

@@ -25,5 +25,7 @@ public interface TaskRepository extends JpaRepository<Task, Long>,
             """)
     boolean isTaskOfUser(@Param("user") UUID userId, @Param("task") Long taskId);
 
+    boolean existsByProjectIdAndTitle(Long projectId, String title);
+
     void deleteByProjectId(Long projectId);
 }
