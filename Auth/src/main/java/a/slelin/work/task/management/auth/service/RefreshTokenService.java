@@ -50,6 +50,10 @@ public class RefreshTokenService {
     @Transactional(readOnly = true)
     public SheetDto<RefreshTokenRD> getByUser(@NotNull @Valid UUID user,
                                               @NotNull @Valid Pageable pageable) {
+        if (!userRepo.existsById(user)) {
+            throw new EntityNotFoundByIdException(User.class, user);
+        }
+
         return SheetDto.of(repo.findAllByUserId(pageable, user), mapper::toDTO);
     }
 
