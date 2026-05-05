@@ -32,13 +32,27 @@ public class TestConfig {
     }
 
     @Bean
-    public String jwtToken() {
+    public String alexToken() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
         SecretKey key = Keys.hmacShaKeyFor(keyBytes);
 
         return Jwts.builder()
                 .subject("ff80a205-67e1-4d22-b886-1be26e51ee9f")
                 .claim("roles", List.of("ROLE_USER"))
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 900000))
+                .signWith(key)
+                .compact();
+    }
+
+    @Bean
+    public String adminToken() {
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        SecretKey key = Keys.hmacShaKeyFor(keyBytes);
+
+        return Jwts.builder()
+                .subject("c152861c-9d46-4f27-a555-ebb33d7b20ff")
+                .claim("roles", List.of("ROLE_USER", "ROLE_ADMIN"))
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 900000))
                 .signWith(key)

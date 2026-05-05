@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @DisplayName("Тест контроллера проектов")
-@TestClassOrder(ClassOrderer.OrderAnnotation.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ProjectControllerTest {
@@ -36,7 +36,7 @@ public class ProjectControllerTest {
     private RestTemplate rest;
 
     @Autowired
-    @Qualifier("jwtToken")
+    @Qualifier("alexToken")
     private String accessToken;
 
     @LocalServerPort
