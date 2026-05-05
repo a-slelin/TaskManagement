@@ -42,12 +42,7 @@ public class Role extends Audit {
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @ManyToMany
-    @JoinTable(
-            name = "users_roles",
-            joinColumns = @JoinColumn(name = "role_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "user_id", nullable = false)
-    )
+    @ManyToMany(mappedBy = "roles")
     private Set<User> users;
 
     @SuppressWarnings("unused")
