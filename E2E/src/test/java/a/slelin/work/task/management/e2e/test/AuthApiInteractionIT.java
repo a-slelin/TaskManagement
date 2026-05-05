@@ -191,7 +191,7 @@ public class AuthApiInteractionIT {
          * Создаём новую задачу в проекте.
          * */
 
-        TaskWD task = new TaskWD("test_task", "test_description", "begin");
+        TaskWD task = new TaskWD("test_task", "begin", "test_description");
 
         ResponseEntity<TaskRD> response5 = rest.exchange(
                 apiUrl + "/api/projects/{id}/tasks",
