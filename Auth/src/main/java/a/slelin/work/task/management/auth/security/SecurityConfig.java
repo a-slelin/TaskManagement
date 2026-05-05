@@ -85,6 +85,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/")
+                        .permitAll())
+
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/info", "/info/", "/help", "/help/")
                         .permitAll())
 
@@ -93,8 +97,7 @@ public class SecurityConfig {
                         .permitAll())
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/api", "/api/", "/api/info",
-                                "/api/info/", "/api/help", "/api/help/")
+                        .requestMatchers("/api", "/api/", "/api/info", "/api/info/", "/api/help", "/api/help/")
                         .permitAll())
 
                 .authorizeHttpRequests(auth -> auth

@@ -1,18 +1,12 @@
 package a.slelin.work.task.management.auth.controller.rest;
 
 import a.slelin.work.task.management.auth.service.AuthService;
-import a.slelin.work.task.management.auth.util.ApplicationHolder;
 import a.slelin.work.task.management.core.dto.auth.JwtResponse;
 import a.slelin.work.task.management.core.dto.auth.LoginRequest;
 import a.slelin.work.task.management.core.dto.auth.UserWD;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,28 +15,7 @@ import java.util.Map;
         produces = {"application/json", "application/xml", "application/yaml"})
 public class AuthController {
 
-    @Autowired
-    @SuppressWarnings("SpringAutowiredFieldsWarningInspection")
-    private ApplicationHolder applicationHolder;
-
     private final AuthService authService;
-
-    @GetMapping(value = {"", "/"}, consumes = "*/*")
-    public Map<String, Object> getInfo() {
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("name", applicationHolder.name());
-        map.put("version", applicationHolder.version());
-        map.put("description", applicationHolder.description());
-        map.put("timestamp", LocalDateTime.now().toString());
-        map.put("links", Map.of(
-                "/auth/login", "Login in the system.",
-                "/auth/register", "Register in the system.",
-                "/auth/refresh", "Update access & refresh token.",
-                "/auth/logout", "Logout from the system (current session).",
-                "/auth/logout/all", "Logout from the system (all sessions)."
-        ));
-        return map;
-    }
 
     @GetMapping(value = {"/refresh", "/refresh/"}, consumes = "*/*")
     public JwtResponse refresh(@RequestHeader("Authorization") String refreshToken) {

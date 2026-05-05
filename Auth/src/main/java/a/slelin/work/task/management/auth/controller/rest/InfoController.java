@@ -32,4 +32,51 @@ public class InfoController {
         ));
         return map;
     }
+
+    @GetMapping(path = {"/auth", "/auth/", "/auth/help", "/auth/help/", "/auth/info", "/auth/info/"})
+    public Map<String, Object> getAuthInfo() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("name", applicationHolder.name());
+        map.put("version", applicationHolder.version());
+        map.put("description", applicationHolder.description());
+        map.put("timestamp", LocalDateTime.now().toString());
+        map.put("links", Map.of(
+                "/auth/login", "Login in the system.",
+                "/auth/register", "Register in the system.",
+                "/auth/refresh", "Update access & refresh token.",
+                "/auth/logout", "Logout from the system (current session).",
+                "/auth/logout/all", "Logout from the system (all sessions)."
+        ));
+        return map;
+    }
+
+    @GetMapping(path = {"/api", "/api/", "/api/help", "/api/help/", "/api/info", "/api/info/"})
+    public Map<String, Object> getApiInfo() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("name", applicationHolder.name());
+        map.put("version", applicationHolder.version());
+        map.put("description", applicationHolder.description());
+        map.put("timestamp", LocalDateTime.now().toString());
+        map.put("links", Map.of(
+                "/api/user/**", "Management of your account."
+        ));
+        return map;
+    }
+
+    @GetMapping(path = {"/api/admin", "/api/admin/",
+            "/api/admin/help", "/api/admin/help/",
+            "/api/admin/info", "/api/admin/info/"})
+    public Map<String, Object> getApiAdminInfo() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("name", applicationHolder.name());
+        map.put("version", applicationHolder.version());
+        map.put("description", applicationHolder.description());
+        map.put("timestamp", LocalDateTime.now().toString());
+        map.put("links", Map.of(
+                "/api/admin/roles/**", "Management of roles.",
+                "/api/admin/users/**", "Management of users.",
+                "/api/admin/tokens/**", "Management of refresh tokens."
+        ));
+        return map;
+    }
 }
