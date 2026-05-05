@@ -5,7 +5,6 @@ import a.slelin.work.task.management.core.dto.SheetDto;
 import a.slelin.work.task.management.core.dto.auth.RefreshTokenRD;
 import a.slelin.work.task.management.core.util.filter.FilterChain;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +16,15 @@ import java.util.UUID;
 
 @RestController
 @SuppressWarnings("unused")
-@RequestMapping(value = "/api/admin/tokens",
+@RequestMapping(
+        value = "/api/admin/tokens",
         consumes = {"application/json", "application/xml", "application/yaml"},
-        produces = {"application/json", "application/xml", "application/yaml"})
+        produces = {"application/json", "application/xml", "application/yaml"}
+)
 @RequiredArgsConstructor
 public class RefreshTokenController {
 
-    @Autowired
-    private RefreshTokenService service;
+    private final RefreshTokenService service;
 
     @GetMapping(consumes = "*/*")
     public SheetDto<RefreshTokenRD> getAllRefreshTokens(@PageableDefault(sort = "token") Pageable pageable,

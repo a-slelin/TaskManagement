@@ -28,61 +28,61 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RefreshTokenService {
 
-    private final RefreshTokenRepository repo;
+    private final RefreshTokenMapper refreshTokenMapper;
 
-    private final RefreshTokenMapper mapper;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    private final UserRepository userRepo;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public SheetDto<RefreshTokenRD> getAll(@NotNull @Valid Pageable pageable) {
-        return SheetDto.of(repo.findAll(pageable), mapper::toDTO);
+        return SheetDto.of(refreshTokenRepository.findAll(pageable), refreshTokenMapper::toDTO);
     }
 
     @Transactional(readOnly = true)
     public RefreshTokenRD getById(@NotNull @Valid UUID id) {
-        RefreshToken token = repo.findById(id)
+        RefreshToken token = refreshTokenRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundByIdException(RefreshToken.class, id));
 
-        return mapper.toDTO(token);
+        return refreshTokenMapper.toDTO(token);
     }
 
     @Transactional(readOnly = true)
     public SheetDto<RefreshTokenRD> getByUser(@NotNull @Valid UUID user,
                                               @NotNull @Valid Pageable pageable) {
-        if (!userRepo.existsById(user)) {
+        if (!userRepository.existsById(user)) {
             throw new EntityNotFoundByIdException(User.class, user);
         }
 
-        return SheetDto.of(repo.findAllByUserId(pageable, user), mapper::toDTO);
+        return SheetDto.of(refreshTokenRepository.findAllByUserId(pageable, user), refreshTokenMapper::toDTO);
     }
 
     @Transactional(readOnly = true)
     public SheetDto<RefreshTokenRD> getByFilter(@NotNull @Valid FilterChain filters,
                                                 @NotNull @Valid Pageable pageable) {
         Specification<RefreshToken> specification = FilterUtil.toSpecification(filters);
-        return SheetDto.of(repo.findAll(specification, pageable), mapper::toDTO);
+        return SheetDto.of(refreshTokenRepository.findAll(specification, pageable), refreshTokenMapper::toDTO);
     }
 
     public void deleteById(@NotNull @Valid UUID id) {
-        RefreshToken token = repo.findById(id)
+        RefreshToken token = refreshTokenRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundByIdException(RefreshToken.class, id));
 
         if (token.getUser().isAdmin()) {
             throw new AdminActAdminException(AdminActAdminException.Operation.TERMINATE_SESSION);
         }
 
-        repo.deleteById(id);
+        refreshTokenRepository.deleteById(id);
     }
 
     public void deleteByUser(@NotNull @Valid UUID user) {
-        User userEntity = userRepo.findById(user)
+        User userEntity = userRepository.findById(user)
                 .orElseThrow(() -> new EntityNotFoundByIdException(User.class, user));
 
         if (userEntity.isAdmin()) {
             throw new AdminActAdminException(AdminActAdminException.Operation.TERMINATE_SESSION);
         }
 
-        repo.deleteByUser(userEntity);
+        refreshTokenRepository.deleteByUser(userEntity);
     }
 }

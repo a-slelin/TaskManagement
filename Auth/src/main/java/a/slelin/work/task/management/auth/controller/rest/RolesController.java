@@ -15,9 +15,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 @RestController
-@RequestMapping(value = "/api/admin/roles",
+@RequestMapping(
+        value = "/api/admin/roles",
         consumes = {"application/json", "application/xml", "application/yaml"},
-        produces = {"application/json", "application/xml", "application/yaml"})
+        produces = {"application/json", "application/xml", "application/yaml"}
+)
 @RequiredArgsConstructor
 public class RolesController {
 

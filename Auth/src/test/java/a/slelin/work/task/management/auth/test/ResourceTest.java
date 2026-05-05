@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 @DisplayName("Тест получения ресурсов (img, css, js)")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ResourceTest {
 
     public static String IMAGES_FOLDER_NAME = "images";

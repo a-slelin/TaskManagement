@@ -2,7 +2,7 @@
 
 --liquibase formatted sql
 
---changeset a.slelin:002-system-roles
+--changeset a.slelin:002-insert-system-roles
 
 DELETE
 FROM roles;

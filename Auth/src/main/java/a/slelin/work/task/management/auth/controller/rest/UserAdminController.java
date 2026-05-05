@@ -21,9 +21,11 @@ import java.util.UUID;
 
 @RestController
 @SuppressWarnings("unused")
-@RequestMapping(value = "/api/admin/users",
+@RequestMapping(
+        value = "/api/admin/users",
         consumes = {"application/json", "application/xml", "application/yaml"},
-        produces = {"application/json", "application/xml", "application/yaml"})
+        produces = {"application/json", "application/xml", "application/yaml"}
+)
 @RequiredArgsConstructor
 public class UserAdminController {
 

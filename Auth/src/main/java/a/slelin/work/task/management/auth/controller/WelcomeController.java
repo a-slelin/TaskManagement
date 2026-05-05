@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class WelcomeController {
 
     @ModelAttribute("title")
+    @SuppressWarnings("unused")
     public String title() {
         return "Welcome to Task Management System!!!";
     }

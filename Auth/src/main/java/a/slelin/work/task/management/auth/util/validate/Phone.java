@@ -8,6 +8,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+@SuppressWarnings("unused")
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = PhoneValidator.class)
 @Target({ElementType.FIELD, ElementType.PARAMETER})

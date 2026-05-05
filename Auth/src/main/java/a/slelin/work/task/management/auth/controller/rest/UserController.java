@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value = "/api/user",
+@RequestMapping(
+        value = "/api/user",
         consumes = {"application/json", "application/xml", "application/yaml"},
-        produces = {"application/json", "application/xml", "application/yaml"})
+        produces = {"application/json", "application/xml", "application/yaml"}
+)
 @RequiredArgsConstructor
 public class UserController {
 
@@ -26,8 +28,8 @@ public class UserController {
     }
 
     @PatchMapping
-    public UserRD patchUser(@AuthenticationPrincipal Jwt jwt,
-                            @RequestBody UserWD pthUser) {
+    public UserRD patchUser(@RequestBody UserWD pthUser,
+                            @AuthenticationPrincipal Jwt jwt) {
         UUID id = extractUserId(jwt);
         return service.patch(id, id, pthUser);
     }
