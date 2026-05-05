@@ -122,8 +122,20 @@ public class AuthControllerTest {
             assertNotNull(e.getStatusCode());
             assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
 
-            ErrorResponse response = e.getResponseBodyAs(ErrorResponse.class);
-            assertNotNull(response);
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(baseUrl + "/login", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.UNAUTHORIZED, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.Unauthorized, but got " + e.getMessage());
         }
     }
 
@@ -141,13 +153,26 @@ public class AuthControllerTest {
                     new HttpEntity<>(login),
                     JwtResponse.class);
             fail("Should throw HttpClientErrorException.Unauthorized");
+
         } catch (HttpClientErrorException.Unauthorized e) {
             assertNotNull(e);
             assertNotNull(e.getStatusCode());
             assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusCode());
 
-            ErrorResponse response = e.getResponseBodyAs(ErrorResponse.class);
-            assertNotNull(response);
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(baseUrl + "/login", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.UNAUTHORIZED, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.Unauthorized, but got " + e.getMessage());
         }
     }
 

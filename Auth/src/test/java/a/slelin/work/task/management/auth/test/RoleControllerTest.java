@@ -72,6 +72,15 @@ public class RoleControllerTest {
 
             ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
             assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(apiUrl, errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.GET, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.UNAUTHORIZED, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
 
         } catch (Exception e) {
             fail("Should throw HttpClientErrorException.Unauthorized, but got " + e.getMessage());
@@ -120,9 +129,18 @@ public class RoleControllerTest {
 
             ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
             assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(apiUrl, errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.GET, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.FORBIDDEN, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
 
         } catch (Exception e) {
-            fail("Should throw HttpClientErrorException.Unauthorized, but got " + e.getMessage());
+            fail("Should throw HttpClientErrorException.Forbidden, but got " + e.getMessage());
         }
     }
 
@@ -779,6 +797,15 @@ public class RoleControllerTest {
 
             ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
             assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(apiUrl + "/" + role.id(), errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.PUT, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
 
         } catch (Exception e) {
             fail("Should throw HttpClientErrorException.UnprocessableContent, but got " + e.getMessage());
@@ -841,6 +868,15 @@ public class RoleControllerTest {
 
             ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
             assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(apiUrl + "/" + role.id(), errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.PATCH, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
 
         } catch (Exception e) {
             fail("Should throw HttpClientErrorException.UnprocessableContent, but got " + e.getMessage());
@@ -959,6 +995,15 @@ public class RoleControllerTest {
 
             ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
             assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(apiUrl + "/" + role.id(), errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.DELETE, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.UNPROCESSABLE_CONTENT, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
 
         } catch (Exception e) {
             fail("Should throw HttpClientErrorException.UnprocessableContent, but got " + e.getMessage());
