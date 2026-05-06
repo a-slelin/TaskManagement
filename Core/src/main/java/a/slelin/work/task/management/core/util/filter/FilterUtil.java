@@ -57,7 +57,7 @@ public final class FilterUtil {
 
                 yield switch (operation) {
                     case EQ -> cb.equal(path, value);
-                    case NEQ -> cb.notEqual(path, value2);
+                    case NEQ -> cb.notEqual(path, value);
                     default -> throw new IllegalArgumentException("Unexpected value");
                 };
             }
@@ -65,7 +65,8 @@ public final class FilterUtil {
             case IS_NULL, IS_NOT_NULL -> {
                 Class<?> fieldType = path.getJavaType();
 
-                if (Collection.class.isAssignableFrom(fieldType)) {
+                if (Collection.class.isAssignableFrom(fieldType)
+                        || fieldType.isEnum()) {
                     throw new FilterParseException("Operation %s is not supported for field of type %s"
                             .formatted(operation.getDisplayName(), fieldType.getSimpleName()));
                 }
@@ -159,7 +160,8 @@ public final class FilterUtil {
             case LIKE, NOT_LIKE, STARTS_WITH, NOT_STARTS_WITH, ENDS_WITH, NOT_ENDS_WITH -> {
                 Class<?> fieldType = path.getJavaType();
 
-                if (Collection.class.isAssignableFrom(fieldType)) {
+                if (Collection.class.isAssignableFrom(fieldType)
+                        || fieldType.isEnum()) {
                     throw new FilterParseException("Operation %s is not supported for field of type %s"
                             .formatted(operation.getDisplayName(), fieldType.getSimpleName()));
                 }
@@ -218,7 +220,8 @@ public final class FilterUtil {
             case IN, NOT_IN -> {
                 Class<?> fieldType = path.getJavaType();
 
-                if (Collection.class.isAssignableFrom(fieldType)) {
+                if (Collection.class.isAssignableFrom(fieldType)
+                        || fieldType.isEnum()) {
                     throw new FilterParseException("Operation %s is not supported for field of type %s"
                             .formatted(operation.getDisplayName(), fieldType.getSimpleName()));
                 }

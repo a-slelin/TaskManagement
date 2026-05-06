@@ -45,10 +45,13 @@ public class FilterTest {
 
     private String projectUrl;
 
+    private String taskUrl;
+
     @BeforeEach
     void beforeEach() {
         String baseUrl = "http://localhost:%d".formatted(port);
         projectUrl = baseUrl + "/api/projects";
+        taskUrl = baseUrl + "/api/tasks";
     }
 
     @Test
@@ -5852,5 +5855,1316 @@ public class FilterTest {
         assertNotNull(projects);
         assertFalse(projects.isEmpty());
         assertTrue(projects.contains(project));
+    }
+
+    @Test
+    @Order(108)
+    @DirtiesContext
+    @DisplayName("Тестируем equals с Enum")
+    public void test108() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        ProjectWD newProject = new ProjectWD("tmp_project");
+
+        ResponseEntity<ProjectRD> response = rest.exchange(
+                projectUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(newProject, headers),
+                ProjectRD.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        ProjectRD project = response.getBody();
+        assertNotNull(project);
+        Long projectId = project.id();
+        assertNotNull(projectId);
+
+        TaskWD newTask = new TaskWD("tmp_task", "begin");
+
+        ResponseEntity<TaskRD> response2 = rest.exchange(
+                projectUrl + "/{id}/tasks",
+                HttpMethod.POST,
+                new HttpEntity<>(newTask, headers),
+                TaskRD.class,
+                projectId
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response2.getStatusCode());
+
+        TaskRD task = response2.getBody();
+        assertNotNull(task);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.EQ, "begin"));
+
+        ResponseEntity<SheetDto<TaskRD>> response3 = rest.exchange(
+                taskUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<TaskRD> sheet = response3.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<TaskRD> tasks = sheet.content();
+        assertNotNull(tasks);
+        assertFalse(tasks.isEmpty());
+        assertTrue(tasks.contains(task));
+    }
+
+    @Test
+    @Order(109)
+    @DirtiesContext
+    @DisplayName("Тестируем not equals с Enum")
+    public void test109() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        ProjectWD newProject = new ProjectWD("tmp_project");
+
+        ResponseEntity<ProjectRD> response = rest.exchange(
+                projectUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(newProject, headers),
+                ProjectRD.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        ProjectRD project = response.getBody();
+        assertNotNull(project);
+        Long projectId = project.id();
+        assertNotNull(projectId);
+
+        TaskWD newTask = new TaskWD("tmp_task", "begin");
+
+        ResponseEntity<TaskRD> response2 = rest.exchange(
+                projectUrl + "/{id}/tasks",
+                HttpMethod.POST,
+                new HttpEntity<>(newTask, headers),
+                TaskRD.class,
+                projectId
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response2.getStatusCode());
+
+        TaskRD task = response2.getBody();
+        assertNotNull(task);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.NEQ, "begin"));
+
+        ResponseEntity<SheetDto<TaskRD>> response3 = rest.exchange(
+                taskUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<TaskRD> sheet = response3.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<TaskRD> tasks = sheet.content();
+        assertNotNull(tasks);
+        assertFalse(tasks.isEmpty());
+        assertFalse(tasks.contains(task));
+    }
+
+    @Test
+    @Order(110)
+    @DirtiesContext
+    @DisplayName("Тестируем is null с Enum")
+    public void test110() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.IS_NULL));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(111)
+    @DirtiesContext
+    @DisplayName("Тестируем is not null с Enum")
+    public void test111() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.IS_NOT_NULL));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(112)
+    @DirtiesContext
+    @DisplayName("Тестируем greater с Enum")
+    public void test112() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.GT, 3));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(113)
+    @DirtiesContext
+    @DisplayName("Тестируем greater or equals с Enum")
+    public void test113() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.GE, 3));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(114)
+    @DirtiesContext
+    @DisplayName("Тестируем less с Enum")
+    public void test114() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.LT, 3));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(115)
+    @DirtiesContext
+    @DisplayName("Тестируем less or equals с Enum")
+    public void test115() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.LE, 3));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(116)
+    @DirtiesContext
+    @DisplayName("Тестируем like с Enum")
+    public void test116() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.LIKE, "beg"));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(117)
+    @DirtiesContext
+    @DisplayName("Тестируем not like с Enum")
+    public void test117() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.NOT_LIKE, "beg"));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(118)
+    @DirtiesContext
+    @DisplayName("Тестируем starts with с Enum")
+    public void test118() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.STARTS_WITH, "beg"));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(119)
+    @DirtiesContext
+    @DisplayName("Тестируем not starts with с Enum")
+    public void test119() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.NOT_STARTS_WITH, "beg"));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(120)
+    @DirtiesContext
+    @DisplayName("Тестируем ends with с Enum")
+    public void test120() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.ENDS_WITH, "in"));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(121)
+    @DirtiesContext
+    @DisplayName("Тестируем not ends with с Enum")
+    public void test121() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.NOT_ENDS_WITH, "in"));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(122)
+    @DirtiesContext
+    @DisplayName("Тестируем is empty с Enum")
+    public void test122() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.IS_EMPTY));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(123)
+    @DirtiesContext
+    @DisplayName("Тестируем is not empty с Enum")
+    public void test123() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.IS_NOT_EMPTY));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(124)
+    @DirtiesContext
+    @DisplayName("Тестируем is true с Enum")
+    public void test124() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.IS_TRUE));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(125)
+    @DirtiesContext
+    @DisplayName("Тестируем is false с Enum")
+    public void test125() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.IS_FALSE));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(126)
+    @DirtiesContext
+    @DisplayName("Тестируем in с Enum")
+    public void test126() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        List<String> list = new ArrayList<>();
+        list.add("begin");
+        list.add("end");
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.IN, list));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(127)
+    @DirtiesContext
+    @DisplayName("Тестируем not in с Enum")
+    public void test127() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        List<String> list = new ArrayList<>();
+        list.add("begin");
+        list.add("end");
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.NOT_IN, list));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(128)
+    @DirtiesContext
+    @DisplayName("Тестируем between с Enum")
+    public void test128() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.BETWEEN, "begin", "end"));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(129)
+    @DirtiesContext
+    @DisplayName("Тестируем not between с Enum")
+    public void test129() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.NOT_BETWEEN, "begin", "end"));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(130)
+    @DirtiesContext
+    @DisplayName("Тестируем before с Enum")
+    public void test130() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.BEFORE, "begin"));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(131)
+    @DirtiesContext
+    @DisplayName("Тестируем after с Enum")
+    public void test131() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("status", Operation.AFTER, "begin"));
+
+        try {
+            rest.exchange(
+                    taskUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(taskUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(132)
+    @DirtiesContext
+    @DisplayName("Тестируем сложный фильтр через точку")
+    public void test132() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        ProjectWD newProject = new ProjectWD("tmp_project");
+
+        ResponseEntity<ProjectRD> response = rest.exchange(
+                projectUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(newProject, headers),
+                ProjectRD.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        ProjectRD project = response.getBody();
+        assertNotNull(project);
+        Long projectId = project.id();
+        assertNotNull(projectId);
+
+        TaskWD newTask = new TaskWD("tmp_task", "begin");
+
+        ResponseEntity<TaskRD> response2 = rest.exchange(
+                projectUrl + "/{id}/tasks",
+                HttpMethod.POST,
+                new HttpEntity<>(newTask, headers),
+                TaskRD.class,
+                projectId
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response2.getStatusCode());
+
+        TaskRD task = response2.getBody();
+        assertNotNull(task);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("project.name", Operation.EQ, "tmp_project"));
+
+        ResponseEntity<SheetDto<TaskRD>> response3 = rest.exchange(
+                taskUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<TaskRD> sheet = response3.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<TaskRD> tasks = sheet.content();
+        assertNotNull(tasks);
+        assertFalse(tasks.isEmpty());
+        assertEquals(1, tasks.size());
+        assertTrue(tasks.contains(task));
+    }
+
+    @Test
+    @Order(133)
+    @DirtiesContext
+    @DisplayName("Тестируем несколько фильтров")
+    public void test133() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        ProjectWD newProject = new ProjectWD("tmp_project");
+
+        ResponseEntity<ProjectRD> response = rest.exchange(
+                projectUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(newProject, headers),
+                ProjectRD.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        ProjectRD project = response.getBody();
+        assertNotNull(project);
+        Long projectId = project.id();
+        assertNotNull(projectId);
+
+        TaskWD newTask = new TaskWD("tmp_task", "begin");
+
+        ResponseEntity<TaskRD> response2 = rest.exchange(
+                projectUrl + "/{id}/tasks",
+                HttpMethod.POST,
+                new HttpEntity<>(newTask, headers),
+                TaskRD.class,
+                projectId
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response2.getStatusCode());
+
+        TaskRD task = response2.getBody();
+        assertNotNull(task);
+
+        TaskWD newTask2 = new TaskWD("tmp_task2", "end");
+
+        ResponseEntity<TaskRD> response3 = rest.exchange(
+                projectUrl + "/{id}/tasks",
+                HttpMethod.POST,
+                new HttpEntity<>(newTask2, headers),
+                TaskRD.class,
+                projectId
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response3.getStatusCode());
+
+        TaskRD task2 = response3.getBody();
+        assertNotNull(task2);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("project.name", Operation.EQ, "tmp_project"))
+                .add(Filter.of("project.id", Operation.EQ, projectId))
+                .add(Filter.of("project.description", Operation.IS_NULL))
+                .add(Filter.of("title", Operation.STARTS_WITH, "tmp_"))
+                .add(Filter.of("title", Operation.LIKE, "task"))
+                .add(Filter.of("status", Operation.EQ, "end"));
+
+        ResponseEntity<SheetDto<TaskRD>> response4 = rest.exchange(
+                taskUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response4);
+        assertNotNull(response4.getStatusCode());
+        assertEquals(HttpStatus.OK, response4.getStatusCode());
+
+        SheetDto<TaskRD> sheet = response4.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<TaskRD> tasks = sheet.content();
+        assertNotNull(tasks);
+        assertFalse(tasks.isEmpty());
+        assertEquals(1, tasks.size());
+        assertTrue(tasks.contains(task2));
     }
 }
