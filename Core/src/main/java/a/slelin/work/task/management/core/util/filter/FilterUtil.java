@@ -6,9 +6,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -58,6 +56,23 @@ public final class FilterUtil {
 
                 if (fieldType == UUID.class) {
                     value = valueToType(value, UUID.class);
+                }
+
+                if (fieldType == LocalDateTime.class) {
+                    LocalDateTime dateValue = valueToType(value, LocalDateTime.class);
+                    dateValue = dateValue.withNano(0);
+
+                    Expression<LocalDateTime> truncatedPath = cb.function(
+                            "DATE_TRUNC", LocalDateTime.class,
+                            cb.literal("second"), path
+                    );
+                    Expression<LocalDateTime> truncatedValue = cb.literal(dateValue);
+
+                    yield switch (operation) {
+                        case EQ -> cb.equal(truncatedPath, truncatedValue);
+                        case NEQ -> cb.notEqual(truncatedPath, truncatedValue);
+                        default -> throw new IllegalArgumentException("Unexpected operation");
+                    };
                 }
 
                 yield switch (operation) {
@@ -166,7 +181,8 @@ public final class FilterUtil {
                 Class<?> fieldType = path.getJavaType();
 
                 if (Collection.class.isAssignableFrom(fieldType)
-                        || fieldType.isEnum()) {
+                        || fieldType.isEnum()
+                        || fieldType == LocalDateTime.class) {
                     throw new FilterParseException("Operation %s is not supported for field of type %s"
                             .formatted(operation.getDisplayName(), fieldType.getSimpleName()));
                 }
@@ -226,7 +242,8 @@ public final class FilterUtil {
                 Class<?> fieldType = path.getJavaType();
 
                 if (Collection.class.isAssignableFrom(fieldType)
-                        || fieldType.isEnum()) {
+                        || fieldType.isEnum()
+                        || fieldType == LocalDateTime.class) {
                     throw new FilterParseException("Operation %s is not supported for field of type %s"
                             .formatted(operation.getDisplayName(), fieldType.getSimpleName()));
                 }
@@ -249,7 +266,8 @@ public final class FilterUtil {
             case BETWEEN, NOT_BETWEEN -> {
                 Class<?> fieldType = path.getJavaType();
 
-                if (!Number.class.isAssignableFrom(fieldType)) {
+                if (!Number.class.isAssignableFrom(fieldType) &&
+                        !LocalDateTime.class.isAssignableFrom(fieldType)) {
                     throw new FilterParseException("Operation %s is not supported for field of type %s"
                             .formatted(operation.getDisplayName(), fieldType.getSimpleName()));
                 }
@@ -314,6 +332,16 @@ public final class FilterUtil {
                         case NOT_BETWEEN -> cb.not(cb.between(expression, from, to));
                         default -> throw new IllegalArgumentException("Unexpected value");
                     };
+                } else if (fieldType == LocalDateTime.class) {
+                    Expression<LocalDateTime> expression = path.as(LocalDateTime.class);
+                    LocalDateTime from = valueToType(value, LocalDateTime.class);
+                    LocalDateTime to = valueToType(value2, LocalDateTime.class);
+
+                    yield switch (operation) {
+                        case BETWEEN -> cb.between(expression, from, to);
+                        case NOT_BETWEEN -> cb.not(cb.between(expression, from, to));
+                        default -> throw new IllegalArgumentException("Unexpected value");
+                    };
                 } else {
                     throw new IllegalArgumentException("Unexpected field type: " + fieldType.getSimpleName());
                 }
@@ -322,32 +350,12 @@ public final class FilterUtil {
             case BEFORE, AFTER -> {
                 Class<?> fieldType = path.getJavaType();
 
-                if (!LocalDate.class.isAssignableFrom(fieldType) ||
-                        !LocalTime.class.isAssignableFrom(fieldType) ||
-                        !LocalDateTime.class.isAssignableFrom(fieldType)) {
+                if (!LocalDateTime.class.isAssignableFrom(fieldType)) {
                     throw new FilterParseException("Operation %s is not supported for field of type %s"
                             .formatted(operation.getDisplayName(), fieldType.getSimpleName()));
                 }
 
-                if (fieldType == LocalDate.class) {
-                    Expression<LocalDate> expression = path.as(LocalDate.class);
-                    LocalDate dateValue = valueToType(value, LocalDate.class);
-
-                    yield switch (operation) {
-                        case BEFORE -> cb.lessThan(expression, dateValue);
-                        case AFTER -> cb.greaterThan(expression, dateValue);
-                        default -> throw new IllegalArgumentException("Unexpected value");
-                    };
-                } else if (fieldType == LocalTime.class) {
-                    Expression<LocalTime> expression = path.as(LocalTime.class);
-                    LocalTime dateValue = valueToType(value, LocalTime.class);
-
-                    yield switch (operation) {
-                        case BEFORE -> cb.lessThan(expression, dateValue);
-                        case AFTER -> cb.greaterThan(expression, dateValue);
-                        default -> throw new IllegalArgumentException("Unexpected value");
-                    };
-                } else if (fieldType == LocalDateTime.class) {
+                if (fieldType == LocalDateTime.class) {
                     Expression<LocalDateTime> expression = path.as(LocalDateTime.class);
                     LocalDateTime dateValue = valueToType(value, LocalDateTime.class);
 
@@ -416,13 +424,11 @@ public final class FilterUtil {
 
             if (CharSequence.class.isAssignableFrom(type)) return type.cast(value.toString());
 
-            if (type == LocalDate.class
-                    || type == LocalTime.class
-                    || type == LocalDateTime.class) {
-                if (value instanceof CharSequence str) {
-                    if (type == LocalDate.class) return type.cast(LocalDate.parse(str, UNIVERSE_DATE_FORMATTER));
-                    if (type == LocalTime.class) return type.cast(LocalTime.parse(str, UNIVERSE_TIME_FORMATTER));
+            if (type == LocalDateTime.class && value instanceof CharSequence str) {
+                try {
                     return type.cast(LocalDateTime.parse(str, UNIVERSE_DATETIME_FORMATTER));
+                } catch (Exception e) {
+                    return type.cast(LocalDateTime.parse(str));
                 }
             }
 

@@ -3,6 +3,7 @@ package a.slelin.work.task.management.auth.test;
 import a.slelin.work.task.management.core.dto.SheetDto;
 import a.slelin.work.task.management.core.dto.auth.JwtResponse;
 import a.slelin.work.task.management.core.dto.auth.LoginRequest;
+import a.slelin.work.task.management.core.dto.auth.RefreshTokenRD;
 import a.slelin.work.task.management.core.dto.auth.UserRD;
 import a.slelin.work.task.management.core.exception.ErrorResponse;
 import a.slelin.work.task.management.core.util.filter.Filter;
@@ -19,10 +20,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static a.slelin.work.task.management.core.util.DateTimeUtil.UNIVERSE_DATETIME_FORMATTER;
 import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,6 +40,8 @@ public class FilterTest {
 
     private static final String ekaterinaUUID = "5a53277c-487f-4ef8-bd7e-c1256de14785";
 
+    private static final String adminUUID = "c152861c-9d46-4f27-a555-ebb33d7b20ff";
+
     @Autowired
     private RestTemplate rest;
 
@@ -47,10 +52,13 @@ public class FilterTest {
 
     private String usersUrl;
 
+    private String tokenUrl;
+
     @BeforeEach
     void beforeEach() {
         baseUrl = "http://localhost:%d".formatted(port);
         usersUrl = baseUrl + "/api/admin/users";
+        tokenUrl = baseUrl + "/api/admin/tokens";
     }
 
     @Test
@@ -1310,7 +1318,6 @@ public class FilterTest {
         }
     }
 
-
     @Test
     @Order(22)
     @DirtiesContext
@@ -2065,5 +2072,2256 @@ public class FilterTest {
             assertNotEquals(alexUUID, user.id());
             assertNotEquals(ekaterinaUUID, user.id());
         }
+    }
+
+    @Test
+    @Order(35)
+    @DirtiesContext
+    @DisplayName("Тестируем equals с LocalDateTime")
+    public void test35() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response2 = rest.exchange(
+                tokenUrl + "/user/{id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                },
+                adminUUID
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<RefreshTokenRD> tokens = sheet.content();
+        assertNotNull(tokens);
+        assertFalse(tokens.isEmpty());
+        assertEquals(1, tokens.size());
+
+        RefreshTokenRD token = tokens.getFirst();
+        assertNotNull(token);
+        LocalDateTime expiryDate = token.expiryDate();
+        assertNotNull(expiryDate);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.EQ, expiryDate));
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response3 = rest.exchange(
+                tokenUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet2 = response3.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+
+        List<RefreshTokenRD> tokens2 = sheet2.content();
+        assertNotNull(tokens2);
+        assertFalse(tokens2.isEmpty());
+        assertEquals(1, tokens2.size());
+
+        RefreshTokenRD token2 = tokens2.getFirst();
+        assertNotNull(token2);
+        assertNotNull(token2.token());
+        assertEquals(jwtResponse.refreshToken(), token2.token());
+        assertNotNull(token2.expiryDate());
+        assertEquals(expiryDate, token2.expiryDate());
+    }
+
+    @Test
+    @Order(36)
+    @DirtiesContext
+    @DisplayName("Тестируем equals с LocalDateTime (String)")
+    public void test36() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response2 = rest.exchange(
+                tokenUrl + "/user/{id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                },
+                adminUUID
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<RefreshTokenRD> tokens = sheet.content();
+        assertNotNull(tokens);
+        assertFalse(tokens.isEmpty());
+        assertEquals(1, tokens.size());
+
+        RefreshTokenRD token = tokens.getFirst();
+        assertNotNull(token);
+        LocalDateTime expiryDate = token.expiryDate();
+        assertNotNull(expiryDate);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.EQ, expiryDate.format(UNIVERSE_DATETIME_FORMATTER)));
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response3 = rest.exchange(
+                tokenUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet2 = response3.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+
+        List<RefreshTokenRD> tokens2 = sheet2.content();
+        assertNotNull(tokens2);
+        assertFalse(tokens2.isEmpty());
+        assertEquals(1, tokens2.size());
+
+        RefreshTokenRD token2 = tokens2.getFirst();
+        assertNotNull(token2);
+        assertNotNull(token2.token());
+        assertEquals(jwtResponse.refreshToken(), token2.token());
+        assertNotNull(token2.expiryDate());
+        assertEquals(expiryDate, token2.expiryDate());
+    }
+
+    @Test
+    @Order(37)
+    @DirtiesContext
+    @DisplayName("Тестируем equals с LocalDateTime (String) 2")
+    public void test37() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response2 = rest.exchange(
+                tokenUrl + "/user/{id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                },
+                adminUUID
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<RefreshTokenRD> tokens = sheet.content();
+        assertNotNull(tokens);
+        assertFalse(tokens.isEmpty());
+        assertEquals(1, tokens.size());
+
+        RefreshTokenRD token = tokens.getFirst();
+        assertNotNull(token);
+        LocalDateTime expiryDate = token.expiryDate();
+        assertNotNull(expiryDate);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.EQ, expiryDate.toString()));
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response3 = rest.exchange(
+                tokenUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet2 = response3.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+
+        List<RefreshTokenRD> tokens2 = sheet2.content();
+        assertNotNull(tokens2);
+        assertFalse(tokens2.isEmpty());
+        assertEquals(1, tokens2.size());
+
+        RefreshTokenRD token2 = tokens2.getFirst();
+        assertNotNull(token2);
+        assertNotNull(token2.token());
+        assertEquals(jwtResponse.refreshToken(), token2.token());
+        assertNotNull(token2.expiryDate());
+        assertEquals(expiryDate, token2.expiryDate());
+    }
+
+    @Test
+    @Order(38)
+    @DirtiesContext
+    @DisplayName("Тестируем not equals с LocalDateTime")
+    public void test38() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response2 = rest.exchange(
+                tokenUrl + "/user/{id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                },
+                adminUUID
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<RefreshTokenRD> tokens = sheet.content();
+        assertNotNull(tokens);
+        assertFalse(tokens.isEmpty());
+        assertEquals(1, tokens.size());
+
+        RefreshTokenRD token = tokens.getFirst();
+        assertNotNull(token);
+        LocalDateTime expiryDate = token.expiryDate();
+        assertNotNull(expiryDate);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.NEQ, expiryDate));
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response3 = rest.exchange(
+                tokenUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet2 = response3.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+
+        List<RefreshTokenRD> tokens2 = sheet2.content();
+        assertNotNull(tokens2);
+        assertTrue(tokens2.isEmpty());
+    }
+
+    @Test
+    @Order(39)
+    @DirtiesContext
+    @DisplayName("Тестируем not equals с LocalDateTime (String)")
+    public void test39() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response2 = rest.exchange(
+                tokenUrl + "/user/{id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                },
+                adminUUID
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<RefreshTokenRD> tokens = sheet.content();
+        assertNotNull(tokens);
+        assertFalse(tokens.isEmpty());
+        assertEquals(1, tokens.size());
+
+        RefreshTokenRD token = tokens.getFirst();
+        assertNotNull(token);
+        LocalDateTime expiryDate = token.expiryDate();
+        assertNotNull(expiryDate);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.NEQ, expiryDate.toString()));
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response3 = rest.exchange(
+                tokenUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet2 = response3.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+
+        List<RefreshTokenRD> tokens2 = sheet2.content();
+        assertNotNull(tokens2);
+        assertTrue(tokens2.isEmpty());
+    }
+
+    @Test
+    @Order(40)
+    @DirtiesContext
+    @DisplayName("Тестируем is null с LocalDateTime")
+    public void test40() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response2 = rest.exchange(
+                tokenUrl + "/user/{id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                },
+                adminUUID
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<RefreshTokenRD> tokens = sheet.content();
+        assertNotNull(tokens);
+        assertFalse(tokens.isEmpty());
+        assertEquals(1, tokens.size());
+
+        RefreshTokenRD token = tokens.getFirst();
+        assertNotNull(token);
+        LocalDateTime expiryDate = token.expiryDate();
+        assertNotNull(expiryDate);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.IS_NULL));
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response3 = rest.exchange(
+                tokenUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet2 = response3.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+
+        List<RefreshTokenRD> tokens2 = sheet2.content();
+        assertNotNull(tokens2);
+        assertTrue(tokens2.isEmpty());
+    }
+
+    @Test
+    @Order(41)
+    @DirtiesContext
+    @DisplayName("Тестируем is not null с LocalDateTime")
+    public void test41() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response2 = rest.exchange(
+                tokenUrl + "/user/{id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                },
+                adminUUID
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<RefreshTokenRD> tokens = sheet.content();
+        assertNotNull(tokens);
+        assertFalse(tokens.isEmpty());
+        assertEquals(1, tokens.size());
+
+        RefreshTokenRD token = tokens.getFirst();
+        assertNotNull(token);
+        LocalDateTime expiryDate = token.expiryDate();
+        assertNotNull(expiryDate);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.IS_NOT_NULL));
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response3 = rest.exchange(
+                tokenUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet2 = response3.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+
+        List<RefreshTokenRD> tokens2 = sheet2.content();
+        assertNotNull(tokens2);
+        assertFalse(tokens2.isEmpty());
+        assertEquals(1, tokens2.size());
+
+        RefreshTokenRD token2 = tokens2.getFirst();
+        assertNotNull(token2);
+        assertNotNull(token2.expiryDate());
+    }
+
+    @Test
+    @Order(42)
+    @DirtiesContext
+    @DisplayName("Тестируем greater с LocalDateTime")
+    public void test42() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.GT, LocalDateTime.now()));
+
+        //noinspection CatchMayIgnoreException
+        try {
+            rest.exchange(
+                    tokenUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(tokenUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(43)
+    @DirtiesContext
+    @DisplayName("Тестируем greater or equals с LocalDateTime")
+    public void test43() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.GE, LocalDateTime.now()));
+
+        //noinspection CatchMayIgnoreException
+        try {
+            rest.exchange(
+                    tokenUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(tokenUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(44)
+    @DirtiesContext
+    @DisplayName("Тестируем less с LocalDateTime")
+    public void test44() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.LT, LocalDateTime.now()));
+
+        //noinspection CatchMayIgnoreException
+        try {
+            rest.exchange(
+                    tokenUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(tokenUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(45)
+    @DirtiesContext
+    @DisplayName("Тестируем less or equals с LocalDateTime")
+    public void test45() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.LE, LocalDateTime.now()));
+
+        //noinspection CatchMayIgnoreException
+        try {
+            rest.exchange(
+                    tokenUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(tokenUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(46)
+    @DirtiesContext
+    @DisplayName("Тестируем like с LocalDateTime")
+    public void test46() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.LIKE, LocalDateTime.now().toString()));
+
+        //noinspection CatchMayIgnoreException
+        try {
+            rest.exchange(
+                    tokenUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(tokenUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(47)
+    @DirtiesContext
+    @DisplayName("Тестируем not like с LocalDateTime")
+    public void test47() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.NOT_LIKE, LocalDateTime.now().toString()));
+
+        //noinspection CatchMayIgnoreException
+        try {
+            rest.exchange(
+                    tokenUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(tokenUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(48)
+    @DirtiesContext
+    @DisplayName("Тестируем starts with с LocalDateTime")
+    public void test48() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.STARTS_WITH, LocalDateTime.now().toString()));
+
+        //noinspection CatchMayIgnoreException
+        try {
+            rest.exchange(
+                    tokenUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(tokenUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(49)
+    @DirtiesContext
+    @DisplayName("Тестируем not starts with с LocalDateTime")
+    public void test49() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.NOT_STARTS_WITH, LocalDateTime.now().toString()));
+
+        //noinspection CatchMayIgnoreException
+        try {
+            rest.exchange(
+                    tokenUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(tokenUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(50)
+    @DirtiesContext
+    @DisplayName("Тестируем ends with с LocalDateTime")
+    public void test50() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.ENDS_WITH, LocalDateTime.now().toString()));
+
+        //noinspection CatchMayIgnoreException
+        try {
+            rest.exchange(
+                    tokenUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(tokenUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(51)
+    @DirtiesContext
+    @DisplayName("Тестируем not ends with с LocalDateTime")
+    public void test51() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.NOT_ENDS_WITH, LocalDateTime.now().toString()));
+
+        //noinspection CatchMayIgnoreException
+        try {
+            rest.exchange(
+                    tokenUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(tokenUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(52)
+    @DirtiesContext
+    @DisplayName("Тестируем is empty с LocalDateTime")
+    public void test52() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.IS_EMPTY));
+
+        //noinspection CatchMayIgnoreException
+        try {
+            rest.exchange(
+                    tokenUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(tokenUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(53)
+    @DirtiesContext
+    @DisplayName("Тестируем is not empty с LocalDateTime")
+    public void test53() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.IS_NOT_EMPTY));
+
+        //noinspection CatchMayIgnoreException
+        try {
+            rest.exchange(
+                    tokenUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(tokenUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(54)
+    @DirtiesContext
+    @DisplayName("Тестируем is true с LocalDateTime")
+    public void test54() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.IS_TRUE));
+
+        //noinspection CatchMayIgnoreException
+        try {
+            rest.exchange(
+                    tokenUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(tokenUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(55)
+    @DirtiesContext
+    @DisplayName("Тестируем is false с LocalDateTime")
+    public void test55() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.IS_FALSE));
+
+        //noinspection CatchMayIgnoreException
+        try {
+            rest.exchange(
+                    tokenUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(tokenUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(56)
+    @DirtiesContext
+    @DisplayName("Тестируем in с LocalDateTime")
+    public void test56() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        List<LocalDateTime> list = new ArrayList<>();
+        list.add(LocalDateTime.now());
+        list.add(LocalDateTime.now().plusDays(1));
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.IN, list));
+
+        //noinspection CatchMayIgnoreException
+        try {
+            rest.exchange(
+                    tokenUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(tokenUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(57)
+    @DirtiesContext
+    @DisplayName("Тестируем not in с LocalDateTime")
+    public void test57() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        List<LocalDateTime> list = new ArrayList<>();
+        list.add(LocalDateTime.now());
+        list.add(LocalDateTime.now().plusDays(1));
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.NOT_IN, list));
+
+        //noinspection CatchMayIgnoreException
+        try {
+            rest.exchange(
+                    tokenUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(tokenUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(58)
+    @DirtiesContext
+    @DisplayName("Тестируем after с LocalDateTime")
+    public void test58() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response2 = rest.exchange(
+                tokenUrl + "/user/{id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                },
+                adminUUID
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<RefreshTokenRD> tokens = sheet.content();
+        assertNotNull(tokens);
+        assertFalse(tokens.isEmpty());
+        assertEquals(1, tokens.size());
+
+        RefreshTokenRD token = tokens.getFirst();
+        assertNotNull(token);
+        LocalDateTime expiryDate = token.expiryDate();
+        assertNotNull(expiryDate);
+        assertTrue(expiryDate.isAfter(LocalDateTime.now()));
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.AFTER, LocalDateTime.now()));
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response3 = rest.exchange(
+                tokenUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet2 = response3.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+
+        List<RefreshTokenRD> tokens2 = sheet2.content();
+        assertNotNull(tokens2);
+        assertFalse(tokens2.isEmpty());
+        assertEquals(1, tokens2.size());
+
+        RefreshTokenRD token2 = tokens2.getFirst();
+        assertNotNull(token2);
+        assertNotNull(token2.token());
+        assertEquals(jwtResponse.refreshToken(), token2.token());
+        assertNotNull(token2.expiryDate());
+        assertEquals(expiryDate, token2.expiryDate());
+    }
+
+    @Test
+    @Order(59)
+    @DirtiesContext
+    @DisplayName("Тестируем after с LocalDateTime (String)")
+    public void test59() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response2 = rest.exchange(
+                tokenUrl + "/user/{id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                },
+                adminUUID
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<RefreshTokenRD> tokens = sheet.content();
+        assertNotNull(tokens);
+        assertFalse(tokens.isEmpty());
+        assertEquals(1, tokens.size());
+
+        RefreshTokenRD token = tokens.getFirst();
+        assertNotNull(token);
+        LocalDateTime expiryDate = token.expiryDate();
+        assertNotNull(expiryDate);
+        assertTrue(expiryDate.isAfter(LocalDateTime.now()));
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.AFTER, LocalDateTime.now().toString()));
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response3 = rest.exchange(
+                tokenUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet2 = response3.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+
+        List<RefreshTokenRD> tokens2 = sheet2.content();
+        assertNotNull(tokens2);
+        assertFalse(tokens2.isEmpty());
+        assertEquals(1, tokens2.size());
+
+        RefreshTokenRD token2 = tokens2.getFirst();
+        assertNotNull(token2);
+        assertNotNull(token2.token());
+        assertEquals(jwtResponse.refreshToken(), token2.token());
+        assertNotNull(token2.expiryDate());
+        assertEquals(expiryDate, token2.expiryDate());
+    }
+
+    @Test
+    @Order(60)
+    @DirtiesContext
+    @DisplayName("Тестируем before с LocalDateTime")
+    public void test60() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response2 = rest.exchange(
+                tokenUrl + "/user/{id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                },
+                adminUUID
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<RefreshTokenRD> tokens = sheet.content();
+        assertNotNull(tokens);
+        assertFalse(tokens.isEmpty());
+        assertEquals(1, tokens.size());
+
+        RefreshTokenRD token = tokens.getFirst();
+        assertNotNull(token);
+        LocalDateTime expiryDate = token.expiryDate();
+        assertNotNull(expiryDate);
+        assertTrue(expiryDate.isBefore(LocalDateTime.now().plusDays(4)));
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.BEFORE, LocalDateTime.now().plusDays(4)));
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response3 = rest.exchange(
+                tokenUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet2 = response3.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+
+        List<RefreshTokenRD> tokens2 = sheet2.content();
+        assertNotNull(tokens2);
+        assertFalse(tokens2.isEmpty());
+        assertEquals(1, tokens2.size());
+
+        RefreshTokenRD token2 = tokens2.getFirst();
+        assertNotNull(token2);
+        assertNotNull(token2.token());
+        assertEquals(jwtResponse.refreshToken(), token2.token());
+        assertNotNull(token2.expiryDate());
+        assertEquals(expiryDate, token2.expiryDate());
+    }
+
+    @Test
+    @Order(61)
+    @DirtiesContext
+    @DisplayName("Тестируем before с LocalDateTime (String)")
+    public void test61() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response2 = rest.exchange(
+                tokenUrl + "/user/{id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                },
+                adminUUID
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<RefreshTokenRD> tokens = sheet.content();
+        assertNotNull(tokens);
+        assertFalse(tokens.isEmpty());
+        assertEquals(1, tokens.size());
+
+        RefreshTokenRD token = tokens.getFirst();
+        assertNotNull(token);
+        LocalDateTime expiryDate = token.expiryDate();
+        assertNotNull(expiryDate);
+        assertTrue(expiryDate.isBefore(LocalDateTime.now().plusDays(4)));
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.BEFORE, LocalDateTime.now().plusDays(4).toString()));
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response3 = rest.exchange(
+                tokenUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet2 = response3.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+
+        List<RefreshTokenRD> tokens2 = sheet2.content();
+        assertNotNull(tokens2);
+        assertFalse(tokens2.isEmpty());
+        assertEquals(1, tokens2.size());
+
+        RefreshTokenRD token2 = tokens2.getFirst();
+        assertNotNull(token2);
+        assertNotNull(token2.token());
+        assertEquals(jwtResponse.refreshToken(), token2.token());
+        assertNotNull(token2.expiryDate());
+        assertEquals(expiryDate, token2.expiryDate());
+    }
+
+    @Test
+    @Order(62)
+    @DirtiesContext
+    @DisplayName("Тестируем between с LocalDateTime")
+    public void test62() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response2 = rest.exchange(
+                tokenUrl + "/user/{id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                },
+                adminUUID
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<RefreshTokenRD> tokens = sheet.content();
+        assertNotNull(tokens);
+        assertFalse(tokens.isEmpty());
+        assertEquals(1, tokens.size());
+
+        RefreshTokenRD token = tokens.getFirst();
+        assertNotNull(token);
+        LocalDateTime expiryDate = token.expiryDate();
+        assertNotNull(expiryDate);
+        assertTrue(expiryDate.isAfter(LocalDateTime.now()));
+        assertTrue(expiryDate.isBefore(LocalDateTime.now().plusDays(4)));
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.BETWEEN,
+                        LocalDateTime.now(), LocalDateTime.now().plusDays(4)));
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response3 = rest.exchange(
+                tokenUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet2 = response3.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+
+        List<RefreshTokenRD> tokens2 = sheet2.content();
+        assertNotNull(tokens2);
+        assertFalse(tokens2.isEmpty());
+        assertEquals(1, tokens2.size());
+
+        RefreshTokenRD token2 = tokens2.getFirst();
+        assertNotNull(token2);
+        assertNotNull(token2.token());
+        assertEquals(jwtResponse.refreshToken(), token2.token());
+        assertNotNull(token2.expiryDate());
+        assertEquals(expiryDate, token2.expiryDate());
+    }
+
+    @Test
+    @Order(63)
+    @DirtiesContext
+    @DisplayName("Тестируем between с LocalDateTime (String)")
+    public void test63() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response2 = rest.exchange(
+                tokenUrl + "/user/{id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                },
+                adminUUID
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<RefreshTokenRD> tokens = sheet.content();
+        assertNotNull(tokens);
+        assertFalse(tokens.isEmpty());
+        assertEquals(1, tokens.size());
+
+        RefreshTokenRD token = tokens.getFirst();
+        assertNotNull(token);
+        LocalDateTime expiryDate = token.expiryDate();
+        assertNotNull(expiryDate);
+        assertTrue(expiryDate.isAfter(LocalDateTime.now()));
+        assertTrue(expiryDate.isBefore(LocalDateTime.now().plusDays(4)));
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.BETWEEN,
+                        LocalDateTime.now().toString(),
+                        LocalDateTime.now().plusDays(4).toString()));
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response3 = rest.exchange(
+                tokenUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet2 = response3.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+
+        List<RefreshTokenRD> tokens2 = sheet2.content();
+        assertNotNull(tokens2);
+        assertFalse(tokens2.isEmpty());
+        assertEquals(1, tokens2.size());
+
+        RefreshTokenRD token2 = tokens2.getFirst();
+        assertNotNull(token2);
+        assertNotNull(token2.token());
+        assertEquals(jwtResponse.refreshToken(), token2.token());
+        assertNotNull(token2.expiryDate());
+        assertEquals(expiryDate, token2.expiryDate());
+    }
+
+    @Test
+    @Order(64)
+    @DirtiesContext
+    @DisplayName("Тестируем not between с LocalDateTime")
+    public void test64() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response2 = rest.exchange(
+                tokenUrl + "/user/{id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                },
+                adminUUID
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<RefreshTokenRD> tokens = sheet.content();
+        assertNotNull(tokens);
+        assertFalse(tokens.isEmpty());
+        assertEquals(1, tokens.size());
+
+        RefreshTokenRD token = tokens.getFirst();
+        assertNotNull(token);
+        LocalDateTime expiryDate = token.expiryDate();
+        assertNotNull(expiryDate);
+        assertTrue(expiryDate.isAfter(LocalDateTime.now()));
+        assertTrue(expiryDate.isBefore(LocalDateTime.now().plusDays(4)));
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.NOT_BETWEEN,
+                        LocalDateTime.now(), LocalDateTime.now().plusDays(4)));
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response3 = rest.exchange(
+                tokenUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet2 = response3.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+
+        List<RefreshTokenRD> tokens2 = sheet2.content();
+        assertNotNull(tokens2);
+        assertTrue(tokens2.isEmpty());
+    }
+
+    @Test
+    @Order(65)
+    @DirtiesContext
+    @DisplayName("Тестируем not between с LocalDateTime (String)")
+    public void test65() {
+
+        LoginRequest login = new LoginRequest("admin", "password");
+
+        ResponseEntity<JwtResponse> response = rest.exchange(
+                baseUrl + "/auth/login",
+                HttpMethod.POST,
+                new HttpEntity<>(login),
+                JwtResponse.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        JwtResponse jwtResponse = response.getBody();
+        assertNotNull(jwtResponse);
+        assertNotNull(jwtResponse.accessToken());
+        assertNotNull(jwtResponse.refreshToken());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtResponse.accessToken());
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response2 = rest.exchange(
+                tokenUrl + "/user/{id}",
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                new ParameterizedTypeReference<>() {
+                },
+                adminUUID
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<RefreshTokenRD> tokens = sheet.content();
+        assertNotNull(tokens);
+        assertFalse(tokens.isEmpty());
+        assertEquals(1, tokens.size());
+
+        RefreshTokenRD token = tokens.getFirst();
+        assertNotNull(token);
+        LocalDateTime expiryDate = token.expiryDate();
+        assertNotNull(expiryDate);
+        assertTrue(expiryDate.isAfter(LocalDateTime.now()));
+        assertTrue(expiryDate.isBefore(LocalDateTime.now().plusDays(4)));
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("expiryDate", Operation.NOT_BETWEEN,
+                        LocalDateTime.now().toString(),
+                        LocalDateTime.now().plusDays(4).toString()));
+
+        ResponseEntity<SheetDto<RefreshTokenRD>> response3 = rest.exchange(
+                tokenUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response3);
+        assertNotNull(response3.getStatusCode());
+        assertEquals(HttpStatus.OK, response3.getStatusCode());
+
+        SheetDto<RefreshTokenRD> sheet2 = response3.getBody();
+        assertNotNull(sheet2);
+        assertNotNull(sheet2.page());
+
+        List<RefreshTokenRD> tokens2 = sheet2.content();
+        assertNotNull(tokens2);
+        assertTrue(tokens2.isEmpty());
     }
 }
