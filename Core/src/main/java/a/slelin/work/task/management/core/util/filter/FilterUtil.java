@@ -47,11 +47,35 @@ public final class FilterUtil {
         Path<T> path = getNestedPath(root, field);
 
         return switch (operation) {
-            case EQ -> cb.equal(path, value);
-            case NEQ -> cb.notEqual(path, value);
+            case EQ, NEQ -> {
+                Class<?> fieldType = path.getJavaType();
 
-            case IS_NULL -> cb.isNull(path);
-            case IS_NOT_NULL -> cb.isNotNull(path);
+                if (Collection.class.isAssignableFrom(fieldType)) {
+                    throw new FilterParseException("Operation %s is not supported for field of type %s"
+                            .formatted(operation.getDisplayName(), fieldType.getSimpleName()));
+                }
+
+                yield switch (operation) {
+                    case EQ -> cb.equal(path, value);
+                    case NEQ -> cb.notEqual(path, value2);
+                    default -> throw new IllegalArgumentException("Unexpected value");
+                };
+            }
+
+            case IS_NULL, IS_NOT_NULL -> {
+                Class<?> fieldType = path.getJavaType();
+
+                if (Collection.class.isAssignableFrom(fieldType)) {
+                    throw new FilterParseException("Operation %s is not supported for field of type %s"
+                            .formatted(operation.getDisplayName(), fieldType.getSimpleName()));
+                }
+
+                yield switch (operation) {
+                    case IS_NULL -> cb.isNull(path);
+                    case IS_NOT_NULL -> cb.isNotNull(path);
+                    default -> throw new IllegalArgumentException("Unexpected value");
+                };
+            }
 
             case GT, GE, LT, LE -> {
                 Class<?> fieldType = path.getJavaType();
@@ -133,6 +157,13 @@ public final class FilterUtil {
             }
 
             case LIKE, NOT_LIKE, STARTS_WITH, NOT_STARTS_WITH, ENDS_WITH, NOT_ENDS_WITH -> {
+                Class<?> fieldType = path.getJavaType();
+
+                if (Collection.class.isAssignableFrom(fieldType)) {
+                    throw new FilterParseException("Operation %s is not supported for field of type %s"
+                            .formatted(operation.getDisplayName(), fieldType.getSimpleName()));
+                }
+
                 Expression<String> expression = path.as(String.class);
 
                 String str = valueToType(value, String.class).toLowerCase();
@@ -156,8 +187,8 @@ public final class FilterUtil {
                             .formatted(operation.getDisplayName(), fieldType.getSimpleName()));
                 }
 
-                @SuppressWarnings("rawtypes")
-                Expression<Collection> expression = path.as(Collection.class);
+                @SuppressWarnings("unchecked")
+                Expression<Collection<?>> expression = (Expression<Collection<?>>) path;
 
                 yield switch (operation) {
                     case IS_EMPTY -> cb.isEmpty(expression);
@@ -185,6 +216,13 @@ public final class FilterUtil {
             }
 
             case IN, NOT_IN -> {
+                Class<?> fieldType = path.getJavaType();
+
+                if (Collection.class.isAssignableFrom(fieldType)) {
+                    throw new FilterParseException("Operation %s is not supported for field of type %s"
+                            .formatted(operation.getDisplayName(), fieldType.getSimpleName()));
+                }
+
                 List<?> list = valueToType(value, List.class);
 
                 yield switch (operation) {
