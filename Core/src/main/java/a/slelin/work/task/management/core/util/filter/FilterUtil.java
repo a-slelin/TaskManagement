@@ -12,6 +12,7 @@ import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import static a.slelin.work.task.management.core.util.DateTimeUtil.*;
 
@@ -53,6 +54,10 @@ public final class FilterUtil {
                 if (Collection.class.isAssignableFrom(fieldType)) {
                     throw new FilterParseException("Operation %s is not supported for field of type %s"
                             .formatted(operation.getDisplayName(), fieldType.getSimpleName()));
+                }
+
+                if (fieldType == UUID.class) {
+                    value = valueToType(value, UUID.class);
                 }
 
                 yield switch (operation) {
@@ -227,6 +232,12 @@ public final class FilterUtil {
                 }
 
                 List<?> list = valueToType(value, List.class);
+
+                if (fieldType == UUID.class) {
+                    list = list.stream()
+                            .map(l -> valueToType(l, UUID.class))
+                            .toList();
+                }
 
                 yield switch (operation) {
                     case IN -> path.in(list);
@@ -413,6 +424,10 @@ public final class FilterUtil {
                     if (type == LocalTime.class) return type.cast(LocalTime.parse(str, UNIVERSE_TIME_FORMATTER));
                     return type.cast(LocalDateTime.parse(str, UNIVERSE_DATETIME_FORMATTER));
                 }
+            }
+
+            if (type == UUID.class && value instanceof CharSequence str) {
+                return type.cast(UUID.fromString(str.toString()));
             }
 
             throw new RuntimeException("Unsupported type : " + type);
