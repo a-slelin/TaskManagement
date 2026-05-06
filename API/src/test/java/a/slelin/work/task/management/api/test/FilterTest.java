@@ -38,28 +38,15 @@ public class FilterTest {
     @Qualifier("alexToken")
     private String alexToken;
 
-    @Autowired
-    @Qualifier("ekaterinaToken")
-    private String ekaterinaToken;
-
-    @Autowired
-    @Qualifier("adminToken")
-    private String adminToken;
-
     @LocalServerPort
     private int port;
 
-    private String baseUrl;
-
     private String projectUrl;
-
-    private String taskUrl;
 
     @BeforeEach
     void beforeEach() {
-        baseUrl = "http://localhost:%d".formatted(port);
+        String baseUrl = "http://localhost:%d".formatted(port);
         projectUrl = baseUrl + "/api/projects";
-        taskUrl = baseUrl + "/api/tasks";
     }
 
     @Test
@@ -3462,6 +3449,1241 @@ public class FilterTest {
         FilterChain filters = FilterChain
                 .empty()
                 .add(Filter.of("id", Operation.AFTER, 3));
+
+        try {
+            rest.exchange(
+                    projectUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(projectUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(59)
+    @DirtiesContext
+    @DisplayName("Тестируем equals с String")
+    public void test59() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        ProjectWD newProject = new ProjectWD("tmp_project");
+
+        ResponseEntity<ProjectRD> response = rest.exchange(
+                projectUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(newProject, headers),
+                ProjectRD.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        ProjectRD project = response.getBody();
+        assertNotNull(project);
+        Long id = project.id();
+        assertNotNull(id);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.EQ, newProject.name()));
+
+        ResponseEntity<SheetDto<ProjectRD>> response2 = rest.exchange(
+                projectUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<ProjectRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<ProjectRD> projects = sheet.content();
+        assertNotNull(projects);
+        assertFalse(projects.isEmpty());
+        assertEquals(1, projects.size());
+
+        ProjectRD project2 = projects.getFirst();
+        assertNotNull(project2);
+        assertEquals(project, project2);
+    }
+
+    @Test
+    @Order(60)
+    @DirtiesContext
+    @DisplayName("Тестируем not equals с String")
+    public void test60() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        ProjectWD newProject = new ProjectWD("tmp_project");
+
+        ResponseEntity<ProjectRD> response = rest.exchange(
+                projectUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(newProject, headers),
+                ProjectRD.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        ProjectRD project = response.getBody();
+        assertNotNull(project);
+        Long id = project.id();
+        assertNotNull(id);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.NEQ, newProject.name()));
+
+        ResponseEntity<SheetDto<ProjectRD>> response2 = rest.exchange(
+                projectUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<ProjectRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<ProjectRD> projects = sheet.content();
+        assertNotNull(projects);
+        assertFalse(projects.isEmpty());
+
+        for (ProjectRD projectRD : projects) {
+            assertNotNull(projectRD);
+            assertNotNull(projectRD.id());
+            assertNotNull(projectRD.name());
+            assertNotEquals(projectRD.name(), newProject.name());
+        }
+    }
+
+    @Test
+    @Order(61)
+    @DirtiesContext
+    @DisplayName("Тестируем is null с String")
+    public void test61() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        ProjectWD newProject = new ProjectWD("tmp_project");
+
+        ResponseEntity<ProjectRD> response = rest.exchange(
+                projectUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(newProject, headers),
+                ProjectRD.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        ProjectRD project = response.getBody();
+        assertNotNull(project);
+        Long id = project.id();
+        assertNotNull(id);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("description", Operation.IS_NULL));
+
+        ResponseEntity<SheetDto<ProjectRD>> response2 = rest.exchange(
+                projectUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<ProjectRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<ProjectRD> projects = sheet.content();
+        assertNotNull(projects);
+        assertFalse(projects.isEmpty());
+
+        for (ProjectRD projectRD : projects) {
+            assertNotNull(projectRD);
+            assertNull(projectRD.description());
+        }
+    }
+
+    @Test
+    @Order(62)
+    @DirtiesContext
+    @DisplayName("Тестируем is not null с String")
+    public void test62() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        ProjectWD newProject = new ProjectWD("tmp_project");
+
+        ResponseEntity<ProjectRD> response = rest.exchange(
+                projectUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(newProject, headers),
+                ProjectRD.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        ProjectRD project = response.getBody();
+        assertNotNull(project);
+        Long id = project.id();
+        assertNotNull(id);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("description", Operation.IS_NOT_NULL));
+
+        ResponseEntity<SheetDto<ProjectRD>> response2 = rest.exchange(
+                projectUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<ProjectRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<ProjectRD> projects = sheet.content();
+        assertNotNull(projects);
+        assertFalse(projects.isEmpty());
+
+        for (ProjectRD projectRD : projects) {
+            assertNotNull(projectRD);
+            assertNotNull(projectRD.description());
+            assertNotNull(projectRD.name());
+            assertNotEquals(projectRD.name(), newProject.name());
+        }
+    }
+
+    @Test
+    @Order(63)
+    @DirtiesContext
+    @DisplayName("Тестируем greater с String")
+    public void test63() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.GT, 4));
+
+        try {
+            rest.exchange(
+                    projectUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(projectUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(64)
+    @DirtiesContext
+    @DisplayName("Тестируем greater or equals с String")
+    public void test64() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.GE, 3));
+
+        try {
+            rest.exchange(
+                    projectUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(projectUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(65)
+    @DirtiesContext
+    @DisplayName("Тестируем less с String")
+    public void test65() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.LT, 3));
+
+        try {
+            rest.exchange(
+                    projectUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(projectUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(66)
+    @DirtiesContext
+    @DisplayName("Тестируем less or equals с String")
+    public void test66() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.LE, 3));
+
+        try {
+            rest.exchange(
+                    projectUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(projectUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(67)
+    @DirtiesContext
+    @DisplayName("Тестируем like с String")
+    public void test67() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        ProjectWD newProject = new ProjectWD("tmp_project");
+
+        ResponseEntity<ProjectRD> response = rest.exchange(
+                projectUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(newProject, headers),
+                ProjectRD.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        ProjectRD project = response.getBody();
+        assertNotNull(project);
+        Long id = project.id();
+        assertNotNull(id);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.LIKE, "pro"));
+
+        ResponseEntity<SheetDto<ProjectRD>> response2 = rest.exchange(
+                projectUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<ProjectRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<ProjectRD> projects = sheet.content();
+        assertNotNull(projects);
+        assertFalse(projects.isEmpty());
+
+        for (ProjectRD projectRD : projects) {
+            assertNotNull(projectRD);
+            assertNotNull(projectRD.name());
+            assertTrue(projectRD.name().contains("pro"));
+        }
+    }
+
+    @Test
+    @Order(68)
+    @DirtiesContext
+    @DisplayName("Тестируем not like с String")
+    public void test68() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        ProjectWD newProject = new ProjectWD("tmp_project");
+
+        ResponseEntity<ProjectRD> response = rest.exchange(
+                projectUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(newProject, headers),
+                ProjectRD.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        ProjectRD project = response.getBody();
+        assertNotNull(project);
+        Long id = project.id();
+        assertNotNull(id);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.NOT_LIKE, "pro"));
+
+        ResponseEntity<SheetDto<ProjectRD>> response2 = rest.exchange(
+                projectUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<ProjectRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<ProjectRD> projects = sheet.content();
+        assertNotNull(projects);
+        assertFalse(projects.isEmpty());
+
+        for (ProjectRD projectRD : projects) {
+            assertNotNull(projectRD);
+            assertNotNull(projectRD.name());
+            assertFalse(projectRD.name().contains("pro"));
+        }
+    }
+
+    @Test
+    @Order(69)
+    @DirtiesContext
+    @DisplayName("Тестируем starts with с String")
+    public void test69() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        ProjectWD newProject = new ProjectWD("tmp_project");
+
+        ResponseEntity<ProjectRD> response = rest.exchange(
+                projectUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(newProject, headers),
+                ProjectRD.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        ProjectRD project = response.getBody();
+        assertNotNull(project);
+        Long id = project.id();
+        assertNotNull(id);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.STARTS_WITH, "tmp_"));
+
+        ResponseEntity<SheetDto<ProjectRD>> response2 = rest.exchange(
+                projectUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<ProjectRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<ProjectRD> projects = sheet.content();
+        assertNotNull(projects);
+        assertFalse(projects.isEmpty());
+
+        for (ProjectRD projectRD : projects) {
+            assertNotNull(projectRD);
+            assertNotNull(projectRD.name());
+            assertTrue(projectRD.name().startsWith("tmp_"));
+        }
+    }
+
+    @Test
+    @Order(70)
+    @DirtiesContext
+    @DisplayName("Тестируем not starts with с String")
+    public void test70() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        ProjectWD newProject = new ProjectWD("tmp_project");
+
+        ResponseEntity<ProjectRD> response = rest.exchange(
+                projectUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(newProject, headers),
+                ProjectRD.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        ProjectRD project = response.getBody();
+        assertNotNull(project);
+        Long id = project.id();
+        assertNotNull(id);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.NOT_STARTS_WITH, "tmp_"));
+
+        ResponseEntity<SheetDto<ProjectRD>> response2 = rest.exchange(
+                projectUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<ProjectRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<ProjectRD> projects = sheet.content();
+        assertNotNull(projects);
+        assertFalse(projects.isEmpty());
+
+        for (ProjectRD projectRD : projects) {
+            assertNotNull(projectRD);
+            assertNotNull(projectRD.name());
+            assertFalse(projectRD.name().startsWith("tmp_"));
+        }
+    }
+
+    @Test
+    @Order(71)
+    @DirtiesContext
+    @DisplayName("Тестируем ends with с String")
+    public void test71() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        ProjectWD newProject = new ProjectWD("tmp_project");
+
+        ResponseEntity<ProjectRD> response = rest.exchange(
+                projectUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(newProject, headers),
+                ProjectRD.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        ProjectRD project = response.getBody();
+        assertNotNull(project);
+        Long id = project.id();
+        assertNotNull(id);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.ENDS_WITH, "ect"));
+
+        ResponseEntity<SheetDto<ProjectRD>> response2 = rest.exchange(
+                projectUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<ProjectRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<ProjectRD> projects = sheet.content();
+        assertNotNull(projects);
+        assertFalse(projects.isEmpty());
+
+        for (ProjectRD projectRD : projects) {
+            assertNotNull(projectRD);
+            assertNotNull(projectRD.name());
+            assertTrue(projectRD.name().endsWith("ect"));
+        }
+    }
+
+    @Test
+    @Order(72)
+    @DirtiesContext
+    @DisplayName("Тестируем not ends with с String")
+    public void test72() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        ProjectWD newProject = new ProjectWD("tmp_project");
+
+        ResponseEntity<ProjectRD> response = rest.exchange(
+                projectUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(newProject, headers),
+                ProjectRD.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        ProjectRD project = response.getBody();
+        assertNotNull(project);
+        Long id = project.id();
+        assertNotNull(id);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.NOT_ENDS_WITH, "ect"));
+
+        ResponseEntity<SheetDto<ProjectRD>> response2 = rest.exchange(
+                projectUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<ProjectRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<ProjectRD> projects = sheet.content();
+        assertNotNull(projects);
+        assertFalse(projects.isEmpty());
+
+        for (ProjectRD projectRD : projects) {
+            assertNotNull(projectRD);
+            assertNotNull(projectRD.name());
+            assertFalse(projectRD.name().endsWith("ect"));
+        }
+    }
+
+    @Test
+    @Order(73)
+    @DirtiesContext
+    @DisplayName("Тестируем is empty с String")
+    public void test73() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.IS_EMPTY));
+
+        try {
+            rest.exchange(
+                    projectUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(projectUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(74)
+    @DirtiesContext
+    @DisplayName("Тестируем is not empty с String")
+    public void test74() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.IS_NOT_EMPTY));
+
+        try {
+            rest.exchange(
+                    projectUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(projectUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(75)
+    @DirtiesContext
+    @DisplayName("Тестируем is true с String")
+    public void test75() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.IS_TRUE));
+
+        try {
+            rest.exchange(
+                    projectUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(projectUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(76)
+    @DirtiesContext
+    @DisplayName("Тестируем is false с String")
+    public void test76() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.IS_FALSE));
+
+        try {
+            rest.exchange(
+                    projectUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(projectUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(77)
+    @DirtiesContext
+    @DisplayName("Тестируем in с String")
+    public void test77() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        ProjectWD newProject = new ProjectWD("tmp_project");
+
+        ResponseEntity<ProjectRD> response = rest.exchange(
+                projectUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(newProject, headers),
+                ProjectRD.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        ProjectRD project = response.getBody();
+        assertNotNull(project);
+        Long id = project.id();
+        assertNotNull(id);
+
+        List<String> list = new ArrayList<>();
+        list.add("tmp_project");
+        list.add("Интернет-магазин \"Электроника\"");
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.IN, list));
+
+        ResponseEntity<SheetDto<ProjectRD>> response2 = rest.exchange(
+                projectUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<ProjectRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<ProjectRD> projects = sheet.content();
+        assertNotNull(projects);
+        assertFalse(projects.isEmpty());
+        assertEquals(2, projects.size());
+
+        for (ProjectRD projectRD : projects) {
+            assertNotNull(projectRD);
+            assertNotNull(projectRD.name());
+            assertTrue(projectRD.name().equals("tmp_project")
+                    || projectRD.name().equals("Интернет-магазин \"Электроника\""));
+        }
+    }
+
+    @Test
+    @Order(78)
+    @DirtiesContext
+    @DisplayName("Тестируем not in с String")
+    public void test78() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        ProjectWD newProject = new ProjectWD("tmp_project");
+
+        ResponseEntity<ProjectRD> response = rest.exchange(
+                projectUrl,
+                HttpMethod.POST,
+                new HttpEntity<>(newProject, headers),
+                ProjectRD.class
+        );
+        assertNotNull(response);
+        assertNotNull(response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        ProjectRD project = response.getBody();
+        assertNotNull(project);
+        Long id = project.id();
+        assertNotNull(id);
+
+        List<String> list = new ArrayList<>();
+        list.add("tmp_project");
+        list.add("Интернет-магазин \"Электроника\"");
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.NOT_IN, list));
+
+        ResponseEntity<SheetDto<ProjectRD>> response2 = rest.exchange(
+                projectUrl + "/search",
+                HttpMethod.POST,
+                new HttpEntity<>(filters, headers),
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        assertNotNull(response2);
+        assertNotNull(response2.getStatusCode());
+        assertEquals(HttpStatus.OK, response2.getStatusCode());
+
+        SheetDto<ProjectRD> sheet = response2.getBody();
+        assertNotNull(sheet);
+        assertNotNull(sheet.page());
+
+        List<ProjectRD> projects = sheet.content();
+        assertNotNull(projects);
+        assertFalse(projects.isEmpty());
+
+        for (ProjectRD projectRD : projects) {
+            assertNotNull(projectRD);
+            assertNotNull(projectRD.name());
+            assertTrue(!projectRD.name().equals("tmp_project")
+                    && !projectRD.name().equals("Интернет-магазин \"Электроника\""));
+        }
+    }
+
+    @Test
+    @Order(79)
+    @DirtiesContext
+    @DisplayName("Тестируем between с String")
+    public void test79() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.BETWEEN, 3, 4));
+
+        try {
+            rest.exchange(
+                    projectUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(projectUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(80)
+    @DirtiesContext
+    @DisplayName("Тестируем not between с String")
+    public void test80() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.NOT_BETWEEN, 3, 4));
+
+        try {
+            rest.exchange(
+                    projectUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(projectUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(81)
+    @DirtiesContext
+    @DisplayName("Тестируем before с String")
+    public void test81() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.BEFORE, 3));
+
+        try {
+            rest.exchange(
+                    projectUrl + "/search",
+                    HttpMethod.POST,
+                    new HttpEntity<>(filters, headers),
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            fail("Should throw HttpClientErrorException.BadRequest");
+
+        } catch (HttpClientErrorException.BadRequest e) {
+            assertNotNull(e);
+            assertNotNull(e.getStatusCode());
+            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+
+            ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
+            System.out.println(errorResponse);
+            assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(projectUrl + "/search", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.BAD_REQUEST, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
+
+        } catch (Exception e) {
+            fail("Should throw HttpClientErrorException.BadRequest, but got " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(82)
+    @DirtiesContext
+    @DisplayName("Тестируем after с String")
+    public void test82() {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(alexToken);
+
+        FilterChain filters = FilterChain
+                .empty()
+                .add(Filter.of("name", Operation.AFTER, 3));
 
         try {
             rest.exchange(
