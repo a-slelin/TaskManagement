@@ -33,9 +33,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TaskService {
 
-    private final TaskMapper mapper;
+    private final TaskMapper taskMapper;
 
-    private final TaskRepository repository;
+    private final TaskRepository taskRepository;
 
     private final ProjectRepository projectRepository;
 
@@ -43,24 +43,26 @@ public class TaskService {
     public TaskRD getUserTask(@NotNull @Valid UUID user,
                               @NotNull @Min(1) Long task) {
 
-        Task entity = repository.findById(task)
+        Task entity = taskRepository.findById(task)
                 .orElseThrow(() -> new EntityNotFoundByIdException(Task.class, task));
 
         if (!entity.getProject().getUser().equals(user)) {
             throw new AccessDeniedException("Access denied: an attempt to get a task that is not your own.");
         }
 
-        return mapper.toDto(entity);
+        return taskMapper.toDto(entity);
     }
 
     @Transactional(readOnly = true)
     public SheetDto<TaskRD> searchUserTasks(@NotNull @Valid UUID user,
                                             @NotNull @Valid FilterChain filters,
                                             @NotNull @Valid Pageable pageable) {
+
         filters.add(Filter.of("project.user", Operation.EQ, user));
+
         Specification<Task> specification = FilterUtil.toSpecification(filters);
 
-        return SheetDto.of(repository.findAll(specification, pageable), mapper::toDto);
+        return SheetDto.of(taskRepository.findAll(specification, pageable), taskMapper::toDto);
     }
 
     public TaskRD createUserTask(@NotNull @Valid UUID user,
@@ -74,71 +76,71 @@ public class TaskService {
             throw new AccessDeniedException("Access denied: an attempt to create a task in a project that is not your own.");
         }
 
-        if (repository.existsByProjectIdAndTitle(project, newTask.title())) {
+        if (taskRepository.existsByProjectIdAndTitle(project, newTask.title())) {
             throw new Unique2FieldsEntityException(Task.class, "project", project, "title", newTask.title());
         }
 
-        Task task = mapper.toEntity(newTask);
+        Task task = taskMapper.toEntity(newTask);
         task.setProject(entity);
-        task = repository.save(task);
+        task = taskRepository.save(task);
 
-        return mapper.toDto(task);
+        return taskMapper.toDto(task);
     }
 
     public TaskRD updateUserTask(@NotNull @Valid UUID user,
                                  @NotNull @Min(1) Long task,
                                  @NotNull @Valid TaskWD updTask) {
 
-        Task entity = repository.findById(task)
+        Task entity = taskRepository.findById(task)
                 .orElseThrow(() -> new EntityNotFoundByIdException(Task.class, task));
         Long projectId = entity.getProject().getId();
 
-        if (!repository.isTaskOfUser(user, task)) {
+        if (!taskRepository.isTaskOfUser(user, task)) {
             throw new AccessDeniedException("Access denied: an attempt to update a task that is not your own.");
         }
 
-        if (repository.existsByProjectIdAndTitle(projectId, updTask.title())) {
+        if (taskRepository.existsByProjectIdAndTitle(projectId, updTask.title())) {
             throw new Unique2FieldsEntityException(Task.class, "project", projectId, "title", updTask.title());
         }
 
-        Task updatedTask = mapper.toEntity(updTask);
+        Task updatedTask = taskMapper.toEntity(updTask);
         updatedTask.setId(task);
         updatedTask.setProject(entity.getProject());
-        updatedTask = repository.save(updatedTask);
+        updatedTask = taskRepository.save(updatedTask);
 
-        return mapper.toDto(updatedTask);
+        return taskMapper.toDto(updatedTask);
     }
 
     public TaskRD patchUserTask(@NotNull @Valid UUID user,
                                 @NotNull @Min(1) Long task,
                                 @NotNull @Valid TaskWD pthTask) {
 
-        Task entity = repository.findById(task)
+        Task entity = taskRepository.findById(task)
                 .orElseThrow(() -> new EntityNotFoundByIdException(Task.class, task));
         Long projectId = entity.getProject().getId();
 
-        if (!repository.isTaskOfUser(user, task)) {
+        if (!taskRepository.isTaskOfUser(user, task)) {
             throw new AccessDeniedException("Access denied: an attempt to patch a task that is not your own.");
         }
 
-        if (pthTask.title() != null && repository.existsByProjectIdAndTitle(projectId, pthTask.title())) {
+        if (pthTask.title() != null && taskRepository.existsByProjectIdAndTitle(projectId, pthTask.title())) {
             throw new Unique2FieldsEntityException(Task.class, "project", projectId, "title", pthTask.title());
         }
 
-        entity = mapper.patch(entity, pthTask);
-        entity = repository.save(entity);
+        entity = taskMapper.patch(entity, pthTask);
+        entity = taskRepository.save(entity);
 
-        return mapper.toDto(entity);
+        return taskMapper.toDto(entity);
     }
 
     public TaskRD drawToProject(@NotNull @Valid UUID user,
                                 @NotNull @Min(1) Long newProject,
                                 @NotNull @Min(1) Long task) {
 
-        Task entity = repository.findById(task)
+        Task entity = taskRepository.findById(task)
                 .orElseThrow(() -> new EntityNotFoundByIdException(Task.class, task));
 
-        if (!repository.isTaskOfUser(user, task)) {
+        if (!taskRepository.isTaskOfUser(user, task)) {
             throw new AccessDeniedException("Access denied: an attempt to draw a task that is not your own.");
         }
 
@@ -151,30 +153,30 @@ public class TaskService {
 
         Long oldProject = entity.getProject().getId();
         if (newProject.equals(oldProject)) {
-            return mapper.toDto(entity);
+            return taskMapper.toDto(entity);
         }
 
-        if (repository.existsByProjectIdAndTitle(newProject, entity.getTitle())) {
+        if (taskRepository.existsByProjectIdAndTitle(newProject, entity.getTitle())) {
             throw new Unique2FieldsEntityException(Task.class, "project", newProject, "title", entity.getTitle());
         }
 
         entity.setProject(newProjectEntity);
-        entity = repository.save(entity);
+        entity = taskRepository.save(entity);
 
-        return mapper.toDto(entity);
+        return taskMapper.toDto(entity);
     }
 
     public void deleteUserTask(@NotNull @Valid UUID user,
                                @NotNull @Min(1) Long task) {
 
-        if (!repository.existsById(task)) {
+        if (!taskRepository.existsById(task)) {
             throw new EntityNotFoundByIdException(Task.class, task);
         }
 
-        if (!repository.isTaskOfUser(user, task)) {
+        if (!taskRepository.isTaskOfUser(user, task)) {
             throw new AccessDeniedException("Access denied: an attempt to delete a task that is not your own.");
         }
 
-        repository.deleteById(task);
+        taskRepository.deleteById(task);
     }
 }

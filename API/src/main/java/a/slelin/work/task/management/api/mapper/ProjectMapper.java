@@ -10,15 +10,15 @@ import org.mapstruct.*;
 public interface ProjectMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "tasks", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "tasks", ignore = true)
     Project toEntity(ProjectWD project);
 
     ProjectRD toDto(Project project);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "tasks", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "tasks", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Project patch(@MappingTarget Project project, ProjectWD projectWD);
 }

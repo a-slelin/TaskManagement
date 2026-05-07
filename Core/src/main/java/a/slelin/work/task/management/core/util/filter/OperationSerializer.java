@@ -8,8 +8,9 @@ import tools.jackson.databind.ValueSerializer;
 public class OperationSerializer extends ValueSerializer<Operation> {
 
     @Override
-    public void serialize(Operation value, JsonGenerator gen, SerializationContext ctxt)
-            throws JacksonException {
+    public void serialize(Operation value,
+                          JsonGenerator gen,
+                          SerializationContext ctxt) throws JacksonException {
         gen.writeString(value.getDisplayName());
     }
 }

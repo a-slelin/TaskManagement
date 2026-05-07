@@ -24,10 +24,11 @@ import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
+@SuppressWarnings("CatchMayIgnoreException")
+@DisplayName("Тестируем RefreshTokenController")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@DisplayName("Тест контроллера, отвечающего за токены")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class RefreshTokenControllerTest {
 
     @Autowired
@@ -49,14 +50,9 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(1)
     @DirtiesContext
-    @DisplayName("Не авторизованный пользователь не может обращаться к токенам")
+    @DisplayName("Тестируем GET /api/admin/tokens с неавторизованным пользователем : ошибка 401 неавторизован")
     public void test1() {
 
-        /*
-         * Пытаемся получить доступ к токенам.
-         * */
-
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl,
@@ -92,7 +88,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(2)
     @DirtiesContext
-    @DisplayName("Обычный пользователь не может обращаться к токенам")
+    @DisplayName("Тестируем GET /api/admin/tokens с авторизованным пользователем : ошибка 403 запрещено")
     public void test2() {
 
         /*
@@ -105,7 +101,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -122,7 +119,6 @@ public class RefreshTokenControllerTest {
          * Пытаемся получить доступ к токенам.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl,
@@ -158,7 +154,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(3)
     @DirtiesContext
-    @DisplayName("Администратор может обращаться к токенам")
+    @DisplayName("Тестируем GET /api/admin/tokens с администратором : успех")
     public void test3() {
 
         /*
@@ -171,7 +167,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -203,7 +200,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(4)
     @DirtiesContext
-    @DisplayName("Тестируем получение всех токенов")
+    @DisplayName("Тестируем GET /api/admin/tokens : успех")
     public void test4() {
 
         /*
@@ -216,7 +213,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -266,7 +264,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(5)
     @DirtiesContext
-    @DisplayName("Тестируем получение токена по идентификатору")
+    @DisplayName("Тестируем GET /api/admin/tokens/{id} : успех")
     public void test5() {
 
         /*
@@ -279,7 +277,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -353,7 +352,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(6)
     @DirtiesContext
-    @DisplayName("Тестируем получение токена по плохому идентификатору")
+    @DisplayName("Тестируем GET /api/admin/tokens/{id} с некорректным id : ошибка 404 не найдено")
     public void test6() {
 
         /*
@@ -366,7 +365,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -380,12 +380,11 @@ public class RefreshTokenControllerTest {
         headers.setBearerAuth(jwtResponse.accessToken());
 
         /*
-         * Пытаемся получить токен по неправильному идентификатору
+         * Пытаемся получить токен по некорректному идентификатору.
          * */
 
         String tokenId = UUID.randomUUID().toString();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}",
@@ -421,7 +420,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(7)
     @DirtiesContext
-    @DisplayName("Тестируем получение токенов по пользователю")
+    @DisplayName("Тестируем GET /api/admin/tokens/user/{userId} : успех")
     public void test7() {
 
         /*
@@ -434,7 +433,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -512,7 +512,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(8)
     @DirtiesContext
-    @DisplayName("Тестируем получение токенов по плохому пользователю")
+    @DisplayName("Тестируем GET /api/admin/tokens/user/{userId} с некорректным id : ошибка 404 не найдено")
     public void test8() {
 
         /*
@@ -525,7 +525,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -544,7 +545,6 @@ public class RefreshTokenControllerTest {
 
         String userId = UUID.randomUUID().toString();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/user/{id}",
@@ -580,7 +580,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(9)
     @DirtiesContext
-    @DisplayName("Тестируем получение токенов по фильтру")
+    @DisplayName("Тестируем POST /api/admin/tokens/search : успех")
     public void test9() {
 
         /*
@@ -593,7 +593,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -655,7 +656,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(10)
     @DirtiesContext
-    @DisplayName("Тестируем получение токенов по плохому фильтру")
+    @DisplayName("Тестируем POST /api/admin/tokens/search с некорректным фильтром : ошибка 400 плохой запрос")
     public void test10() {
 
         /*
@@ -668,7 +669,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -689,7 +691,6 @@ public class RefreshTokenControllerTest {
                 .empty()
                 .add(Filter.of("badName", Operation.EQ, jwtResponse.refreshToken()));
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/search",
@@ -725,7 +726,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(11)
     @DirtiesContext
-    @DisplayName("Тестируем удаление токена у обычного пользователя")
+    @DisplayName("Тестируем DELETE /api/admin/tokens/{id} : успех")
     public void test11() {
 
         /*
@@ -738,7 +739,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -761,7 +763,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -849,7 +852,6 @@ public class RefreshTokenControllerTest {
          * так как его сессия была завершена.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     baseUrl + "/auth/refresh",
@@ -884,7 +886,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(12)
     @DirtiesContext
-    @DisplayName("Тестируем удаление плохого токена у обычного пользователя")
+    @DisplayName("Тестируем DELETE /api/admin/tokens/{id} с некорректным id : ошибка 404 не найдено")
     public void test12() {
 
         /*
@@ -897,7 +899,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -916,7 +919,6 @@ public class RefreshTokenControllerTest {
 
         String tokenId = UUID.randomUUID().toString();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}",
@@ -952,7 +954,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(13)
     @DirtiesContext
-    @DisplayName("Тестируем удаление токена у администратора")
+    @DisplayName("Тестируем DELETE /api/admin/tokens/{id} с id администратора : ошибка 422 необрабатываемый контент")
     public void test13() {
 
         /*
@@ -965,7 +967,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -988,7 +991,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -1038,7 +1042,6 @@ public class RefreshTokenControllerTest {
          * Проверяем, что не можем завершить сессию другого администратора.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}",
@@ -1074,7 +1077,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(14)
     @DirtiesContext
-    @DisplayName("Тестируем удаление токена у себя же")
+    @DisplayName("Тестируем DELETE /api/admin/tokens/{id} с id своим же : ошибка 422 необрабатываемый контент")
     public void test14() {
 
         /*
@@ -1087,7 +1090,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1137,7 +1141,6 @@ public class RefreshTokenControllerTest {
          * Проверяем, что не можем завершить свою (администраторскую) сессию.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}",
@@ -1173,7 +1176,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(15)
     @DirtiesContext
-    @DisplayName("Тестируем удаление всех токенов у обычного пользователя")
+    @DisplayName("Тестируем DELETE /api/admin/tokens/user/{userId} : успех")
     public void test15() {
 
         /*
@@ -1186,7 +1189,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1209,7 +1213,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -1232,7 +1237,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login3),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response3);
         assertNotNull(response3.getStatusCode());
         assertEquals(HttpStatus.OK, response3.getStatusCode());
@@ -1255,7 +1261,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login4),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response4);
         assertNotNull(response4.getStatusCode());
         assertEquals(HttpStatus.OK, response4.getStatusCode());
@@ -1383,10 +1390,9 @@ public class RefreshTokenControllerTest {
 
         /*
          * Проверяем, что пользователь больше не может обновить свой токен,
-         * так как его сессия была завершена. 1я сессия.
+         * так как его сессия была завершена. 1‑я сессия.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     baseUrl + "/auth/refresh",
@@ -1419,10 +1425,9 @@ public class RefreshTokenControllerTest {
 
         /*
          * Проверяем, что пользователь больше не может обновить свой токен,
-         * так как его сессия была завершена. 2я сессия.
+         * так как его сессия была завершена. 2‑я сессия.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     baseUrl + "/auth/refresh",
@@ -1455,10 +1460,9 @@ public class RefreshTokenControllerTest {
 
         /*
          * Проверяем, что пользователь больше не может обновить свой токен,
-         * так как его сессия была завершена. 3я сессия.
+         * так как его сессия была завершена. 3‑я сессия.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     baseUrl + "/auth/refresh",
@@ -1493,7 +1497,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(16)
     @DirtiesContext
-    @DisplayName("Тестируем удаление всех токенов у обычного плохого пользователя")
+    @DisplayName("Тестируем DELETE /api/admin/tokens/user/{userId} с некорректным userId : ошибка 404 не найдено")
     public void test16() {
 
         /*
@@ -1506,7 +1510,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1525,7 +1530,6 @@ public class RefreshTokenControllerTest {
 
         String userId = UUID.randomUUID().toString();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/user/{id}",
@@ -1561,7 +1565,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(17)
     @DirtiesContext
-    @DisplayName("Тестируем удаление всех токенов у администратора")
+    @DisplayName("Тестируем DELETE /api/admin/tokens/user/{userId} с userId администратора : ошибка 422 необрабатываемый контент")
     public void test17() {
 
         /*
@@ -1574,7 +1578,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1597,7 +1602,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -1633,7 +1639,6 @@ public class RefreshTokenControllerTest {
          * Пытаемся завершить все сессии второго администратора.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/user/{id}",
@@ -1669,7 +1674,7 @@ public class RefreshTokenControllerTest {
     @Test
     @Order(18)
     @DirtiesContext
-    @DisplayName("Тестируем удаление всех токенов у себя же")
+    @DisplayName("Тестируем DELETE /api/admin/tokens/user/{userId} с userId свой же : ошибка 422 необрабатываемый контент")
     public void test18() {
 
         /*
@@ -1682,7 +1687,8 @@ public class RefreshTokenControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1718,7 +1724,6 @@ public class RefreshTokenControllerTest {
          * Пытаемся завершить все сессии администратора.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/user/{id}",

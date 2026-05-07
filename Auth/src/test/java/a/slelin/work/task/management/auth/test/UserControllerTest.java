@@ -9,7 +9,6 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -21,10 +20,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ActiveProfiles("test")
+@DisplayName("Тестируем UserController")
+@SuppressWarnings("CatchMayIgnoreException")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@DisplayName("Тест контроллера, отвечающего за пользователей и их аккаунты")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class UserControllerTest {
 
     @Autowired
@@ -46,21 +46,15 @@ public class UserControllerTest {
     @Test
     @Order(1)
     @DirtiesContext
-    @DisplayName("Не авторизованный пользователь не может обращаться ни к какому аккаунту")
+    @DisplayName("Тестируем GET /api/user с неавторизованным пользователем : ошибка 401 неавторизован")
     public void test1() {
 
-        /*
-         * Пытаемся обратиться к своему аккаунту.
-         * */
-
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl,
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<>() {
-                    }
+                    UserWD.class
             );
             fail("Should throw HttpClientErrorException.Unauthorized");
 
@@ -89,7 +83,7 @@ public class UserControllerTest {
     @Test
     @Order(2)
     @DirtiesContext
-    @DisplayName("Пользователь может обращаться к своему аккаунту")
+    @DisplayName("Тестируем GET /api/user с авторизованным пользователем : успех")
     public void test2() {
 
         /*
@@ -102,7 +96,8 @@ public class UserControllerTest {
                 authUrl,
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -123,8 +118,8 @@ public class UserControllerTest {
                 apiUrl,
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                new ParameterizedTypeReference<>() {
-                });
+                UserRD.class
+        );
         assertNotNull(response2);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -139,7 +134,7 @@ public class UserControllerTest {
     @Test
     @Order(3)
     @DirtiesContext
-    @DisplayName("Администратор может обращаться к своему аккаунту")
+    @DisplayName("Тестируем GET /api/user с администратором : успех")
     public void test3() {
 
         /*
@@ -152,7 +147,8 @@ public class UserControllerTest {
                 authUrl,
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -173,8 +169,8 @@ public class UserControllerTest {
                 apiUrl,
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                new ParameterizedTypeReference<>() {
-                });
+                UserRD.class
+        );
         assertNotNull(response2);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -189,7 +185,7 @@ public class UserControllerTest {
     @Test
     @Order(4)
     @DirtiesContext
-    @DisplayName("Пользователь может изменять данные своего аккаунта")
+    @DisplayName("Тестируем PATСН /api/user c авторизованным пользователем : успех")
     public void test4() {
 
         /*
@@ -202,7 +198,8 @@ public class UserControllerTest {
                 authUrl,
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -229,8 +226,8 @@ public class UserControllerTest {
                 apiUrl,
                 HttpMethod.PATCH,
                 new HttpEntity<>(updUser, headers),
-                new ParameterizedTypeReference<>() {
-                });
+                UserRD.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -251,13 +248,13 @@ public class UserControllerTest {
 
         LoginRequest login2 = new LoginRequest("alex_petrov", "password");
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     authUrl,
                     HttpMethod.POST,
                     new HttpEntity<>(login2),
-                    JwtResponse.class);
+                    JwtResponse.class
+            );
             fail("Should throw HttpClientErrorException.Unauthorized");
 
         } catch (HttpClientErrorException.Unauthorized e) {
@@ -291,7 +288,8 @@ public class UserControllerTest {
                 authUrl,
                 HttpMethod.POST,
                 new HttpEntity<>(login3),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response3);
         assertNotNull(response3.getStatusCode());
         assertEquals(HttpStatus.OK, response3.getStatusCode());
@@ -312,8 +310,8 @@ public class UserControllerTest {
                 apiUrl,
                 HttpMethod.GET,
                 new HttpEntity<>(headers3),
-                new ParameterizedTypeReference<>() {
-                });
+                UserRD.class
+        );
         assertNotNull(response4);
         assertNotNull(response4.getStatusCode());
         assertEquals(HttpStatus.OK, response4.getStatusCode());
@@ -332,7 +330,7 @@ public class UserControllerTest {
     @Test
     @Order(5)
     @DirtiesContext
-    @DisplayName("Администратор может изменять данные своего аккаунта")
+    @DisplayName("Тестируем PATCH /api/user с администратором : успех")
     public void test5() {
 
         /*
@@ -345,7 +343,8 @@ public class UserControllerTest {
                 authUrl,
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -372,8 +371,8 @@ public class UserControllerTest {
                 apiUrl,
                 HttpMethod.PATCH,
                 new HttpEntity<>(updUser, headers),
-                new ParameterizedTypeReference<>() {
-                });
+                UserRD.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -400,7 +399,8 @@ public class UserControllerTest {
                     authUrl,
                     HttpMethod.POST,
                     new HttpEntity<>(login2),
-                    JwtResponse.class);
+                    JwtResponse.class
+            );
             fail("Should throw HttpClientErrorException.Unauthorized");
 
         } catch (HttpClientErrorException.Unauthorized e) {
@@ -434,7 +434,8 @@ public class UserControllerTest {
                 authUrl,
                 HttpMethod.POST,
                 new HttpEntity<>(login3),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response3);
         assertNotNull(response3.getStatusCode());
         assertEquals(HttpStatus.OK, response3.getStatusCode());
@@ -455,8 +456,8 @@ public class UserControllerTest {
                 apiUrl,
                 HttpMethod.GET,
                 new HttpEntity<>(headers3),
-                new ParameterizedTypeReference<>() {
-                });
+                UserRD.class
+        );
         assertNotNull(response4);
         assertNotNull(response4.getStatusCode());
         assertEquals(HttpStatus.OK, response4.getStatusCode());
@@ -475,7 +476,7 @@ public class UserControllerTest {
     @Test
     @Order(6)
     @DirtiesContext
-    @DisplayName("Имя пользователя в системе должно быть уникально")
+    @DisplayName("Тестируем PATCH /api/user с неуникальным именем : ошибка 409 конфликт")
     public void test6() {
 
         /*
@@ -488,7 +489,8 @@ public class UserControllerTest {
                 authUrl,
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -509,14 +511,12 @@ public class UserControllerTest {
                 .username("ekaterina_smirnova")
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl,
                     HttpMethod.PATCH,
                     new HttpEntity<>(updUser, headers),
-                    new ParameterizedTypeReference<>() {
-                    }
+                    UserRD.class
             );
             fail("Should throw HttpClientErrorException.Conflict");
 
@@ -545,7 +545,7 @@ public class UserControllerTest {
     @Test
     @Order(7)
     @DirtiesContext
-    @DisplayName("Телефон пользователя в системе должен быть уникальным")
+    @DisplayName("Тестируем PATCH /api/user с неуникальным номером телефона : ошибка 409 конфликт")
     public void test7() {
 
         /*
@@ -558,7 +558,8 @@ public class UserControllerTest {
                 authUrl,
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -579,14 +580,12 @@ public class UserControllerTest {
                 .phone("+79054567890")
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl,
                     HttpMethod.PATCH,
                     new HttpEntity<>(updUser, headers),
-                    new ParameterizedTypeReference<>() {
-                    }
+                    UserRD.class
             );
             fail("Should throw HttpClientErrorException.Conflict");
 
@@ -615,7 +614,7 @@ public class UserControllerTest {
     @Test
     @Order(8)
     @DirtiesContext
-    @DisplayName("Электронная почта пользователя в системе должна быть уникальна")
+    @DisplayName("Тестируем PATCH /api/user с неуникальной электронной почтой : ошибка 409 конфликт")
     public void test8() {
 
         /*
@@ -628,7 +627,8 @@ public class UserControllerTest {
                 authUrl,
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -649,14 +649,12 @@ public class UserControllerTest {
                 .email("katya.s@mail.ru")
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl,
                     HttpMethod.PATCH,
                     new HttpEntity<>(updUser, headers),
-                    new ParameterizedTypeReference<>() {
-                    }
+                    UserRD.class
             );
             fail("Should throw HttpClientErrorException.Conflict");
 
@@ -685,7 +683,7 @@ public class UserControllerTest {
     @Test
     @Order(9)
     @DirtiesContext
-    @DisplayName("Пользователь может удалить свой аккаунт")
+    @DisplayName("Тестируем DELETE /api/user с авторизованным пользователем : успех")
     public void test9() {
 
         /*
@@ -698,7 +696,8 @@ public class UserControllerTest {
                 authUrl,
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -719,7 +718,8 @@ public class UserControllerTest {
                 apiUrl,
                 HttpMethod.DELETE,
                 new HttpEntity<>(headers),
-                Void.class);
+                Void.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.NO_CONTENT, response2.getStatusCode());
@@ -730,13 +730,13 @@ public class UserControllerTest {
 
         LoginRequest login2 = new LoginRequest("alex_petrov", "password");
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     authUrl,
                     HttpMethod.POST,
                     new HttpEntity<>(login2),
-                    JwtResponse.class);
+                    JwtResponse.class
+            );
             fail("Should throw HttpClientErrorException.Unauthorized");
 
         } catch (HttpClientErrorException.Unauthorized e) {
@@ -764,7 +764,7 @@ public class UserControllerTest {
     @Test
     @Order(10)
     @DirtiesContext
-    @DisplayName("Администратор может удалить свой аккаунт")
+    @DisplayName("Тестируем DELETE /api/user с администратором : успех")
     public void test10() {
 
         /*
@@ -777,7 +777,8 @@ public class UserControllerTest {
                 authUrl,
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -798,7 +799,8 @@ public class UserControllerTest {
                 apiUrl,
                 HttpMethod.DELETE,
                 new HttpEntity<>(headers),
-                Void.class);
+                Void.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.NO_CONTENT, response2.getStatusCode());
@@ -809,13 +811,13 @@ public class UserControllerTest {
 
         LoginRequest login2 = new LoginRequest("admin", "password");
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     authUrl,
                     HttpMethod.POST,
                     new HttpEntity<>(login2),
-                    JwtResponse.class);
+                    JwtResponse.class
+            );
             fail("Should throw HttpClientErrorException.Unauthorized");
 
         } catch (HttpClientErrorException.Unauthorized e) {

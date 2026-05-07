@@ -20,46 +20,38 @@ import java.net.URI;
 import java.util.UUID;
 
 @RestController
-@SuppressWarnings("unused")
-@RequestMapping(
-        value = "/api/admin/users",
-        consumes = {"application/json", "application/xml", "application/yaml"},
-        produces = {"application/json", "application/xml", "application/yaml"}
-)
 @RequiredArgsConstructor
+@RequestMapping(value = "/api/admin/users",
+        consumes = {"application/json", "application/xml", "application/yaml"},
+        produces = {"application/json", "application/xml", "application/yaml"})
 public class UserAdminController {
 
     @Autowired
     private UserService service;
 
     @GetMapping(consumes = "*/*")
-    public SheetDto<UserRD> getAllUsers(@PageableDefault(sort = "username") Pageable pageable,
-                                        @AuthenticationPrincipal Jwt jwt) {
+    public SheetDto<UserRD> getAllUsers(@PageableDefault(sort = "username") Pageable pageable) {
         return service.getAll(pageable);
     }
 
     @GetMapping(path = "/{user}", consumes = "*/*")
-    public UserRD getUserById(@PathVariable UUID user,
-                              @AuthenticationPrincipal Jwt jwt) {
+    public UserRD getUserById(@PathVariable UUID user) {
         return service.getById(user);
     }
 
     @GetMapping(path = "/factor/{factor}", consumes = "*/*")
-    public UserRD getUserByFactor(@PathVariable String factor,
-                                  @AuthenticationPrincipal Jwt jwt) {
+    public UserRD getUserByFactor(@PathVariable String factor) {
         return service.getByFactor(factor);
     }
 
     @PostMapping(path = {"/search", "/filter"})
     public SheetDto<UserRD> searchUsers(@RequestBody FilterChain filters,
-                                        @PageableDefault(sort = "username") Pageable pageable,
-                                        @AuthenticationPrincipal Jwt jwt) {
+                                        @PageableDefault(sort = "username") Pageable pageable) {
         return service.search(filters, pageable);
     }
 
     @PostMapping
-    public ResponseEntity<UserRD> createUser(@RequestBody UserWD user,
-                                             @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<UserRD> createUser(@RequestBody UserWD user) {
         UserRD savedUser = service.create(user);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -75,28 +67,28 @@ public class UserAdminController {
     public UserRD patchUser(@PathVariable UUID user,
                             @RequestBody UserWD ptcUser,
                             @AuthenticationPrincipal Jwt jwt) {
-        return service.patch(user, extractUserId(jwt), ptcUser);
+        UUID actor = extractUserId(jwt);
+        return service.patch(user, actor, ptcUser);
     }
 
     @DeleteMapping(value = "/{user}", consumes = "*/*", produces = "*/*")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID user,
                                            @AuthenticationPrincipal Jwt jwt) {
-        service.delete(user, extractUserId(jwt));
+        UUID actor = extractUserId(jwt);
+        service.delete(user, actor);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping(value = "/{user}/grant", produces = "*/*")
     public ResponseEntity<Void> grantUser(@PathVariable UUID user,
-                                          @RequestBody RoleCollection roles,
-                                          @AuthenticationPrincipal Jwt jwt) {
+                                          @RequestBody RoleCollection roles) {
         service.grant(user, roles);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping(value = "/{user}/grant/{role}", consumes = "*/*", produces = "*/*")
     public ResponseEntity<Void> grantUser(@PathVariable UUID user,
-                                          @PathVariable String role,
-                                          @AuthenticationPrincipal Jwt jwt) {
+                                          @PathVariable String role) {
         service.grant(user, RoleCollection.of(role));
         return ResponseEntity.noContent().build();
     }
@@ -105,7 +97,8 @@ public class UserAdminController {
     public ResponseEntity<Void> revokeUser(@PathVariable UUID user,
                                            @RequestBody RoleCollection roles,
                                            @AuthenticationPrincipal Jwt jwt) {
-        service.revoke(user, extractUserId(jwt), roles);
+        UUID actor = extractUserId(jwt);
+        service.revoke(user, actor, roles);
         return ResponseEntity.noContent().build();
     }
 
@@ -113,7 +106,8 @@ public class UserAdminController {
     public ResponseEntity<Void> revokeUser(@PathVariable UUID user,
                                            @PathVariable String role,
                                            @AuthenticationPrincipal Jwt jwt) {
-        service.revoke(user, extractUserId(jwt), RoleCollection.of(role));
+        UUID actor = extractUserId(jwt);
+        service.revoke(user, actor, RoleCollection.of(role));
         return ResponseEntity.noContent().build();
     }
 

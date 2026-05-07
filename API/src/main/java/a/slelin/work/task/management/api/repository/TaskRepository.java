@@ -21,7 +21,7 @@ public interface TaskRepository extends JpaRepository<Task, Long>,
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     @Query("""
             SELECT EXISTS (SELECT 1 FROM Task t
-                           WHERE t.id = :task AND t.project.user = :user)
+                           WHERE t.project.user = :user AND t.id = :task)
             """)
     boolean isTaskOfUser(@Param("user") UUID userId, @Param("task") Long taskId);
 

@@ -9,7 +9,8 @@ import tools.jackson.databind.ValueDeserializer;
 public class HttpMethodDeserializer extends ValueDeserializer<HttpMethod> {
 
     @Override
-    public HttpMethod deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+    public HttpMethod deserialize(JsonParser p,
+                                  DeserializationContext ctxt) throws JacksonException {
         String str = p.getValueAsString();
         return str == null ? null : HttpMethod.valueOf(str);
     }

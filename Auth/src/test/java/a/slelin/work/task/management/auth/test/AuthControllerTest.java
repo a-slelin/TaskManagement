@@ -17,10 +17,10 @@ import org.springframework.web.client.RestTemplate;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
+@DisplayName("Тестируем AuthController")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@DisplayName("Тест контроллера, отвечающего за аутентификацию")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class AuthControllerTest {
 
     @Autowired
@@ -39,15 +39,17 @@ public class AuthControllerTest {
     @Test
     @Order(1)
     @DirtiesContext
-    @DisplayName("Получаем токены доступа и обновления по имени пользователя в системе")
+    @DisplayName("Тестируем POST /auth/login по имени пользователя : успех")
     public void test1() {
+
         LoginRequest login = new LoginRequest("alex_petrov", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -61,15 +63,17 @@ public class AuthControllerTest {
     @Test
     @Order(2)
     @DirtiesContext
-    @DisplayName("Получаем токены доступа и обновления по телефону пользователя")
+    @DisplayName("Тестируем POST /auth/login по телефону пользователя : успех")
     public void test2() {
+
         LoginRequest login = new LoginRequest("+79051234567", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -83,15 +87,17 @@ public class AuthControllerTest {
     @Test
     @Order(3)
     @DirtiesContext
-    @DisplayName("Получаем токены доступа и обновления по электронной почте пользователя")
+    @DisplayName("Тестируем POST /auth/login по электронной почте пользователя : успех")
     public void test3() {
+
         LoginRequest login = new LoginRequest("alex.petrov@google.com", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -105,8 +111,9 @@ public class AuthControllerTest {
     @Test
     @Order(4)
     @DirtiesContext
-    @DisplayName("Получаем ошибку c неправильным паролем")
+    @DisplayName("Тестируем POST /auth/login с неправильным паролем : ошибка 401 неавторизован")
     public void test4() {
+
         LoginRequest login = new LoginRequest("alex_petrov", "wrong_password");
 
         try {
@@ -114,7 +121,8 @@ public class AuthControllerTest {
                     baseUrl + "/login",
                     HttpMethod.POST,
                     new HttpEntity<>(login),
-                    JwtResponse.class);
+                    JwtResponse.class
+            );
             fail("Should throw HttpClientErrorException.Unauthorized");
 
         } catch (HttpClientErrorException.Unauthorized e) {
@@ -142,8 +150,9 @@ public class AuthControllerTest {
     @Test
     @Order(5)
     @DirtiesContext
-    @DisplayName("Получаем ошибку c неправильным именем пользователя")
+    @DisplayName("Тестируем POST /auth/login с неправильным именем : ошибка 401 неавторизован")
     public void test5() {
+
         LoginRequest login = new LoginRequest("wrong_username", "password");
 
         try {
@@ -151,7 +160,8 @@ public class AuthControllerTest {
                     baseUrl + "/login",
                     HttpMethod.POST,
                     new HttpEntity<>(login),
-                    JwtResponse.class);
+                    JwtResponse.class
+            );
             fail("Should throw HttpClientErrorException.Unauthorized");
 
         } catch (HttpClientErrorException.Unauthorized e) {
@@ -179,15 +189,21 @@ public class AuthControllerTest {
     @Test
     @Order(6)
     @DirtiesContext
-    @DisplayName("Можем залогинится несколько раз (3)")
+    @DisplayName("Тестируем POST /auth/login несколько раз логинимся : успех")
     public void test6() {
+
+        /*
+         * Логинимся под пользователем алекс 1‑й раз.
+         * */
+
         LoginRequest login = new LoginRequest("alex_petrov", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -197,11 +213,16 @@ public class AuthControllerTest {
         assertNotNull(jwtResponse.accessToken());
         assertNotNull(jwtResponse.refreshToken());
 
+        /*
+         * Логинимся под пользователем алекс 2‑й раз.
+         * */
+
         ResponseEntity<JwtResponse> response2 = rest.exchange(
                 baseUrl + "/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -214,11 +235,16 @@ public class AuthControllerTest {
         assertNotEquals(jwtResponse.accessToken(), jwtResponse2.accessToken());
         assertNotEquals(jwtResponse.refreshToken(), jwtResponse2.refreshToken());
 
+        /*
+         * Логинимся под пользователем алекс 3‑й раз.
+         * */
+
         ResponseEntity<JwtResponse> response3 = rest.exchange(
                 baseUrl + "/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response3);
         assertNotNull(response3.getStatusCode());
         assertEquals(HttpStatus.OK, response3.getStatusCode());
@@ -237,8 +263,9 @@ public class AuthControllerTest {
     @Test
     @Order(7)
     @DirtiesContext
-    @DisplayName("Регистрируем пользователя и получаем токены")
+    @DisplayName("Тестируем POST /auth/register : успех")
     public void test7() {
+
         UserWD newUser = UserWD.builder()
                 .username("alex_slelin")
                 .password("password")
@@ -251,7 +278,8 @@ public class AuthControllerTest {
                 baseUrl + "/register",
                 HttpMethod.POST,
                 new HttpEntity<>(newUser),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -265,8 +293,13 @@ public class AuthControllerTest {
     @Test
     @Order(8)
     @DirtiesContext
-    @DisplayName("Регистрируем пользователя, а затем логинимся")
+    @DisplayName("Тестируем POST /auth/register + POST /auth/login : успех")
     public void test8() {
+
+        /*
+         * Регистрируем пользователя.
+         * */
+
         UserWD newUser = UserWD.builder()
                 .username("alex_slelin")
                 .password("hard_password")
@@ -279,7 +312,8 @@ public class AuthControllerTest {
                 baseUrl + "/register",
                 HttpMethod.POST,
                 new HttpEntity<>(newUser),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -289,6 +323,10 @@ public class AuthControllerTest {
         assertNotNull(jwtResponse.accessToken());
         assertNotNull(jwtResponse.refreshToken());
 
+        /*
+         * Пытаемся залогиниться с неправильным паролем.
+         * */
+
         LoginRequest login = new LoginRequest("alex_slelin", "wrong_password");
 
         try {
@@ -296,7 +334,8 @@ public class AuthControllerTest {
                     baseUrl + "/login",
                     HttpMethod.POST,
                     new HttpEntity<>(login),
-                    JwtResponse.class);
+                    JwtResponse.class
+            );
             fail("Should throw HttpClientErrorException.Unauthorized");
         } catch (HttpClientErrorException.Unauthorized e) {
             assertNotNull(e);
@@ -305,14 +344,29 @@ public class AuthControllerTest {
 
             ErrorResponse errorResponse = e.getResponseBodyAs(ErrorResponse.class);
             assertNotNull(errorResponse);
+            assertNotNull(errorResponse.path());
+            assertEquals(baseUrl + "/login", errorResponse.path());
+            assertNotNull(errorResponse.httpMethod());
+            assertEquals(HttpMethod.POST, errorResponse.httpMethod());
+            assertNotNull(errorResponse.httpStatus());
+            assertEquals(HttpStatus.UNAUTHORIZED, errorResponse.httpStatus());
+            assertNotNull(errorResponse.message());
+            assertNotNull(errorResponse.exception());
+            assertNotNull(errorResponse.timestamp());
         }
+
+
+        /*
+         * Логинимся с правильным паролем.
+         * */
 
         login = new LoginRequest("alex_slelin", "hard_password");
         response = rest.exchange(
                 baseUrl + "/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -329,15 +383,21 @@ public class AuthControllerTest {
     @Test
     @Order(9)
     @DirtiesContext
-    @DisplayName("Логинимся, после чего пытаемся обновить токен")
+    @DisplayName("Тестируем GET /auth/refresh : успех")
     public void test9() {
+
+        /*
+         * Логинимся как пользователь алекс.
+         * */
+
         LoginRequest login = new LoginRequest("alex_petrov", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -347,6 +407,10 @@ public class AuthControllerTest {
         assertNotNull(jwtResponse.accessToken());
         assertNotNull(jwtResponse.refreshToken());
 
+        /*
+         * Обновляем токен.
+         * */
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.refreshToken());
 
@@ -354,7 +418,8 @@ public class AuthControllerTest {
                 baseUrl + "/refresh",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -371,15 +436,21 @@ public class AuthControllerTest {
     @Test
     @Order(10)
     @DirtiesContext
-    @DisplayName("Логинимся, после чего выходим")
+    @DisplayName("Тестируем GET /auth/logout : успех")
     public void test10() {
+
+        /*
+         * Логинимся под пользователем алекс.
+         * */
+
         LoginRequest login = new LoginRequest("alex_petrov", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -388,6 +459,10 @@ public class AuthControllerTest {
         assertNotNull(jwtResponse);
         assertNotNull(jwtResponse.accessToken());
         assertNotNull(jwtResponse.refreshToken());
+
+        /*
+         * Выходи из системы.
+         * */
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.refreshToken());
@@ -396,7 +471,8 @@ public class AuthControllerTest {
                 baseUrl + "/logout",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                Void.class);
+                Void.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.NO_CONTENT, response2.getStatusCode());
@@ -405,15 +481,21 @@ public class AuthControllerTest {
     @Test
     @Order(11)
     @DirtiesContext
-    @DisplayName("Логинимся 3 раза, а затем выходим из всех сессий")
+    @DisplayName("Тестируем GET /auth/logout/all : успех")
     public void test11() {
+
+        /*
+         * Логинимся под пользователем алекс.
+         * */
+
         LoginRequest login = new LoginRequest("alex_petrov", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -423,11 +505,16 @@ public class AuthControllerTest {
         assertNotNull(jwtResponse.accessToken());
         assertNotNull(jwtResponse.refreshToken());
 
+        /*
+         * Логинимся 2‑й раз.
+         * */
+
         ResponseEntity<JwtResponse> response2 = rest.exchange(
                 baseUrl + "/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -439,6 +526,10 @@ public class AuthControllerTest {
 
         assertNotEquals(jwtResponse.accessToken(), jwtResponse2.accessToken());
         assertNotEquals(jwtResponse.refreshToken(), jwtResponse2.refreshToken());
+
+        /*
+         * Логинимся 3‑й раз.
+         * */
 
         ResponseEntity<JwtResponse> response3 = rest.exchange(
                 baseUrl + "/login",
@@ -459,6 +550,10 @@ public class AuthControllerTest {
         assertNotEquals(jwtResponse.refreshToken(), jwtResponse3.refreshToken());
         assertNotEquals(jwtResponse2.refreshToken(), jwtResponse3.refreshToken());
 
+        /*
+         * Выходим из всех сессий.
+         * */
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.refreshToken());
 
@@ -466,7 +561,8 @@ public class AuthControllerTest {
                 baseUrl + "/logout/all",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                Void.class);
+                Void.class
+        );
         assertNotNull(response4);
         assertNotNull(response4.getStatusCode());
         assertEquals(HttpStatus.NO_CONTENT, response4.getStatusCode());

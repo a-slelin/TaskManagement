@@ -11,8 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping(value = "/",
-        produces = {"application/json", "application/xml", "application/yaml"})
+@RequestMapping(value = "/", produces = {"application/json", "application/xml", "application/yaml"})
 public class InfoController {
 
     @Autowired

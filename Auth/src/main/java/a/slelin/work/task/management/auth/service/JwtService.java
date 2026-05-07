@@ -7,8 +7,12 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.security.Key;
 import java.util.Date;
@@ -16,12 +20,13 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Validated
 @RequiredArgsConstructor
 public class JwtService {
 
     private final JwtHolder jwtHolder;
 
-    public String generateAccessToken(User user) {
+    public String generateAccessToken(@NotNull @Valid User user) {
         List<String> roles = user.getRoles().stream()
                 .map(Role::getName)
                 .toList();
@@ -36,7 +41,7 @@ public class JwtService {
                 .compact();
     }
 
-    public String generateRefreshToken(User user) {
+    public String generateRefreshToken(@NotNull @Valid User user) {
         return Jwts.builder()
                 .id(UUID.randomUUID().toString())
                 .subject(user.getId().toString())
@@ -61,19 +66,19 @@ public class JwtService {
     }
 
     @SuppressWarnings("unused")
-    public UUID extractUserId(String token) {
+    public UUID extractUserId(@NotBlank String token) {
         Claims claims = extractClaims(token);
         return UUID.fromString(claims.getSubject());
     }
 
     @SuppressWarnings({"unchecked", "unused"})
-    public List<String> extractRoles(String token) {
+    public List<String> extractRoles(@NotBlank String token) {
         Claims claims = extractClaims(token);
         return claims.get("roles", List.class);
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean isTokenValid(String token) {
+    public boolean isTokenValid(@NotBlank String token) {
         try {
             extractClaims(token);
             return true;

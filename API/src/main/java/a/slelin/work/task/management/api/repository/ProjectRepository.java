@@ -21,7 +21,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long>,
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     @Query("""
             SELECT EXISTS (SELECT 1 FROM Project p
-                           WHERE p.id = :project AND p.user = :user)
+                           WHERE p.user = :user AND p.id = :project)
             """)
     boolean isProjectOfUser(@Param("user") UUID user, @Param("project") Long project);
 

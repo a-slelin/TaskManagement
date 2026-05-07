@@ -29,10 +29,11 @@ import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
-@DisplayName("Тест контроллера проектов")
+@DisplayName("Тестируем ProjectController")
+@SuppressWarnings("CatchMayIgnoreException")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class ProjectControllerTest {
 
     @Autowired
@@ -63,10 +64,9 @@ public class ProjectControllerTest {
     @Test
     @Order(1)
     @DirtiesContext
-    @DisplayName("Неавторизованный пользователь не может обращаться к проектам")
+    @DisplayName("Тестируем GET /api/projects с неавторизованным пользователем : ошибка 401 неавторизован")
     public void test1() {
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl,
@@ -102,8 +102,9 @@ public class ProjectControllerTest {
     @Test
     @Order(2)
     @DirtiesContext
-    @DisplayName("Пользователь может обращаться к проектам")
+    @DisplayName("Тестируем GET /api/projects с авторизованным пользователем : успех")
     public void test2() {
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
 
@@ -122,8 +123,9 @@ public class ProjectControllerTest {
     @Test
     @Order(3)
     @DirtiesContext
-    @DisplayName("Администратор может обращаться к проектам")
+    @DisplayName("Тестируем GET /api/projects с администратором : успех")
     public void test3() {
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(adminToken);
 
@@ -142,18 +144,19 @@ public class ProjectControllerTest {
     @Test
     @Order(4)
     @DirtiesContext
-    @DisplayName("Тестируем получение всех проектов")
+    @DisplayName("Тестируем GET /api/projects : успех")
     public void test4() {
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
-        HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
         ResponseEntity<SheetDto<ProjectRD>> response = rest.exchange(
                 projectUrl,
                 HttpMethod.GET,
-                httpEntity,
+                new HttpEntity<>(headers),
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -177,18 +180,23 @@ public class ProjectControllerTest {
     @Test
     @Order(5)
     @DirtiesContext
-    @DisplayName("Тестируем получение проекта по идентификатору")
+    @DisplayName("Тестируем GET /api/projects/{id} : успех")
     public void test5() {
+
+        /*
+         * Получаем все проекты пользователя алекс.
+         * */
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
-        HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
         ResponseEntity<SheetDto<ProjectRD>> response = rest.exchange(
                 projectUrl,
                 HttpMethod.GET,
-                httpEntity,
+                new HttpEntity<>(headers),
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -207,12 +215,15 @@ public class ProjectControllerTest {
         Long projectId = project.id();
         assertNotNull(projectId);
 
+        /*
+         * Получаем проект по идентификатору.
+         * */
+
         ResponseEntity<ProjectRD> response2 = rest.exchange(
                 projectUrl + "/{id}",
                 HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<>() {
-                },
+                new HttpEntity<>(headers),
+                ProjectRD.class,
                 projectId
         );
         assertNotNull(response2);
@@ -227,20 +238,19 @@ public class ProjectControllerTest {
     @Test
     @Order(6)
     @DirtiesContext
-    @DisplayName("Тестируем получение проекта по некорректному идентификатору")
+    @DisplayName("Тестируем GET /api/projects/{id} с некорректным id : ошибка 404 не найдено")
     public void test6() {
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
-        HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
         Long id = Long.MAX_VALUE;
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}",
                     HttpMethod.GET,
-                    httpEntity,
+                    new HttpEntity<>(headers),
                     ProjectRD.class,
                     id
             );
@@ -271,18 +281,23 @@ public class ProjectControllerTest {
     @Test
     @Order(7)
     @DirtiesContext
-    @DisplayName("Тестируем получение чужого проекта по идентификатору")
+    @DisplayName("Тестируем GET /api/projects/{id} с чужим id : ошибка 403 запрещено")
     public void test7() {
+
+        /*
+         * Получаем первый проект пользователя алекс.
+         * */
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
-        HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
         ResponseEntity<SheetDto<ProjectRD>> response = rest.exchange(
                 projectUrl,
                 HttpMethod.GET,
-                httpEntity,
+                new HttpEntity<>(headers),
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -301,10 +316,13 @@ public class ProjectControllerTest {
         Long projectId = project.id();
         assertNotNull(projectId);
 
+        /*
+         * Пытаемся получить чужой проект.
+         * */
+
         HttpHeaders headers2 = new HttpHeaders();
         headers2.setBearerAuth(ekaterinaToken);
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}",
@@ -340,18 +358,23 @@ public class ProjectControllerTest {
     @Test
     @Order(8)
     @DirtiesContext
-    @DisplayName("Тестируем получение задач проекта по идентификатору")
+    @DisplayName("Тестируем GET /api/projects/{id}/tasks : успех")
     public void test8() {
+
+        /*
+         * Получаем первый проект пользователя алекс.
+         * */
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
-        HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
         ResponseEntity<SheetDto<ProjectRD>> response = rest.exchange(
                 projectUrl,
                 HttpMethod.GET,
-                httpEntity,
+                new HttpEntity<>(headers),
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -370,10 +393,14 @@ public class ProjectControllerTest {
         Long projectId = project.id();
         assertNotNull(projectId);
 
+        /*
+         * Получаем все задачи проекта.
+         * */
+
         ResponseEntity<SheetDto<TaskRD>> response2 = rest.exchange(
                 projectUrl + "/{id}/tasks",
                 HttpMethod.GET,
-                httpEntity,
+                new HttpEntity<>(headers),
                 new ParameterizedTypeReference<>() {
                 },
                 projectId
@@ -394,26 +421,26 @@ public class ProjectControllerTest {
         tasks.forEach(task -> {
             assertNotNull(task);
             assertNotNull(task.id());
+            assertNotNull(task.title());
         });
     }
 
     @Test
     @Order(9)
     @DirtiesContext
-    @DisplayName("Тестируем получение задач проекта по некорректному идентификатору")
+    @DisplayName("Тестируем GET /api/projects/{id}/tasks с некорректным id : ошибка 404 не найдено")
     public void test9() {
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
-        HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
         Long id = Long.MAX_VALUE;
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}/tasks",
                     HttpMethod.GET,
-                    httpEntity,
+                    new HttpEntity<>(headers),
                     new ParameterizedTypeReference<>() {
                     },
                     id
@@ -445,18 +472,23 @@ public class ProjectControllerTest {
     @Test
     @Order(10)
     @DirtiesContext
-    @DisplayName("Тестируем получение задач чужого проекта по идентификатору")
+    @DisplayName("Тестируем GET /api/projects/{id}/tasks с чужим id : ошибка 403 запрещено")
     public void test10() {
+
+        /*
+         * Получаем первый проект пользователя алекс.
+         * */
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
-        HttpEntity<Void> httpEntity = new HttpEntity<>(headers);
 
         ResponseEntity<SheetDto<ProjectRD>> response = rest.exchange(
                 projectUrl,
                 HttpMethod.GET,
-                httpEntity,
+                new HttpEntity<>(headers),
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -475,10 +507,13 @@ public class ProjectControllerTest {
         Long projectId = project.id();
         assertNotNull(projectId);
 
+        /*
+         * Пытаемся получить задачи чужого проекта.
+         * */
+
         HttpHeaders headers2 = new HttpHeaders();
         headers2.setBearerAuth(ekaterinaToken);
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}/tasks",
@@ -514,8 +549,9 @@ public class ProjectControllerTest {
     @Test
     @Order(11)
     @DirtiesContext
-    @DisplayName("Тестируем получение проектов по фильтру")
+    @DisplayName("Тестируем POST /api/projects/search : успех")
     public void test11() {
+
         FilterChain filters = FilterChain
                 .empty()
                 .add(Filter.of("description", Operation.IS_NOT_NULL));
@@ -528,7 +564,8 @@ public class ProjectControllerTest {
                 HttpMethod.POST,
                 new HttpEntity<>(filters, headers),
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -553,7 +590,7 @@ public class ProjectControllerTest {
     @Test
     @Order(12)
     @DirtiesContext
-    @DisplayName("Тестируем получение проектов по плохому фильтру")
+    @DisplayName("Тестируем POST /api/projects/search с некорректным фильтром : ошибка 400 плохой запрос")
     public void test12() {
 
         HttpHeaders headers = new HttpHeaders();
@@ -563,7 +600,6 @@ public class ProjectControllerTest {
                 .empty()
                 .add(Filter.of("bad", Operation.IS_NOT_EMPTY));
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/search",
@@ -598,8 +634,13 @@ public class ProjectControllerTest {
 
     @Test
     @Order(13)
-    @DisplayName("Тестируем создание нового проекта")
+    @DisplayName("Тестируем POST /api/projects : успех")
     public void test13() {
+
+        /*
+         * Создаем новый проект у пользователя алекс.
+         * */
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
 
@@ -623,6 +664,10 @@ public class ProjectControllerTest {
         assertEquals(newProject.name(), project.name());
         assertNotNull(project.description());
         assertEquals(newProject.description(), project.description());
+
+        /*
+         * Проверяем, что url с местоположением корректный.
+         * */
 
         HttpHeaders headers2 = response.getHeaders();
         assertNotNull(headers2);
@@ -652,8 +697,13 @@ public class ProjectControllerTest {
     @Test
     @Order(14)
     @DirtiesContext
-    @DisplayName("Тестируем создание нового проекта : нарушение уникальности поля")
+    @DisplayName("Тестируем POST /api/projects с нарушением уникальных полей : ошибка 409 конфликт")
     public void test14() {
+
+        /*
+         * Получаем название первого проекта
+         * пользователя алекс.
+         * */
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
@@ -683,9 +733,12 @@ public class ProjectControllerTest {
         String projectName = project.name();
         assertNotNull(projectName);
 
+        /*
+         * Пытаемся создать проект с тем же именем.
+         * */
+
         ProjectWD newProject = new ProjectWD(projectName, "tmp_description");
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl,
@@ -720,8 +773,12 @@ public class ProjectControllerTest {
     @Test
     @Order(15)
     @DirtiesContext
-    @DisplayName("Тестируем создание новой задачи")
+    @DisplayName("Тестируем POST /api/projects/{id}/tasks : успех")
     public void test15() {
+
+        /*
+         * Получаем первый проект пользователя алекс.
+         * */
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
@@ -751,6 +808,10 @@ public class ProjectControllerTest {
         Long projectId = project.id();
         assertNotNull(projectId);
 
+        /*
+         * Создаём новую задачу в этом проекте.
+         * */
+
         TaskWD newTask = new TaskWD("tmp_title", "in_progress", "tmp_description");
 
         ResponseEntity<TaskRD> response2 = rest.exchange(
@@ -773,6 +834,10 @@ public class ProjectControllerTest {
         assertEquals(newTask.status(), task.status());
         assertNotNull(task.description());
         assertEquals(newTask.description(), task.description());
+
+        /*
+         * Проверяем, что url с местоположением корректен.
+         * */
 
         HttpHeaders headers2 = response2.getHeaders();
         assertNotNull(headers2);
@@ -802,8 +867,12 @@ public class ProjectControllerTest {
     @Test
     @Order(16)
     @DirtiesContext
-    @DisplayName("Тестируем создание новой задачи в чужом проекте")
+    @DisplayName("Тестируем POST /api/projects/{id}/tasks с чужим id : ошибка 403 запрещено")
     public void test16() {
+
+        /*
+         * Получаем первый проект пользователя алекс.
+         * */
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
@@ -833,12 +902,15 @@ public class ProjectControllerTest {
         Long projectId = project.id();
         assertNotNull(projectId);
 
+        /*
+         * Пытаемся создать чужую задачу в этом проекте.
+         * */
+
         HttpHeaders headers2 = new HttpHeaders();
         headers2.setBearerAuth(ekaterinaToken);
 
         TaskWD newTask = new TaskWD("tmp_title", "in_progress", "tmp_description");
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}/tasks",
@@ -874,7 +946,7 @@ public class ProjectControllerTest {
     @Test
     @Order(17)
     @DirtiesContext
-    @DisplayName("Тестируем создание новой задачи в плохом проекте")
+    @DisplayName("Тестируем POST /api/projects/{id}/tasks с некорректным id : ошибка 404 не найдено")
     public void test17() {
 
         HttpHeaders headers = new HttpHeaders();
@@ -884,7 +956,6 @@ public class ProjectControllerTest {
 
         TaskWD newTask = new TaskWD("tmp_title", "in_progress", "tmp_description");
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}/tasks",
@@ -920,8 +991,12 @@ public class ProjectControllerTest {
     @Test
     @Order(18)
     @DirtiesContext
-    @DisplayName("Тестируем создание новой задачи : нарушение уникальности поля")
+    @DisplayName("Тестируем POST /api/projects/{id}/tasks с некорректной задачей (уникальный поля) : ошибка 409 конфликт")
     public void test18() {
+
+        /*
+         * Получаем первый проект пользователя алекс.
+         * */
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
@@ -951,6 +1026,10 @@ public class ProjectControllerTest {
         Long projectId = project.id();
         assertNotNull(projectId);
 
+        /*
+         * Получаем заголовок первой задачи из этого проекта.
+         * */
+
         ResponseEntity<SheetDto<TaskRD>> response2 = rest.exchange(
                 projectUrl + "/{id}/tasks",
                 HttpMethod.GET,
@@ -976,9 +1055,13 @@ public class ProjectControllerTest {
         String taskTitle = task.title();
         assertNotNull(taskTitle);
 
+        /*
+         * Пытаемся создать задачу с уже существующим
+         * заголовком в этом проекте.
+         * */
+
         TaskWD newTask = new TaskWD(taskTitle, "in_progress", "tmp_description");
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}/tasks",
@@ -1014,8 +1097,12 @@ public class ProjectControllerTest {
     @Test
     @Order(19)
     @DirtiesContext
-    @DisplayName("Тестируем обновление проекта")
+    @DisplayName("Тестируем PUT /api/projects/{id} : успех")
     public void test19() {
+
+        /*
+         * Получаем первый проект пользователя алекс.
+         * */
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
@@ -1044,6 +1131,10 @@ public class ProjectControllerTest {
         assertNotNull(project);
         Long projectId = project.id();
         assertNotNull(projectId);
+
+        /*
+         * Обновляем этот проект.
+         * */
 
         ProjectWD updProject = new ProjectWD("updatedName", "updatedDescription");
 
@@ -1071,8 +1162,12 @@ public class ProjectControllerTest {
     @Test
     @Order(20)
     @DirtiesContext
-    @DisplayName("Тестируем обновление чужого проекта")
+    @DisplayName("Тестируем PUT /api/projects/{id} с чужим id : ошибка 403 запрещено")
     public void test20() {
+
+        /*
+         * Получаем первый проект пользователя алекс.
+         * */
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
@@ -1102,12 +1197,15 @@ public class ProjectControllerTest {
         Long projectId = project.id();
         assertNotNull(projectId);
 
+        /*
+         * Пытаемся обновить чужой проект.
+         * */
+
         HttpHeaders headers2 = new HttpHeaders();
         headers2.setBearerAuth(ekaterinaToken);
 
         ProjectWD updProject = new ProjectWD("updatedName", "updatedDescription");
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}",
@@ -1143,7 +1241,7 @@ public class ProjectControllerTest {
     @Test
     @Order(21)
     @DirtiesContext
-    @DisplayName("Тестируем обновление проекта по плохому идентификатору")
+    @DisplayName("Тестируем PUT /api/projects/{id} с некорректным id : ошибка 404 не найдено")
     public void test21() {
 
         HttpHeaders headers = new HttpHeaders();
@@ -1153,7 +1251,6 @@ public class ProjectControllerTest {
 
         ProjectWD updProject = new ProjectWD("updatedName", "updatedDescription");
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}",
@@ -1189,8 +1286,12 @@ public class ProjectControllerTest {
     @Test
     @Order(22)
     @DirtiesContext
-    @DisplayName("Тестируем обновление проекта : нарушение уникальности полей")
+    @DisplayName("Тестируем PUT /api/projects/{id} с некорректным проектом (уникальные поля) : ошибка 409 конфликт")
     public void test22() {
+
+        /*
+         * Получаем первый проект пользователя алекс.
+         * */
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
@@ -1226,9 +1327,13 @@ public class ProjectControllerTest {
         String project2Name = project2.name();
         assertNotNull(project2Name);
 
+        /*
+         * Пытаемся обновить проект уже существующим
+         * названием проекта у алекса.
+         * */
+
         ProjectWD updProject = new ProjectWD(project2Name, "updatedDescription");
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}",
@@ -1264,8 +1369,12 @@ public class ProjectControllerTest {
     @Test
     @Order(23)
     @DirtiesContext
-    @DisplayName("Тестируем частичное обновление проекта")
+    @DisplayName("Тестируем PATCH /api/projects/{id} : успех")
     public void test23() {
+
+        /*
+         * Получаем первый проект пользователя алекс.
+         * */
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
@@ -1295,6 +1404,10 @@ public class ProjectControllerTest {
         Long projectId = project.id();
         assertNotNull(projectId);
 
+        /*
+         * Обновляем проект алекса.
+         * */
+
         ProjectWD updProject = new ProjectWD("updatedName");
 
         ResponseEntity<ProjectRD> response2 = rest.exchange(
@@ -1321,7 +1434,7 @@ public class ProjectControllerTest {
     @Test
     @Order(24)
     @DirtiesContext
-    @DisplayName("Тестируем частичное обновление проекта по плохому идентификатору")
+    @DisplayName("Тестируем PATCH /api/projects/{id} с некорректным id : ошибка 404 не найдено")
     public void test24() {
 
         HttpHeaders headers = new HttpHeaders();
@@ -1331,7 +1444,6 @@ public class ProjectControllerTest {
 
         ProjectWD updProject = new ProjectWD("updatedName");
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}",
@@ -1367,8 +1479,12 @@ public class ProjectControllerTest {
     @Test
     @Order(25)
     @DirtiesContext
-    @DisplayName("Тестируем частичное обновление чужого проекта")
+    @DisplayName("Тестируем PATCH /api/projects/{id} с чужим id : ошибка 403 запрещено")
     public void test25() {
+
+        /*
+         * Получаем первый проект пользователя алекс.
+         * */
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
@@ -1398,12 +1514,15 @@ public class ProjectControllerTest {
         Long projectId = project.id();
         assertNotNull(projectId);
 
+        /*
+         * Пытаемся обновить чужой проект.
+         * */
+
         HttpHeaders headers2 = new HttpHeaders();
         headers2.setBearerAuth(ekaterinaToken);
 
         ProjectWD updProject = new ProjectWD("updatedName");
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}",
@@ -1439,8 +1558,12 @@ public class ProjectControllerTest {
     @Test
     @Order(26)
     @DirtiesContext
-    @DisplayName("Тестируем частичное обновление проекта : нарушение уникальности полей")
+    @DisplayName("Тестируем PATCH /api/projects/{id} с некорректным проектом (уникальные поля) : ошибка 409 конфликт")
     public void test26() {
+
+        /*
+         * Получаем первый проект пользователя алекс.
+         * */
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
@@ -1471,6 +1594,11 @@ public class ProjectControllerTest {
         Long projectId = project.id();
         assertNotNull(projectId);
 
+        /*
+         * Пытаемся обновить проект уже существующим
+         * названием у алекса.
+         * */
+
         ProjectRD project2 = projects.getLast();
         assertNotNull(project2);
         String project2Name = project2.name();
@@ -1478,7 +1606,6 @@ public class ProjectControllerTest {
 
         ProjectWD updProject = new ProjectWD(project2Name);
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}",
@@ -1514,8 +1641,12 @@ public class ProjectControllerTest {
     @Test
     @Order(27)
     @DirtiesContext
-    @DisplayName("Тестируем удаление всех проектов")
+    @DisplayName("Тестируем DELETE /api/projects : успех")
     public void test27() {
+
+        /*
+         * Удаляем проекты пользователя алекс.
+         * */
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
@@ -1529,6 +1660,10 @@ public class ProjectControllerTest {
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+
+        /*
+         * Проверяем, что у алекса больше нет проектов.
+         * */
 
         ResponseEntity<SheetDto<ProjectRD>> response2 = rest.exchange(
                 projectUrl,
@@ -1553,8 +1688,14 @@ public class ProjectControllerTest {
 
     @Test
     @Order(28)
-    @DisplayName("Тестируем удаление проекта")
+    @DirtiesContext
+    @DisplayName("Тестируем DELETE /api/projects/{id} : успех")
     public void test28() {
+
+        /*
+         * Получаем первый проект пользователя алекс.
+         * */
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
 
@@ -1563,7 +1704,8 @@ public class ProjectControllerTest {
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1582,6 +1724,10 @@ public class ProjectControllerTest {
         Long projectId = project.id();
         assertNotNull(projectId);
 
+        /*
+         * Удаляем проект.
+         * */
+
         ResponseEntity<Void> response2 = rest.exchange(
                 projectUrl + "/{id}",
                 HttpMethod.DELETE,
@@ -1593,7 +1739,10 @@ public class ProjectControllerTest {
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.NO_CONTENT, response2.getStatusCode());
 
-        //noinspection CatchMayIgnoreException
+        /*
+         * Проверяем, что проект был удален.
+         * */
+
         try {
             rest.exchange(
                     projectUrl + "/{id}",
@@ -1628,8 +1777,14 @@ public class ProjectControllerTest {
 
     @Test
     @Order(29)
-    @DisplayName("Тестируем удаление чужого проекта")
+    @DirtiesContext
+    @DisplayName("Тестируем DELETE /api/projects/{id} с чужим id : ошибка 403 запрещено")
     public void test29() {
+
+        /*
+         * Получаем первый проект пользователя алекс.
+         * */
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
 
@@ -1638,7 +1793,8 @@ public class ProjectControllerTest {
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1657,10 +1813,13 @@ public class ProjectControllerTest {
         Long projectId = project.id();
         assertNotNull(projectId);
 
+        /*
+         * Пытаемся удалить чужой проект.
+         * */
+
         HttpHeaders headers2 = new HttpHeaders();
         headers2.setBearerAuth(ekaterinaToken);
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}",
@@ -1695,14 +1854,15 @@ public class ProjectControllerTest {
 
     @Test
     @Order(30)
-    @DisplayName("Тестируем удаление плохого проекта")
+    @DirtiesContext
+    @DisplayName("Тестируем DELETE /api/projects/{id} с некорректным id : ошибка 404 не найдено")
     public void test30() {
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
 
         Long projectId = Long.MAX_VALUE;
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}",
@@ -1737,8 +1897,14 @@ public class ProjectControllerTest {
 
     @Test
     @Order(31)
-    @DisplayName("Тестируем удаление задач проекта")
+    @DirtiesContext
+    @DisplayName("Тестируем DELETE /api/projects/{id}/tasks : успех")
     public void test31() {
+
+        /*
+         * Получаем первый проект пользователя алекс.
+         * */
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
 
@@ -1747,7 +1913,8 @@ public class ProjectControllerTest {
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1766,6 +1933,10 @@ public class ProjectControllerTest {
         Long projectId = project.id();
         assertNotNull(projectId);
 
+        /*
+         * Удаляем задачи этого проекта.
+         * */
+
         ResponseEntity<Void> response2 = rest.exchange(
                 projectUrl + "/{id}/tasks",
                 HttpMethod.DELETE,
@@ -1776,6 +1947,10 @@ public class ProjectControllerTest {
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.NO_CONTENT, response2.getStatusCode());
+
+        /*
+         * Проверяем, что задач у проекта больше нет.
+         * */
 
         ResponseEntity<SheetDto<TaskRD>> response3 = rest.exchange(
                 projectUrl + "/{id}/tasks",
@@ -1800,8 +1975,14 @@ public class ProjectControllerTest {
 
     @Test
     @Order(32)
-    @DisplayName("Тестируем удаление задач чужого проекта")
+    @DirtiesContext
+    @DisplayName("Тестируем DELETE /api/projects/{id}/tasks с чужим id : ошибка 403 запрещено")
     public void test32() {
+
+        /*
+         * Получаем первый проект пользователя алекс.
+         * */
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
 
@@ -1810,7 +1991,8 @@ public class ProjectControllerTest {
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1829,10 +2011,13 @@ public class ProjectControllerTest {
         Long projectId = project.id();
         assertNotNull(projectId);
 
+        /*
+         * Пытаемся удалить задачи у чужого проекта.
+         * */
+
         HttpHeaders headers2 = new HttpHeaders();
         headers2.setBearerAuth(ekaterinaToken);
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}/tasks",
@@ -1867,14 +2052,15 @@ public class ProjectControllerTest {
 
     @Test
     @Order(33)
-    @DisplayName("Тестируем удаление задач плохого проекта")
+    @DirtiesContext
+    @DisplayName("Тестируем DELETE /api/projects/{id}/tasks с некорректным id : ошибка 404 не найдено")
     public void test33() {
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
 
         Long projectId = Long.MAX_VALUE;
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     projectUrl + "/{id}/tasks",

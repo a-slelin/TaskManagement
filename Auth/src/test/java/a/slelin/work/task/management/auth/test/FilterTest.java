@@ -30,10 +30,10 @@ import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DisplayName("Тестируем фильтрацию")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class FilterTest {
 
     private static final String alexUUID = "ff80a205-67e1-4d22-b886-1be26e51ee9f";

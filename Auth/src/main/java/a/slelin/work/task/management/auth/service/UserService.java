@@ -47,26 +47,30 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserRD getById(@NotNull UUID id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundByIdException(User.class, id));
+    public UserRD getById(@NotNull @Valid UUID user) {
 
-        return userMapper.toDto(user);
+        User entity = userRepository.findById(user)
+                .orElseThrow(() -> new EntityNotFoundByIdException(User.class, user));
+
+        return userMapper.toDto(entity);
     }
 
     @Transactional(readOnly = true)
-    public UserRD getByFactor(@NotBlank String factor) {
-        User user = userRepository.findByFactor(factor)
-                .orElseThrow(() -> new EntityNotFoundByPropertyException(User.class,
-                        "factor (username, phone or email)", factor));
+    public UserRD getByFactor(@NotBlank String user) {
 
-        return userMapper.toDto(user);
+        User entity = userRepository.findByFactor(user)
+                .orElseThrow(() -> new EntityNotFoundByPropertyException(User.class,
+                        "factor (username, phone or email)", user));
+
+        return userMapper.toDto(entity);
     }
 
     @Transactional(readOnly = true)
     public SheetDto<UserRD> search(@NotNull @Valid FilterChain filters,
                                    @NotNull @Valid Pageable pageable) {
+
         Specification<User> specification = FilterUtil.toSpecification(filters);
+
         return SheetDto.of(userRepository.findAll(specification, pageable), userMapper::toDto);
     }
 
@@ -89,13 +93,14 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
-    public UserRD patch(@NotNull UUID id,
-                        @NotNull UUID actor,
+    public UserRD patch(@NotNull @Valid UUID user,
+                        @NotNull @Valid UUID actor,
                         @NotNull @Valid UserWD ptcUser) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundByIdException(User.class, id));
 
-        if (user.isAdmin() && !id.equals(actor)) {
+        User entity = userRepository.findById(user)
+                .orElseThrow(() -> new EntityNotFoundByIdException(User.class, user));
+
+        if (entity.isAdmin() && !user.equals(actor)) {
             throw new AdminActAdminException(AdminActAdminException.Operation.PATCH);
         }
 
@@ -111,25 +116,27 @@ public class UserService {
             throw new UniqueFieldEntityException(User.class, "email", ptcUser.email());
         }
 
-        user = userMapper.patch(user, ptcUser);
-        user = userRepository.save(user);
-        return userMapper.toDto(user);
+        entity = userMapper.patch(entity, ptcUser);
+        entity = userRepository.save(entity);
+        return userMapper.toDto(entity);
     }
 
-    public void delete(@NotNull UUID id,
-                       @NotNull UUID actor) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundByIdException(User.class, id));
+    public void delete(@NotNull @Valid UUID user,
+                       @NotNull @Valid UUID actor) {
 
-        if (user.isAdmin() && !id.equals(actor)) {
+        User entity = userRepository.findById(user)
+                .orElseThrow(() -> new EntityNotFoundByIdException(User.class, user));
+
+        if (entity.isAdmin() && !user.equals(actor)) {
             throw new AdminActAdminException(AdminActAdminException.Operation.DELETE);
         }
 
-        userRepository.deleteById(id);
+        userRepository.deleteById(user);
     }
 
-    public void grant(@NotNull UUID user,
+    public void grant(@NotNull @Valid UUID user,
                       @NotNull @Valid RoleCollection roles) {
+
         roles = RoleCollection.transform(roles);
 
         User entityUser = userRepository.findById(user)
@@ -145,9 +152,10 @@ public class UserService {
         userRepository.save(entityUser);
     }
 
-    public void revoke(@NotNull UUID user,
-                       @NotNull UUID actor,
+    public void revoke(@NotNull @Valid UUID user,
+                       @NotNull @Valid UUID actor,
                        @NotNull @Valid RoleCollection roles) {
+
         roles = RoleCollection.transform(roles);
 
         User entityUser = userRepository.findById(user)

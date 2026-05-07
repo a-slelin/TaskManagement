@@ -12,32 +12,31 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(
-        value = "/api/user",
-        consumes = {"application/json", "application/xml", "application/yaml"},
-        produces = {"application/json", "application/xml", "application/yaml"}
-)
 @RequiredArgsConstructor
+@RequestMapping(value = "/api/user",
+        consumes = {"application/json", "application/xml", "application/yaml"},
+        produces = {"application/json", "application/xml", "application/yaml"})
 public class UserController {
 
     private final UserService service;
 
     @GetMapping(consumes = "*/*")
     public UserRD getUser(@AuthenticationPrincipal Jwt jwt) {
-        return service.getById(extractUserId(jwt));
+        UUID user = extractUserId(jwt);
+        return service.getById(user);
     }
 
     @PatchMapping
     public UserRD patchUser(@RequestBody UserWD pthUser,
                             @AuthenticationPrincipal Jwt jwt) {
-        UUID id = extractUserId(jwt);
-        return service.patch(id, id, pthUser);
+        UUID user = extractUserId(jwt);
+        return service.patch(user, user, pthUser);
     }
 
     @DeleteMapping(consumes = "*/*", produces = "*/*")
     public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal Jwt jwt) {
-        UUID id = extractUserId(jwt);
-        service.delete(id, id);
+        UUID user = extractUserId(jwt);
+        service.delete(user, user);
         return ResponseEntity.noContent().build();
     }
 

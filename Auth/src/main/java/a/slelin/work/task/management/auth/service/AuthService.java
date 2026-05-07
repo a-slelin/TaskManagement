@@ -13,6 +13,7 @@ import a.slelin.work.task.management.core.dto.auth.LoginRequest;
 import a.slelin.work.task.management.core.dto.auth.UserWD;
 import a.slelin.work.task.management.core.exception.EntityNotFoundByPropertyException;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -48,6 +49,7 @@ public class AuthService {
     private final JwtService jwtService;
 
     public JwtResponse login(@NotNull @Valid LoginRequest login) {
+
         User user = userRepository.findByFactor(login.factor())
                 .orElseThrow(() -> new BadCredentialsException("Invalid factor or password."));
 
@@ -69,7 +71,7 @@ public class AuthService {
     }
 
     @Transactional(readOnly = true)
-    public JwtResponse refresh(@NotNull String refreshToken) {
+    public JwtResponse refresh(@NotBlank String refreshToken) {
 
         if (refreshToken.startsWith("Bearer")) {
             refreshToken = refreshToken.substring("Bearer".length()).trim();
@@ -91,7 +93,7 @@ public class AuthService {
         return new JwtResponse(accessToken, refreshToken);
     }
 
-    public void logout(@NotNull String refreshToken) {
+    public void logout(@NotBlank String refreshToken) {
 
         if (refreshToken.startsWith("Bearer")) {
             refreshToken = refreshToken.substring("Bearer".length()).trim();
@@ -112,10 +114,12 @@ public class AuthService {
     }
 
     public JwtResponse register(@NotNull @Valid UserWD newUser) {
+
         User user = userMapper.toEntity(newUser);
 
         Role role = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new EntityNotFoundByPropertyException(Role.class, "name", "ROLE_USER"));
+                .orElseThrow(() -> new RuntimeException("Role 'ROLE_USER' was not found",
+                        new EntityNotFoundByPropertyException(Role.class, "name", "ROLE_USER")));
         Set<Role> roles = new HashSet<>();
         roles.add(role);
         user.setRoles(roles);
@@ -135,7 +139,7 @@ public class AuthService {
         return new JwtResponse(accessToken, refreshToken);
     }
 
-    public void logoutAll(@NotNull String refreshToken) {
+    public void logoutAll(@NotBlank String refreshToken) {
 
         if (refreshToken.startsWith("Bearer")) {
             refreshToken = refreshToken.substring("Bearer".length()).trim();

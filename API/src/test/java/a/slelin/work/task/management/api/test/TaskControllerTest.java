@@ -26,10 +26,11 @@ import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
-@DisplayName("Тест контроллера задач")
+@DisplayName("Тестируем TaskController")
+@SuppressWarnings("CatchMayIgnoreException")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class TaskControllerTest {
 
     @Autowired
@@ -64,11 +65,11 @@ public class TaskControllerTest {
     @Test
     @Order(1)
     @DirtiesContext
-    @DisplayName("Неавторизованный пользователь не может обращаться к задачам")
+    @DisplayName("Тестируем GET /api/tasks/{id} с неавторизированным пользователем : ошибка 401 неавторизован")
     public void test1() {
 
         /*
-         * Получаем первый проект алекса.
+         * Получаем первый проект пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -128,10 +129,10 @@ public class TaskControllerTest {
         assertNotNull(taskId);
 
         /*
-         * Пытаемся получить задачу по идентификатору.
+         * Пытаемся получить задачу по идентификатору
+         * не передавая токен доступа.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}",
@@ -167,11 +168,11 @@ public class TaskControllerTest {
     @Test
     @Order(2)
     @DirtiesContext
-    @DisplayName("Пользователь может обращаться к задачам")
+    @DisplayName("Тестируем GET /api/tasks/{id} с авторизованным пользователем : успех")
     public void test2() {
 
         /*
-         * Получаем первый проект алекса.
+         * Получаем первый проект пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -249,10 +250,11 @@ public class TaskControllerTest {
     @Test
     @Order(3)
     @DirtiesContext
-    @DisplayName("Администратор может обращаться к проектам")
+    @DisplayName("Тестируем GET /api/tasks/{id} с администратором : успех")
     public void test3() {
+
         /*
-         * Получаем первый проект алекса.
+         * Получаем первый проект администратора.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -330,11 +332,11 @@ public class TaskControllerTest {
     @Test
     @Order(4)
     @DirtiesContext
-    @DisplayName("Тестируем получение задачи по идентификатору")
+    @DisplayName("Тестируем GET /api/tasks/{id} : успех")
     public void test4() {
 
         /*
-         * Получаем первый проект алекса.
+         * Получаем первый проект пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -416,11 +418,12 @@ public class TaskControllerTest {
     @Test
     @Order(5)
     @DirtiesContext
-    @DisplayName("Тестируем получение задачи по плохому идентификатору")
+    @DisplayName("Тестируем GET /api/tasks/{id} с некорректным id : ошибка 404 не найдено")
     public void test5() {
 
         /*
-         * Пытаемся получить задачу по плохому идентификатору.
+         * Пытаемся получить задачу по некорректному идентификатору
+         * у пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -428,7 +431,6 @@ public class TaskControllerTest {
 
         Long taskId = Long.MAX_VALUE;
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}",
@@ -464,11 +466,11 @@ public class TaskControllerTest {
     @Test
     @Order(6)
     @DirtiesContext
-    @DisplayName("Тестируем получение чужой задачи по идентификатору")
+    @DisplayName("Тестируем GET /api/tasks/{id} с чужим id : ошибка 403 запрещено")
     public void test6() {
 
         /*
-         * Получаем первый проект алекса.
+         * Получаем первый проект пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -528,13 +530,13 @@ public class TaskControllerTest {
         assertNotNull(taskId);
 
         /*
-         * Получаем задачу по идентификатору.
+         * Пытаемся получить чужую задачу
+         * по идентификатору.
          * */
 
         HttpHeaders headers2 = new HttpHeaders();
         headers2.setBearerAuth(ekaterinaToken);
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}",
@@ -570,8 +572,13 @@ public class TaskControllerTest {
     @Test
     @Order(7)
     @DirtiesContext
-    @DisplayName("Тестируем получение задач по фильтру")
+    @DisplayName("Тестируем POST /api/tasks/search : успех")
     public void test7() {
+
+        /*
+         * Ищем все задачи пользователя алекс,
+         * которые находятся в процессе.
+         * */
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
@@ -611,11 +618,12 @@ public class TaskControllerTest {
     @Test
     @Order(8)
     @DirtiesContext
-    @DisplayName("Тестируем получение задач по плохому фильтру")
+    @DisplayName("Тестируем POST /api/tasks/search с некорректным фильтром : ошибка 400 плохой запрос")
     public void test8() {
 
         /*
-         * Пытаемся получить задачи по плохому фильтру.
+         * Пытаемся получить задачи по некорректному фильтру
+         * у пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -625,7 +633,6 @@ public class TaskControllerTest {
                 .empty()
                 .add(Filter.of("bad", Operation.EQ, "some"));
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/search",
@@ -661,11 +668,11 @@ public class TaskControllerTest {
     @Test
     @Order(9)
     @DirtiesContext
-    @DisplayName("Тестируем полное обновление задачи по идентификатору")
+    @DisplayName("Тестируем PUT /api/tasks/{id} : успех")
     public void test9() {
 
         /*
-         * Получаем первый проект алекса.
+         * Получаем первый проект пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -778,11 +785,11 @@ public class TaskControllerTest {
     @Test
     @Order(10)
     @DirtiesContext
-    @DisplayName("Тестируем полное обновление плохой задачи по идентификатору")
+    @DisplayName("Тестируем PUT /api/tasks/{id} c некорректной задачей : ошибка 400 плохой запрос")
     public void test10() {
 
         /*
-         * Получаем первый проект алекса.
+         * Получаем первый проект пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -842,7 +849,7 @@ public class TaskControllerTest {
         assertNotNull(taskId);
 
         /*
-         * Пытаемся обновить плохую задачу по идентификатору.
+         * Пытаемся обновить некорректную задачу по идентификатору.
          * */
 
         TaskWD updTask = TaskWD.builder()
@@ -851,7 +858,6 @@ public class TaskControllerTest {
                 .description("some_description")
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}",
@@ -887,11 +893,12 @@ public class TaskControllerTest {
     @Test
     @Order(11)
     @DirtiesContext
-    @DisplayName("Тестируем полное обновление задачи по плохому идентификатору")
+    @DisplayName("Тестируем PUT /api/tasks/{id} c некорректным id : ошибка 404 не найдено")
     public void test11() {
 
         /*
-         * Пытаемся обновить задачу по плохому идентификатору.
+         * Пытаемся обновить задачу пользователя алекс
+         * по некорректному идентификатору.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -905,7 +912,6 @@ public class TaskControllerTest {
                 .description("some_description")
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}",
@@ -941,11 +947,11 @@ public class TaskControllerTest {
     @Test
     @Order(12)
     @DirtiesContext
-    @DisplayName("Тестируем полное обновление чужой задачи по идентификатору")
+    @DisplayName("Тестируем PUT /api/tasks/{id} с чужим id : ошибка 403 запрещено")
     public void test12() {
 
         /*
-         * Получаем первый проект алекса.
+         * Получаем первый проект пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -1017,7 +1023,6 @@ public class TaskControllerTest {
                 .description("some_description")
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}",
@@ -1053,11 +1058,11 @@ public class TaskControllerTest {
     @Test
     @Order(13)
     @DirtiesContext
-    @DisplayName("Тестируем уникальные поля при полном обновлении задачи по идентификатору")
+    @DisplayName("Тестируем PUT /api/tasks/{id} c некорректной задачей (уникальные поля) : ошибка 409 конфликт")
     public void test13() {
 
         /*
-         * Получаем первый проект алекса.
+         * Получаем первый проект пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -1123,7 +1128,8 @@ public class TaskControllerTest {
         assertNotNull(task2Title);
 
         /*
-         * Пытаемся обновить задачу по идентификатору с существующей задачей.
+         * Пытаемся обновить задачу по идентификатору
+         * с заголовком, который уже есть у этого проекта.
          * */
 
         TaskWD updTask = TaskWD.builder()
@@ -1132,7 +1138,6 @@ public class TaskControllerTest {
                 .description("some_description")
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}",
@@ -1168,11 +1173,11 @@ public class TaskControllerTest {
     @Test
     @Order(14)
     @DirtiesContext
-    @DisplayName("Тестируем частичное обновление задачи по идентификатору")
+    @DisplayName("Тестируем PATCH /api/tasks/{id} : успех")
     public void test14() {
 
         /*
-         * Получаем первый проект алекса.
+         * Получаем первый проект пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -1262,7 +1267,7 @@ public class TaskControllerTest {
         assertEquals(updTask.description(), task2.description());
 
         /*
-         * Проверяем, что задача полностью была обновлена.
+         * Проверяем, что задача была обновлена.
          * */
 
         ResponseEntity<TaskRD> response4 = rest.exchange(
@@ -1284,11 +1289,11 @@ public class TaskControllerTest {
     @Test
     @Order(15)
     @DirtiesContext
-    @DisplayName("Тестируем частичное обновление плохой задачи по идентификатору")
+    @DisplayName("Тестируем PATCH /api/tasks/{id} с некорректной задачей : ошибка 400 плохой запрос")
     public void test15() {
 
         /*
-         * Получаем первый проект алекса.
+         * Получаем первый проект пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -1355,7 +1360,6 @@ public class TaskControllerTest {
                 .status("some_status")
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}",
@@ -1391,11 +1395,12 @@ public class TaskControllerTest {
     @Test
     @Order(16)
     @DirtiesContext
-    @DisplayName("Тестируем частичное обновление задачи по плохому идентификатору")
+    @DisplayName("Тестируем PATCH /api/tasks/{id} с некорректным id : ошибка 404 не найдено")
     public void test16() {
 
         /*
-         * Пытаемся обновить задачу по плохому идентификатору.
+         * Пытаемся обновить задачу пользователя алекс
+         * по некорректному идентификатору.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -1408,7 +1413,6 @@ public class TaskControllerTest {
                 .description("some_description")
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}",
@@ -1444,11 +1448,11 @@ public class TaskControllerTest {
     @Test
     @Order(17)
     @DirtiesContext
-    @DisplayName("Тестируем частичное обновление чужой задачи по идентификатору")
+    @DisplayName("Тестируем PATCH /api/tasks/{id} с чужим id : ошибка 403 запрещено")
     public void test17() {
 
         /*
-         * Получаем первый проект алекса.
+         * Получаем первый проект пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -1519,7 +1523,6 @@ public class TaskControllerTest {
                 .description("some_description")
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}",
@@ -1555,11 +1558,11 @@ public class TaskControllerTest {
     @Test
     @Order(18)
     @DirtiesContext
-    @DisplayName("Тестируем уникальные поля при частичном обновлении задачи по идентификатору")
+    @DisplayName("Тестируем PATCH /api/tasks/{id} с некорректной задачей (уникальные поля) : ошибка 409 конфликт")
     public void test18() {
 
         /*
-         * Получаем первый проект алекса.
+         * Получаем первый проект пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -1625,14 +1628,15 @@ public class TaskControllerTest {
         assertNotNull(task2Title);
 
         /*
-         * Пытаемся обновить задачу по идентификатору с существующей задачей.
+         * Пытаемся обновить задачу по идентификатору
+         * с заголовком, который уже есть у другой задачи
+         * в этом проекте.
          * */
 
         TaskWD updTask = TaskWD.builder()
                 .title(task2Title)
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}",
@@ -1668,11 +1672,11 @@ public class TaskControllerTest {
     @Test
     @Order(19)
     @DirtiesContext
-    @DisplayName("Тестируем перенос задачи с проекта на проект")
+    @DisplayName("Тестируем PATCH /api/tasks/{id}/project/{projectId} : успех")
     public void test19() {
 
         /*
-         * Получаем проекты алекса.
+         * Получаем проекты пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -1824,11 +1828,11 @@ public class TaskControllerTest {
     @Test
     @Order(20)
     @DirtiesContext
-    @DisplayName("Тестируем перенос задачи с проекта на проект : задача не найдена")
+    @DisplayName("Тестируем PATCH /api/tasks/{id}/project/{projectId} с некорректным id : ошибка 404 не найдено")
     public void test20() {
 
         /*
-         * Получаем проекты алекса.
+         * Получаем проекты пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -1865,12 +1869,12 @@ public class TaskControllerTest {
         assertNotNull(project2Id);
 
         /*
-         * Переносим задачу на второй проект.
+         * Пытаемся перенести задачу с некорректным
+         * идентификатором.
          * */
 
         Long taskId = Long.MAX_VALUE;
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}/project/{projectId}",
@@ -1907,11 +1911,11 @@ public class TaskControllerTest {
     @Test
     @Order(21)
     @DirtiesContext
-    @DisplayName("Тестируем перенос задачи с проекта на проект : проект не найден")
+    @DisplayName("Тестируем PATCH /api/tasks/{id}/project/{projectId} с некорректным projectId : ошибка 404 не найдено")
     public void test21() {
 
         /*
-         * Получаем проекты алекса.
+         * Получаем проекты пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -1972,12 +1976,12 @@ public class TaskControllerTest {
         assertNotNull(taskId);
 
         /*
-         * Переносим задачу на второй проект.
+         * Пытаемся перенести задачу на проект
+         * с некорректным идентификатором.
          * */
 
         Long project2Id = Long.MAX_VALUE;
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}/project/{projectId}",
@@ -2014,11 +2018,11 @@ public class TaskControllerTest {
     @Test
     @Order(22)
     @DirtiesContext
-    @DisplayName("Тестируем перенос задачи с проекта на чужой проект")
+    @DisplayName("Тестируем PATCH /api/tasks/{id}/project/{projectId} с чужим projectId : ошибка 403 запрещено")
     public void test22() {
 
         /*
-         * Получаем проекты алекса.
+         * Получаем проекты пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -2114,7 +2118,6 @@ public class TaskControllerTest {
          * Пытаемся перенести задачу с проекта на чужой проект.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}/project/{projectId}",
@@ -2151,11 +2154,11 @@ public class TaskControllerTest {
     @Test
     @Order(23)
     @DirtiesContext
-    @DisplayName("Тестируем перенос чужой задачи с чужого проекта на проект")
+    @DisplayName("Тестируем PATCH /api/tasks/{id}/project/{projectId} с чужим id : ошибка 403 запрещено")
     public void test23() {
 
         /*
-         * Получаем проекты алекса.
+         * Получаем проекты пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -2248,10 +2251,10 @@ public class TaskControllerTest {
         assertNotNull(project2Id);
 
         /*
-         * Пытаемся перенести задачу с проекта на чужой проект.
+         * Пытаемся перенести чужую задачу
+         * с чужого проекта на свой проект.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}/project/{projectId}",
@@ -2288,11 +2291,11 @@ public class TaskControllerTest {
     @Test
     @Order(24)
     @DirtiesContext
-    @DisplayName("Тестируем перенос задачи с проекта на тот же самый проект")
+    @DisplayName("Тестируем PATCH /api/tasks/{id}/project/{projectId} с тем же самым projectId : успех")
     public void test24() {
 
         /*
-         * Получаем проекты алекса.
+         * Получаем проекты пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -2410,11 +2413,11 @@ public class TaskControllerTest {
     @Test
     @Order(25)
     @DirtiesContext
-    @DisplayName("Тестируем перенос задачи с проекта на проект : нарушена уникальность полей")
+    @DisplayName("Тестируем PATCH /api/tasks/{id}/project/{projectId} с нарушением уникальности полей : ошибка 409 конфликт")
     public void test25() {
 
         /*
-         * Получаем проекты алекса.
+         * Получаем проекты пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -2532,7 +2535,6 @@ public class TaskControllerTest {
          * Нарушаем уникальность колонок в бд.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}/project/{projectId}",
@@ -2569,11 +2571,11 @@ public class TaskControllerTest {
     @Test
     @Order(26)
     @DirtiesContext
-    @DisplayName("Тестируем удаление задачи")
+    @DisplayName("Тестируем DELETE /api/tasks/{id} : успех")
     public void test26() {
 
         /*
-         * Получаем проекты алекса.
+         * Получаем проекты пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -2657,7 +2659,6 @@ public class TaskControllerTest {
          * Проверяем, что задача была удалена.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}",
@@ -2693,11 +2694,11 @@ public class TaskControllerTest {
     @Test
     @Order(27)
     @DirtiesContext
-    @DisplayName("Тестируем удаление задачи по плохому идентификатору")
+    @DisplayName("Тестируем DELETE /api/tasks/{id} с некорректным id : ошибка 404 не найдено")
     public void test27() {
 
         /*
-         * Пытаемся удалить задачу по плохому идентификатору.
+         * Пытаемся удалить задачу по некорректному идентификатору.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -2705,7 +2706,6 @@ public class TaskControllerTest {
 
         Long taskId = Long.MAX_VALUE;
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}",
@@ -2741,11 +2741,11 @@ public class TaskControllerTest {
     @Test
     @Order(28)
     @DirtiesContext
-    @DisplayName("Тестируем удаление чужой задачи")
+    @DisplayName("Тестируем DELETE /api/tasks/{id} с чужим id : ошибка 403 запрещено")
     public void test28() {
 
         /*
-         * Получаем проекты алекса.
+         * Получаем проекты пользователя алекс.
          * */
 
         HttpHeaders headers = new HttpHeaders();
@@ -2817,7 +2817,6 @@ public class TaskControllerTest {
         HttpHeaders headers2 = new HttpHeaders();
         headers2.setBearerAuth(ekaterinaToken);
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     taskUrl + "/{id}",

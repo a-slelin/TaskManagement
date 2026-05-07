@@ -58,8 +58,8 @@ public class SecurityConfig {
                         .requestMatchers("/images/**", "/css/**", "/js/**")
                         .permitAll())
 
-                .authorizeHttpRequests(auth -> auth.
-                        requestMatchers("/api/projects/**", "/api/tasks/**")
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/projects/**", "/api/tasks/**")
                         .hasRole("USER"))
 
                 .authorizeHttpRequests(auth -> auth

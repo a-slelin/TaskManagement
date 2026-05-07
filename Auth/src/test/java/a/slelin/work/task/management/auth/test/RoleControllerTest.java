@@ -27,8 +27,9 @@ import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
+@DisplayName("Тестируем RoleController")
+@SuppressWarnings("CatchMayIgnoreException")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@DisplayName("Тест контроллера, отвечающего за роли")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class RoleControllerTest {
@@ -52,9 +53,9 @@ public class RoleControllerTest {
     @Test
     @Order(1)
     @DirtiesContext
-    @DisplayName("Не авторизованный пользователь не может обращаться к ролям")
+    @DisplayName("Тестируем GET /api/admin/roles с неавторизованным пользователем : ошибка 401 неавторизован")
     public void test1() {
-        //noinspection CatchMayIgnoreException
+
         try {
             rest.exchange(
                     apiUrl,
@@ -90,15 +91,21 @@ public class RoleControllerTest {
     @Test
     @Order(2)
     @DirtiesContext
-    @DisplayName("Обычный пользователь не может обращаться к ролям")
+    @DisplayName("Тестируем GET /api/admin/roles с авторизованным пользователем : ошибка 403 запрещено")
     public void test2() {
+
+        /*
+         * Логинимся под пользователем алекс.
+         * */
+
         LoginRequest login = new LoginRequest("alex_petrov", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -111,7 +118,10 @@ public class RoleControllerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.accessToken());
 
-        //noinspection CatchMayIgnoreException
+        /*
+         * Пытаемся получить все роли.
+         * */
+
         try {
             rest.exchange(
                     apiUrl,
@@ -147,15 +157,21 @@ public class RoleControllerTest {
     @Test
     @Order(3)
     @DirtiesContext
-    @DisplayName("Администратор может обращаться к ролям")
+    @DisplayName("Тестируем GET /api/admin/roles с администратором : успех")
     public void test3() {
+
+        /*
+         * Логинимся под администратором.
+         * */
+
         LoginRequest login = new LoginRequest("admin", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -167,6 +183,10 @@ public class RoleControllerTest {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.accessToken());
+
+        /*
+         * Получаем все роли.
+         * */
 
         ResponseEntity<SheetDto<RoleRD>> response2 = rest.exchange(
                 apiUrl,
@@ -183,15 +203,21 @@ public class RoleControllerTest {
     @Test
     @Order(4)
     @DirtiesContext
-    @DisplayName("Тестируем получение всех ролей")
+    @DisplayName("Тестируем GET /api/admin/roles : успех")
     public void test4() {
+
+        /*
+         * Логинимся под администратором.
+         * */
+
         LoginRequest login = new LoginRequest("admin", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -203,6 +229,10 @@ public class RoleControllerTest {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.accessToken());
+
+        /*
+         * Получаем все роли.
+         * */
 
         ResponseEntity<SheetDto<RoleRD>> response2 = rest.exchange(
                 apiUrl,
@@ -246,15 +276,21 @@ public class RoleControllerTest {
     @Test
     @Order(5)
     @DirtiesContext
-    @DisplayName("Тестируем получение роли по идентификатору")
+    @DisplayName("Тестируем GET /api/admin/roles/{id} : успех")
     public void test5() {
+
+        /*
+         * Логинимся под администратором.
+         * */
+
         LoginRequest login = new LoginRequest("admin", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -266,6 +302,10 @@ public class RoleControllerTest {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.accessToken());
+
+        /*
+         * Получаем все роли.
+         * */
 
         ResponseEntity<SheetDto<RoleRD>> response2 = rest.exchange(
                 apiUrl,
@@ -289,12 +329,18 @@ public class RoleControllerTest {
         assertNotNull(role.id());
         assertNotNull(role.name());
 
+        /*
+         * Получаем роль по идентификатору.
+         * */
+
         ResponseEntity<RoleRD> response3 = rest.exchange(
                 apiUrl + "/{id}",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 RoleRD.class,
-                role.id());
+                role.id()
+
+        );
         assertNotNull(response3);
         assertNotNull(response3.getStatusCode());
         assertEquals(HttpStatus.OK, response3.getStatusCode());
@@ -310,15 +356,21 @@ public class RoleControllerTest {
     @Test
     @Order(6)
     @DirtiesContext
-    @DisplayName("Тестируем получение роли по имени (ROLE_USER)")
+    @DisplayName("Тестируем GET /api/admin/roles/name/{name} : успех")
     public void test6() {
+
+        /*
+         * Логинимся под администратором.
+         * */
+
         LoginRequest login = new LoginRequest("admin", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -331,11 +383,16 @@ public class RoleControllerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.accessToken());
 
+        /*
+         * Получаем роль по имени.
+         * */
+
         ResponseEntity<RoleRD> response2 = rest.exchange(
                 apiUrl + "/name/ROLE_USER",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                RoleRD.class);
+                RoleRD.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -350,15 +407,21 @@ public class RoleControllerTest {
     @Test
     @Order(7)
     @DirtiesContext
-    @DisplayName("Тестируем получение ролей по фильтру")
+    @DisplayName("Тестируем POST /api/admin/roles/search : успех")
     public void test7() {
+
+        /*
+         * Логинимся под администратором.
+         * */
+
         LoginRequest login = new LoginRequest("admin", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -371,6 +434,10 @@ public class RoleControllerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.accessToken());
 
+        /*
+         * Получаем роли по фильтру.
+         * */
+
         FilterChain filters = FilterChain.empty();
         filters.add(Filter.of("name", Operation.STARTS_WITH, "ROLE_"));
         filters.add(Filter.of("name", Operation.LIKE, "US"));
@@ -380,7 +447,8 @@ public class RoleControllerTest {
                 HttpMethod.POST,
                 new HttpEntity<>(filters, headers),
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -403,15 +471,21 @@ public class RoleControllerTest {
     @Test
     @Order(8)
     @DirtiesContext
-    @DisplayName("Тестируем создание роли")
+    @DisplayName("Тестируем POST /api/admin/roles : успех")
     public void test8() {
+
+        /*
+         * Логинимся под администратором.
+         * */
+
         LoginRequest login = new LoginRequest("admin", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -424,13 +498,18 @@ public class RoleControllerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.accessToken());
 
+        /*
+         * Создаем новую роль.
+         * */
+
         RoleWD role = new RoleWD("ROLE_OPERATOR", "Operate something...");
 
         ResponseEntity<RoleRD> response2 = rest.exchange(
                 apiUrl,
                 HttpMethod.POST,
                 new HttpEntity<>(role, headers),
-                RoleRD.class);
+                RoleRD.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.CREATED, response2.getStatusCode());
@@ -442,6 +521,10 @@ public class RoleControllerTest {
         assertEquals(role.name(), savedRole.name());
         assertNotNull(savedRole.description());
         assertEquals(role.description(), savedRole.description());
+
+        /*
+         * Проверяем корректность url.
+         * */
 
         HttpHeaders headers2 = response2.getHeaders();
         assertNotNull(headers2);
@@ -456,7 +539,8 @@ public class RoleControllerTest {
                 location,
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                RoleRD.class);
+                RoleRD.class
+        );
         assertNotNull(response3);
         assertNotNull(response3.getStatusCode());
         assertEquals(HttpStatus.OK, response3.getStatusCode());
@@ -474,15 +558,21 @@ public class RoleControllerTest {
     @Test
     @Order(9)
     @DirtiesContext
-    @DisplayName("Тестируем полное обновление роли")
+    @DisplayName("Тестируем PUT /api/admin/roles/{id} : успех")
     public void test9() {
+
+        /*
+         * Логинимся под администратором.
+         * */
+
         LoginRequest login = new LoginRequest("admin", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -495,13 +585,18 @@ public class RoleControllerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.accessToken());
 
+        /*
+         * Создаем новую роль.
+         * */
+
         RoleWD role = new RoleWD("ROLE_OPERATOR", "Operate something...");
 
         ResponseEntity<RoleRD> response2 = rest.exchange(
                 apiUrl,
                 HttpMethod.POST,
                 new HttpEntity<>(role, headers),
-                RoleRD.class);
+                RoleRD.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.CREATED, response2.getStatusCode());
@@ -513,6 +608,10 @@ public class RoleControllerTest {
         assertEquals(role.name(), savedRole.name());
         assertNotNull(savedRole.description());
         assertEquals(role.description(), savedRole.description());
+
+        /*
+         * Проверяем корректность url.
+         * */
 
         HttpHeaders headers2 = response2.getHeaders();
         assertNotNull(headers2);
@@ -527,7 +626,8 @@ public class RoleControllerTest {
                 location,
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                RoleRD.class);
+                RoleRD.class
+        );
         assertNotNull(response3);
         assertNotNull(response3.getStatusCode());
         assertEquals(HttpStatus.OK, response3.getStatusCode());
@@ -541,13 +641,18 @@ public class RoleControllerTest {
         assertNotNull(roleById.description());
         assertEquals(savedRole.description(), roleById.description());
 
+        /*
+         * Обновляем роль.
+         * */
+
         RoleWD updRole = new RoleWD("ROLE_OPERATOR_UPD", "Operate something...UPD");
 
         ResponseEntity<RoleRD> response4 = rest.exchange(
                 location,
                 HttpMethod.PUT,
                 new HttpEntity<>(updRole, headers),
-                RoleRD.class);
+                RoleRD.class
+        );
         assertNotNull(response4);
         assertNotNull(response4.getStatusCode());
         assertEquals(HttpStatus.OK, response4.getStatusCode());
@@ -565,8 +670,13 @@ public class RoleControllerTest {
     @Test
     @Order(10)
     @DirtiesContext
-    @DisplayName("Тестируем патчинг роли")
+    @DisplayName("Тестируем PATCH /api/admin/roles/{id} : успех")
     public void test10() {
+
+        /*
+         * Логинимся под администратором.
+         * */
+
         LoginRequest login = new LoginRequest("admin", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
@@ -586,13 +696,18 @@ public class RoleControllerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.accessToken());
 
+        /*
+         * Создаем новую роль.
+         * */
+
         RoleWD role = new RoleWD("ROLE_OPERATOR", "Operate something...");
 
         ResponseEntity<RoleRD> response2 = rest.exchange(
                 apiUrl,
                 HttpMethod.POST,
                 new HttpEntity<>(role, headers),
-                RoleRD.class);
+                RoleRD.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.CREATED, response2.getStatusCode());
@@ -604,6 +719,10 @@ public class RoleControllerTest {
         assertEquals(role.name(), savedRole.name());
         assertNotNull(savedRole.description());
         assertEquals(role.description(), savedRole.description());
+
+        /*
+         * Проверяем корректность url.
+         * */
 
         HttpHeaders headers2 = response2.getHeaders();
         assertNotNull(headers2);
@@ -618,7 +737,8 @@ public class RoleControllerTest {
                 location,
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                RoleRD.class);
+                RoleRD.class
+        );
         assertNotNull(response3);
         assertNotNull(response3.getStatusCode());
         assertEquals(HttpStatus.OK, response3.getStatusCode());
@@ -632,13 +752,18 @@ public class RoleControllerTest {
         assertNotNull(roleById.description());
         assertEquals(savedRole.description(), roleById.description());
 
+        /*
+         * Обновляем роль.
+         * */
+
         RoleWD updRole = new RoleWD("ROLE_OPERATOR_UPD", null);
 
         ResponseEntity<RoleRD> response4 = rest.exchange(
                 location,
                 HttpMethod.PATCH,
                 new HttpEntity<>(updRole, headers),
-                RoleRD.class);
+                RoleRD.class
+        );
         assertNotNull(response4);
         assertNotNull(response4.getStatusCode());
         assertEquals(HttpStatus.OK, response4.getStatusCode());
@@ -656,15 +781,21 @@ public class RoleControllerTest {
     @Test
     @Order(11)
     @DirtiesContext
-    @DisplayName("Тестируем удаление роли")
+    @DisplayName("Тестируем DELETE /api/admin/roles/{id} : успех")
     public void test11() {
+
+        /*
+         * Логинимся под администратором.
+         * */
+
         LoginRequest login = new LoginRequest("admin", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -677,13 +808,18 @@ public class RoleControllerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.accessToken());
 
+        /*
+         * Создаем новую роль.
+         * */
+
         RoleWD role = new RoleWD("ROLE_OPERATOR", "Operate something...");
 
         ResponseEntity<RoleRD> response2 = rest.exchange(
                 apiUrl,
                 HttpMethod.POST,
                 new HttpEntity<>(role, headers),
-                RoleRD.class);
+                RoleRD.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.CREATED, response2.getStatusCode());
@@ -695,6 +831,10 @@ public class RoleControllerTest {
         assertEquals(role.name(), savedRole.name());
         assertNotNull(savedRole.description());
         assertEquals(role.description(), savedRole.description());
+
+        /*
+         * Проверяем корректность url.
+         * */
 
         HttpHeaders headers2 = response2.getHeaders();
         assertNotNull(headers2);
@@ -709,7 +849,8 @@ public class RoleControllerTest {
                 location,
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                RoleRD.class);
+                RoleRD.class
+        );
         assertNotNull(response3);
         assertNotNull(response3.getStatusCode());
         assertEquals(HttpStatus.OK, response3.getStatusCode());
@@ -723,11 +864,16 @@ public class RoleControllerTest {
         assertNotNull(roleById.description());
         assertEquals(savedRole.description(), roleById.description());
 
+        /*
+         * Удаляем роль.
+         * */
+
         ResponseEntity<Void> response4 = rest.exchange(
                 location,
                 HttpMethod.DELETE,
                 new HttpEntity<>(headers),
-                Void.class);
+                Void.class
+        );
         assertNotNull(response4);
         assertNotNull(response4.getStatusCode());
         assertEquals(HttpStatus.NO_CONTENT, response4.getStatusCode());
@@ -738,21 +884,28 @@ public class RoleControllerTest {
                         HttpMethod.GET,
                         new HttpEntity<>(headers),
                         RoleRD.class
-                ));
+                )
+        );
     }
 
     @Test
     @Order(12)
     @DirtiesContext
-    @DisplayName("Тестируем полное обновление системной роли : ошибка")
+    @DisplayName("Тестируем PUT /api/admin/roles/{id} с id системной роли : ошибка 422 необрабатываемый контент")
     public void test12() {
+
+        /*
+         * Логинимся под администратором.
+         * */
+
         LoginRequest login = new LoginRequest("admin", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -765,11 +918,16 @@ public class RoleControllerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.accessToken());
 
+        /*
+         * Получаем пользовательскую роль.
+         * */
+
         ResponseEntity<RoleRD> response2 = rest.exchange(
                 apiUrl + "/name/ROLE_USER",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                RoleRD.class);
+                RoleRD.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -777,6 +935,10 @@ public class RoleControllerTest {
         RoleRD role = response2.getBody();
         assertNotNull(role);
         assertNotNull(role.id());
+
+        /*
+         * Пытаемся обновить пользовательскую роль.
+         * */
 
         RoleWD updRole = new RoleWD("ROLE_USER_UPD", "Some new description");
 
@@ -787,7 +949,8 @@ public class RoleControllerTest {
                     HttpMethod.PUT,
                     new HttpEntity<>(updRole, headers),
                     RoleRD.class,
-                    role.id());
+                    role.id()
+            );
             fail("Should throw HttpClientErrorException.UnprocessableContent");
 
         } catch (HttpClientErrorException.UnprocessableContent e) {
@@ -815,15 +978,21 @@ public class RoleControllerTest {
     @Test
     @Order(13)
     @DirtiesContext
-    @DisplayName("Тестируем патчинг роли : ошибка")
+    @DisplayName("Тестируем PATCH /api/admin/roles/{id} с id системной роли : ошибка 422 необрабатываемый контент")
     public void test13() {
+
+        /*
+         * Логинимся под администратором.
+         * */
+
         LoginRequest login = new LoginRequest("admin", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -836,11 +1005,16 @@ public class RoleControllerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.accessToken());
 
+        /*
+         * Получаем роль пользователя.
+         * */
+
         ResponseEntity<RoleRD> response2 = rest.exchange(
                 apiUrl + "/name/ROLE_USER",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                RoleRD.class);
+                RoleRD.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -849,9 +1023,12 @@ public class RoleControllerTest {
         assertNotNull(role);
         assertNotNull(role.id());
 
+        /*
+         * Пытаемся обновить роль пользователя.
+         * */
+
         RoleWD updRole = new RoleWD("ROLE_USER_UPD", "Some new description");
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}",
@@ -886,15 +1063,21 @@ public class RoleControllerTest {
     @Test
     @Order(14)
     @DirtiesContext
-    @DisplayName("Тестируем патчинг роли : успех - обновляем только описание")
+    @DisplayName("Тестируем PATCH /api/admin/roles/{id} : успех")
     public void test14() {
+
+        /*
+         * Логинимся под администратором.
+         * */
+
         LoginRequest login = new LoginRequest("admin", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -907,11 +1090,16 @@ public class RoleControllerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.accessToken());
 
+        /*
+         * Получаем роль пользователя.
+         * */
+
         ResponseEntity<RoleRD> response2 = rest.exchange(
                 apiUrl + "/name/ROLE_USER",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                RoleRD.class);
+                RoleRD.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -920,6 +1108,10 @@ public class RoleControllerTest {
         assertNotNull(role);
         assertNotNull(role.id());
 
+        /*
+         * Обновляем роль пользователя (только описание)
+         * */
+
         RoleWD updRole = new RoleWD(null, "Some new description");
 
         ResponseEntity<RoleRD> response3 = rest.exchange(
@@ -927,7 +1119,8 @@ public class RoleControllerTest {
                 HttpMethod.PATCH,
                 new HttpEntity<>(updRole, headers),
                 RoleRD.class,
-                role.id());
+                role.id()
+        );
         assertNotNull(response3);
         assertNotNull(response3.getStatusCode());
         assertEquals(HttpStatus.OK, response3.getStatusCode());
@@ -944,15 +1137,21 @@ public class RoleControllerTest {
     @Test
     @Order(15)
     @DirtiesContext
-    @DisplayName("Тестируем удаление системной роли : ошибка")
+    @DisplayName("Тестируем DELETE /api/admin/roles/{id} с id системной роли : ошибка 422 необрабатываемый контент")
     public void test15() {
+
+        /*
+         * Логинимся под администратором.
+         * */
+
         LoginRequest login = new LoginRequest("admin", "password");
 
         ResponseEntity<JwtResponse> response = rest.exchange(
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -965,11 +1164,16 @@ public class RoleControllerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.accessToken());
 
+        /*
+         * Получаем роль пользователь.
+         * */
+
         ResponseEntity<RoleRD> response2 = rest.exchange(
                 apiUrl + "/name/ROLE_USER",
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
-                RoleRD.class);
+                RoleRD.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -978,14 +1182,18 @@ public class RoleControllerTest {
         assertNotNull(role);
         assertNotNull(role.id());
 
-        //noinspection CatchMayIgnoreException
+        /*
+         * Пытаемся удалить роль пользователя.
+         * */
+
         try {
             rest.exchange(
                     apiUrl + "/{id}",
                     HttpMethod.DELETE,
                     new HttpEntity<>(headers),
                     Void.class,
-                    role.id());
+                    role.id()
+            );
             fail("Should throw HttpClientErrorException.UnprocessableContent");
 
         } catch (HttpClientErrorException.UnprocessableContent e) {

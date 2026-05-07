@@ -17,7 +17,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -41,25 +40,29 @@ public class RolesService {
     }
 
     @Transactional(readOnly = true)
-    public RoleRD getRoleById(@NotNull @Min(1) Long id) {
-        Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundByIdException(Role.class, id));
+    public RoleRD getRoleById(@NotNull @Min(1) Long role) {
 
-        return roleMapper.toDTO(role);
+        Role entity = roleRepository.findById(role)
+                .orElseThrow(() -> new EntityNotFoundByIdException(Role.class, role));
+
+        return roleMapper.toDTO(entity);
     }
 
     @Transactional(readOnly = true)
-    public RoleRD getRoleByName(@NotBlank @Pattern(regexp = "^ROLE_[A-Z_]+$") String name) {
-        Role role = roleRepository.findByName(name)
-                .orElseThrow(() -> new EntityNotFoundByPropertyException(Role.class, "name", name));
+    public RoleRD getRoleByName(@NotBlank String role) {
 
-        return roleMapper.toDTO(role);
+        Role entity = roleRepository.findByName(role)
+                .orElseThrow(() -> new EntityNotFoundByPropertyException(Role.class, "name", role));
+
+        return roleMapper.toDTO(entity);
     }
 
     @Transactional(readOnly = true)
     public SheetDto<RoleRD> searchRoles(@NotNull @Valid FilterChain filters,
                                         @NotNull @Valid Pageable pageable) {
+
         Specification<Role> specification = FilterUtil.toSpecification(filters);
+
         return SheetDto.of(roleRepository.findAll(specification, pageable), roleMapper::toDTO);
     }
 
@@ -74,50 +77,53 @@ public class RolesService {
         return roleMapper.toDTO(role);
     }
 
-    public RoleRD updateRole(@NotNull @Min(1) Long id,
+    public RoleRD updateRole(@NotNull @Min(1) Long role,
                              @NotNull @Valid RoleWD updRole) {
-        Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundByIdException(Role.class, id));
 
-        UpdateNameSystemRoleException.checkAndThrow(role);
+        Role entity = roleRepository.findById(role)
+                .orElseThrow(() -> new EntityNotFoundByIdException(Role.class, role));
+
+        UpdateNameSystemRoleException.checkAndThrow(entity);
 
         if (roleRepository.existsByName(updRole.name())) {
             throw new UniqueFieldEntityException(Role.class, "name", updRole.name());
         }
 
         Role updatedRole = roleMapper.toEntity(updRole);
-        updatedRole.setId(id);
-        updatedRole.setUsers(role.getUsers());
+        updatedRole.setId(role);
+        updatedRole.setUsers(entity.getUsers());
         updatedRole = roleRepository.save(updatedRole);
 
         return roleMapper.toDTO(updatedRole);
     }
 
-    public RoleRD patchRole(@NotNull @Min(1) Long id,
+    public RoleRD patchRole(@NotNull @Min(1) Long role,
                             @NotNull @Valid RoleWD ptcRole) {
-        Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundByIdException(Role.class, id));
+
+        Role entity = roleRepository.findById(role)
+                .orElseThrow(() -> new EntityNotFoundByIdException(Role.class, role));
 
         if (ptcRole.name() != null) {
-            UpdateNameSystemRoleException.checkAndThrow(role);
+            UpdateNameSystemRoleException.checkAndThrow(entity);
 
             if (roleRepository.existsByName(ptcRole.name())) {
                 throw new UniqueFieldEntityException(Role.class, "name", ptcRole.name());
             }
         }
 
-        role = roleMapper.patch(role, ptcRole);
-        role = roleRepository.save(role);
+        entity = roleMapper.patch(entity, ptcRole);
+        entity = roleRepository.save(entity);
 
-        return roleMapper.toDTO(role);
+        return roleMapper.toDTO(entity);
     }
 
-    public void deleteRole(@NotNull @Min(1) Long id) {
-        Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundByIdException(Role.class, id));
+    public void deleteRole(@NotNull @Min(1) Long role) {
 
-        DeleteSystemRoleException.checkAndThrow(role);
+        Role entity = roleRepository.findById(role)
+                .orElseThrow(() -> new EntityNotFoundByIdException(Role.class, role));
 
-        roleRepository.deleteById(id);
+        DeleteSystemRoleException.checkAndThrow(entity);
+
+        roleRepository.deleteById(role);
     }
 }

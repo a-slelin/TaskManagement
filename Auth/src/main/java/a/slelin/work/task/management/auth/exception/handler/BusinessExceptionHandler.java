@@ -32,7 +32,7 @@ public class BusinessExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
                 .body(ErrorResponse.buildDefault(e, request)
                         .httpStatus(HttpStatus.UNPROCESSABLE_CONTENT)
-                        .debugMessage("Admin cannot influence on another admin.")
+                        .debugMessage("Admin cannot influence on another admin")
                         .build());
     }
 
@@ -42,7 +42,7 @@ public class BusinessExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
                 .body(ErrorResponse.buildDefault(e, request)
                         .httpStatus(HttpStatus.UNPROCESSABLE_CONTENT)
-                        .debugMessage("Updating of system role's name '%s' is denied.".formatted(e.getRole()))
+                        .debugMessage("Updating of system role's name '%s' is denied".formatted(e.getRole()))
                         .details(Map.of(
                                 "role", e.getRole()
                         ))
@@ -55,7 +55,7 @@ public class BusinessExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
                 .body(ErrorResponse.buildDefault(e, request)
                         .httpStatus(HttpStatus.UNPROCESSABLE_CONTENT)
-                        .debugMessage("Removing of system role '%s' is denied.".formatted(e.getRole()))
+                        .debugMessage("Removing of system role '%s' is denied".formatted(e.getRole()))
                         .details(Map.of(
                                 "role", e.getRole()
                         ))
@@ -68,7 +68,7 @@ public class BusinessExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
                 .body(ErrorResponse.buildDefault(e, request)
                         .httpStatus(HttpStatus.UNPROCESSABLE_CONTENT)
-                        .debugMessage("Modifying of system role '%s' is denied.".formatted(e.getRole()))
+                        .debugMessage("Modifying of system role '%s' is denied".formatted(e.getRole()))
                         .details(Map.of(
                                 "role", e.getRole()
                         ))

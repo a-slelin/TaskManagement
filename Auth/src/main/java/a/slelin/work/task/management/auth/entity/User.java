@@ -33,7 +33,9 @@ public class User extends Audit {
     @NotNull
     @Size(min = 3, max = 50)
     @Pattern(regexp = "[A-Za-z0-9._-]+")
-    @Column(length = 50, nullable = false, unique = true)
+    @Column(length = 50,
+            nullable = false,
+            unique = true)
     private String username;
 
     @NotBlank
@@ -54,12 +56,14 @@ public class User extends Audit {
 
     @Phone
     @Size(min = 5, max = 15)
-    @Column(length = 15, unique = true)
+    @Column(length = 15,
+            unique = true)
     private String phone;
 
     @Email
     @Size(min = 5, max = 50)
-    @Column(length = 50, unique = true)
+    @Column(length = 50,
+            unique = true)
     private String email;
 
     @ToString.Exclude
@@ -74,10 +78,12 @@ public class User extends Audit {
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @OneToMany(fetch = FetchType.LAZY,
+    @OneToMany(
             mappedBy = "user",
             orphanRemoval = true,
-            cascade = CascadeType.REMOVE)
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.REMOVE
+    )
     private Set<RefreshToken> refreshTokens;
 
     @SuppressWarnings("unused")

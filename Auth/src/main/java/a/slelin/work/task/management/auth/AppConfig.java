@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
 @EnableScheduling
-@Import({BaseHandlers.class, ExceptionLogging.class})
 @EnableConfigurationProperties(JwtHolder.class)
+@Import({BaseHandlers.class, ExceptionLogging.class})
 public class AppConfig {
 }

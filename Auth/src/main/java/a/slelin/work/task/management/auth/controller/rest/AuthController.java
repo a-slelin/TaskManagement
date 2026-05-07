@@ -10,11 +10,9 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(
-        value = "/auth",
+@RequestMapping(value = "/auth",
         consumes = {"application/json", "application/xml", "application/yaml"},
-        produces = {"application/json", "application/xml", "application/yaml"}
-)
+        produces = {"application/json", "application/xml", "application/yaml"})
 public class AuthController {
 
     private final AuthService service;

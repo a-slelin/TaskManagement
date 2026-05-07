@@ -54,7 +54,6 @@ public class SecurityConfig {
     @Bean
     public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
             Collection<GrantedAuthority> authorities = new ArrayList<>();
             List<String> roles = jwt.getClaimAsStringList("roles");
@@ -65,7 +64,6 @@ public class SecurityConfig {
             }
             return authorities;
         });
-
         return converter;
     }
 
@@ -130,6 +128,7 @@ public class SecurityConfig {
                         .jwt(jwt -> jwt
                                 .decoder(jwtDecoder())
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())))
+
                 .build();
     }
 }

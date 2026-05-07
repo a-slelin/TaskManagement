@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ActiveProfiles("test")
-@DisplayName("Тест информационного контроллера")
+@DisplayName("Тестируем InfoController")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -47,8 +47,9 @@ public class InfoControllerTest {
     @Test
     @Order(1)
     @DirtiesContext
-    @DisplayName("Неавторизованный пользователь может обращаться к информации")
+    @DisplayName("Тестируем GET /help с неавторизованным пользователем : успех")
     public void test1() {
+
         ResponseEntity<Map<String, Object>> response = rest.exchange(
                 baseUrl + "/help",
                 HttpMethod.GET,
@@ -64,8 +65,9 @@ public class InfoControllerTest {
     @Test
     @Order(2)
     @DirtiesContext
-    @DisplayName("Пользователь может обращаться к информации")
+    @DisplayName("Тестируем GET /help с авторизованным пользователем : успех")
     public void test2() {
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(alexToken);
 
@@ -84,8 +86,9 @@ public class InfoControllerTest {
     @Test
     @Order(3)
     @DirtiesContext
-    @DisplayName("Администратор может обращаться к информации")
+    @DisplayName("Тестируем GET /help с администратором : успех")
     public void test3() {
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(adminToken);
 
@@ -104,14 +107,16 @@ public class InfoControllerTest {
     @Test
     @Order(4)
     @DirtiesContext
-    @DisplayName("Тестируем путь /help")
+    @DisplayName("Тестируем GET /help : успех")
     public void test4() {
+
         ResponseEntity<Map<String, Object>> response = rest.exchange(
                 baseUrl + "/help",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -124,7 +129,8 @@ public class InfoControllerTest {
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -136,14 +142,16 @@ public class InfoControllerTest {
     @Test
     @Order(5)
     @DirtiesContext
-    @DisplayName("Тестируем путь /info")
+    @DisplayName("Тестируем GET /info : успех")
     public void test5() {
+
         ResponseEntity<Map<String, Object>> response = rest.exchange(
                 baseUrl + "/info",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -156,7 +164,8 @@ public class InfoControllerTest {
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -168,14 +177,16 @@ public class InfoControllerTest {
     @Test
     @Order(6)
     @DirtiesContext
-    @DisplayName("Тестируем путь /api")
+    @DisplayName("Тестируем GET /api : успех")
     public void test6() {
+
         ResponseEntity<Map<String, Object>> response = rest.exchange(
                 baseUrl + "/api",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -188,7 +199,8 @@ public class InfoControllerTest {
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -200,14 +212,16 @@ public class InfoControllerTest {
     @Test
     @Order(7)
     @DirtiesContext
-    @DisplayName("Тестируем путь /api/help")
+    @DisplayName("Тестируем GET /api/help : успех")
     public void test7() {
+
         ResponseEntity<Map<String, Object>> response = rest.exchange(
                 baseUrl + "/api/help",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -216,11 +230,12 @@ public class InfoControllerTest {
         assertNotNull(body);
 
         ResponseEntity<Map<String, Object>> response2 = rest.exchange(
-                baseUrl + "/api/help",
+                baseUrl + "/api/help/",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -232,14 +247,16 @@ public class InfoControllerTest {
     @Test
     @Order(8)
     @DirtiesContext
-    @DisplayName("Тестируем путь /api/info")
+    @DisplayName("Тестируем GET /api/info : успех")
     public void test8() {
+
         ResponseEntity<Map<String, Object>> response = rest.exchange(
                 baseUrl + "/api/info",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -248,11 +265,12 @@ public class InfoControllerTest {
         assertNotNull(body);
 
         ResponseEntity<Map<String, Object>> response2 = rest.exchange(
-                baseUrl + "/api/info",
+                baseUrl + "/api/info/",
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {
-                });
+                }
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());

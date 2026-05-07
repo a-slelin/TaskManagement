@@ -41,6 +41,7 @@ public class RefreshTokenService {
 
     @Transactional(readOnly = true)
     public RefreshTokenRD getById(@NotNull @Valid UUID id) {
+
         RefreshToken token = refreshTokenRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundByIdException(RefreshToken.class, id));
 
@@ -50,6 +51,7 @@ public class RefreshTokenService {
     @Transactional(readOnly = true)
     public SheetDto<RefreshTokenRD> getByUser(@NotNull @Valid UUID user,
                                               @NotNull @Valid Pageable pageable) {
+
         if (!userRepository.existsById(user)) {
             throw new EntityNotFoundByIdException(User.class, user);
         }
@@ -60,11 +62,14 @@ public class RefreshTokenService {
     @Transactional(readOnly = true)
     public SheetDto<RefreshTokenRD> getByFilter(@NotNull @Valid FilterChain filters,
                                                 @NotNull @Valid Pageable pageable) {
+
         Specification<RefreshToken> specification = FilterUtil.toSpecification(filters);
+
         return SheetDto.of(refreshTokenRepository.findAll(specification, pageable), refreshTokenMapper::toDTO);
     }
 
     public void deleteById(@NotNull @Valid UUID id) {
+
         RefreshToken token = refreshTokenRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundByIdException(RefreshToken.class, id));
 
@@ -76,6 +81,7 @@ public class RefreshTokenService {
     }
 
     public void deleteByUser(@NotNull @Valid UUID user) {
+
         User userEntity = userRepository.findById(user)
                 .orElseThrow(() -> new EntityNotFoundByIdException(User.class, user));
 

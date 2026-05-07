@@ -42,13 +42,16 @@ public class RefreshToken {
     private LocalDateTime createdAt;
 
     @NotNull
-    @Column(nullable = false, name = "expiry_date")
+    @Column(nullable = false,
+            name = "expiry_date")
     private LocalDateTime expiryDate;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER,
+            optional = false)
+    @JoinColumn(name = "user_id",
+            nullable = false)
     private User user;
 
     @PrePersist

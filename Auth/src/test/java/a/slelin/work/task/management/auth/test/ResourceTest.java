@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
-@DisplayName("Тест получения ресурсов (img, css, js)")
+@DisplayName("Тестируем получение ресурсов (img, css, js)")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ResourceTest {
 
@@ -43,6 +43,7 @@ public class ResourceTest {
     @Test
     @DisplayName("Тестируем получение картинки логотипа - logo.jpg")
     public void testLogo() {
+
         String image = "logo.jpg";
 
         ResponseEntity<byte[]> response = rest.exchange(
@@ -51,7 +52,8 @@ public class ResourceTest {
                 null,
                 byte[].class,
                 IMAGES_FOLDER_NAME,
-                image);
+                image
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -66,7 +68,8 @@ public class ResourceTest {
                 null,
                 byte[].class,
                 IMAGES_FOLDER_NAME,
-                image);
+                image
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -79,6 +82,7 @@ public class ResourceTest {
     @Test
     @DisplayName("Тестируем получение картинки иконки - icon.svg")
     public void testIcon() {
+
         String image = "icon.svg";
 
         ResponseEntity<byte[]> response = rest.exchange(
@@ -87,7 +91,8 @@ public class ResourceTest {
                 null,
                 byte[].class,
                 IMAGES_FOLDER_NAME,
-                image);
+                image
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -102,7 +107,8 @@ public class ResourceTest {
                 null,
                 byte[].class,
                 IMAGES_FOLDER_NAME,
-                image);
+                image
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());

@@ -25,10 +25,11 @@ import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
+@SuppressWarnings("CatchMayIgnoreException")
+@DisplayName("Тестируем UserAdminController")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@DisplayName("Тест контроллера, отвечающего за управление пользователями администратором")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class UserAdminControllerTest {
 
     @Autowired
@@ -50,14 +51,9 @@ public class UserAdminControllerTest {
     @Test
     @Order(1)
     @DirtiesContext
-    @DisplayName("Не авторизованный пользователь не может обращаться к пользователям")
+    @DisplayName("Тестируем GET /api/admin/users с неавторизованным пользователем : ошибка 401 неавторизован")
     public void test1() {
 
-        /*
-         * Пытаемся получить доступ к пользователям.
-         * */
-
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl,
@@ -93,7 +89,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(2)
     @DirtiesContext
-    @DisplayName("Обычный пользователь не может обращаться к пользователям")
+    @DisplayName("Тестируем GET /api/admin/users с авторизованным пользователем : ошибка 403 запрещено")
     public void test2() {
 
         /*
@@ -106,7 +102,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -123,7 +120,6 @@ public class UserAdminControllerTest {
          * Пытаемся получить доступ к пользователям.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl,
@@ -159,7 +155,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(3)
     @DirtiesContext
-    @DisplayName("Администратор может обращаться к пользователям")
+    @DisplayName("Тестируем GET /api/admin/users с администратором : успех")
     public void test3() {
 
         /*
@@ -172,7 +168,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -204,7 +201,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(4)
     @DirtiesContext
-    @DisplayName("Тестируем получение всех пользователей")
+    @DisplayName("Тестируем GET /api/admin/users : успех")
     public void test4() {
 
         /*
@@ -217,7 +214,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -263,7 +261,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(5)
     @DirtiesContext
-    @DisplayName("Тестируем получение пользователя по идентификатору")
+    @DisplayName("Тестируем GET /api/admin/users/{id} : успех")
     public void test5() {
 
         /*
@@ -276,7 +274,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -340,7 +339,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(6)
     @DirtiesContext
-    @DisplayName("Тестируем получение пользователя по плохому идентификатору")
+    @DisplayName("Тестируем GET /api/admin/users/{id} с некорректным id : ошибка 404 не найдено")
     public void test6() {
 
         /*
@@ -353,7 +352,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -367,12 +367,11 @@ public class UserAdminControllerTest {
         headers.setBearerAuth(jwtResponse.accessToken());
 
         /*
-         * Пытаемся получить доступ к пользователю по плохому идентификатору.
+         * Пытаемся получить доступ к пользователю по некорректному идентификатору.
          * */
 
         String userId = UUID.randomUUID().toString();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}",
@@ -409,7 +408,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(7)
     @DirtiesContext
-    @DisplayName("Тестируем получение пользователя по имени в системе")
+    @DisplayName("Тестируем GET /api/admin/users/factor/{factor} с factor как имя : успех")
     public void test7() {
 
         /*
@@ -422,7 +421,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -460,7 +460,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(8)
     @DirtiesContext
-    @DisplayName("Тестируем получение пользователя по телефону")
+    @DisplayName("Тестируем GET /api/admin/users/factor/{factor} с factor как телефон : успех")
     public void test8() {
 
         /*
@@ -473,7 +473,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -544,7 +545,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(9)
     @DirtiesContext
-    @DisplayName("Тестируем получение пользователя по электронной почте")
+    @DisplayName("Тестируем GET /api/admin/users/factor/{factor} с factor как почта : успех")
     public void test9() {
 
         /*
@@ -557,7 +558,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -628,7 +630,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(10)
     @DirtiesContext
-    @DisplayName("Тестируем получение всех пользователей по фильтру")
+    @DisplayName("Тестируем POST /api/admin/users/search : успех")
     public void test10() {
 
         /*
@@ -641,7 +643,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -692,7 +695,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(11)
     @DirtiesContext
-    @DisplayName("Тестируем получение всех пользователей по плохому фильтру")
+    @DisplayName("Тестируем POST /api/admin/users/search с некорректным фильтром : ошибка 400 плохой запрос")
     public void test11() {
 
         /*
@@ -705,7 +708,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -726,7 +730,6 @@ public class UserAdminControllerTest {
                 .empty()
                 .add(Filter.of("invalid", Operation.IS_NOT_NULL));
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/search",
@@ -762,7 +765,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(12)
     @DirtiesContext
-    @DisplayName("Тестируем создание нового пользователя")
+    @DisplayName("Тестируем POST /api/admin/users : успех")
     public void test12() {
 
         /*
@@ -775,7 +778,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -854,7 +858,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(13)
     @DirtiesContext
-    @DisplayName("Тестируем уникальность имени в системе")
+    @DisplayName("Тестируем POST /api/admin/users с нарушением уникальности имени в системе : ошибка 409 конфликт")
     public void test13() {
 
         /*
@@ -867,7 +871,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -928,7 +933,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(14)
     @DirtiesContext
-    @DisplayName("Тестируем уникальность телефона в системе")
+    @DisplayName("Тестируем POST /api/admin/users с нарушением уникальности телефона в системе : ошибка 409 конфликт")
     public void test14() {
 
         /*
@@ -941,7 +946,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1002,7 +1008,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(15)
     @DirtiesContext
-    @DisplayName("Тестируем уникальность электронной почты в системе")
+    @DisplayName("Тестируем POST /api/admin/users с нарушением уникальности почты в системе : ошибка 409 конфликт")
     public void test15() {
 
         /*
@@ -1015,7 +1021,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1040,7 +1047,6 @@ public class UserAdminControllerTest {
                 .email("alex.petrov@google.com")
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl,
@@ -1076,7 +1082,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(16)
     @DirtiesContext
-    @DisplayName("Тестируем патчинг обычного пользователя")
+    @DisplayName("Тестируем PATCH /api/admin/users/{id} : успех")
     public void test16() {
 
         /*
@@ -1089,7 +1095,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1173,7 +1180,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(17)
     @DirtiesContext
-    @DisplayName("Тестируем патчинг обычного пользователя по плохому идентификатору")
+    @DisplayName("Тестируем PATCH /api/admin/users/{id} c некорректным id : ошибка 404 не найдено")
     public void test17() {
 
         /*
@@ -1186,7 +1193,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1210,7 +1218,6 @@ public class UserAdminControllerTest {
                 .email("email@google.com")
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}",
@@ -1246,7 +1253,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(18)
     @DirtiesContext
-    @DisplayName("Тестируем патчинг другого администратора")
+    @DisplayName("Тестируем PATCH /api/admin/users/{id} c id администратора : ошибка 422 необрабатываемый контент")
     public void test18() {
 
         /*
@@ -1259,7 +1266,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1282,7 +1290,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -1323,7 +1332,6 @@ public class UserAdminControllerTest {
                 .email("email@google.com")
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}",
@@ -1359,7 +1367,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(19)
     @DirtiesContext
-    @DisplayName("Тестируем патчинг самого себя")
+    @DisplayName("Тестируем PATCH /api/admin/users/{id} c id своим же : успех")
     public void test19() {
 
         /*
@@ -1372,7 +1380,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1438,7 +1447,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(20)
     @DirtiesContext
-    @DisplayName("Тестируем уникальность имени в системе при патчинге")
+    @DisplayName("Тестируем PATCH /api/admin/users/{id} c нарушением уникальности имени : ошибка 409 конфликт")
     public void test20() {
 
         /*
@@ -1451,7 +1460,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1509,7 +1519,6 @@ public class UserAdminControllerTest {
                 .username("alex_petrov")
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}",
@@ -1545,7 +1554,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(21)
     @DirtiesContext
-    @DisplayName("Тестируем уникальность телефона в системе при патчинге")
+    @DisplayName("Тестируем PATCH /api/admin/users/{id} c нарушением уникальности телефона : ошибка 409 конфликт")
     public void test21() {
 
         /*
@@ -1558,7 +1567,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1616,7 +1626,6 @@ public class UserAdminControllerTest {
                 .phone("+79051234567")
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}",
@@ -1652,7 +1661,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(22)
     @DirtiesContext
-    @DisplayName("Тестируем уникальность электронной почты в системе при патчинге")
+    @DisplayName("Тестируем PATCH /api/admin/users/{id} c нарушением уникальности почты : ошибка 409 конфликт")
     public void test22() {
 
         /*
@@ -1665,7 +1674,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1723,7 +1733,6 @@ public class UserAdminControllerTest {
                 .email("alex.petrov@google.com")
                 .build();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}",
@@ -1759,7 +1768,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(23)
     @DirtiesContext
-    @DisplayName("Тестируем удаление обычного пользователя")
+    @DisplayName("Тестируем DELETE /api/admin/users/{id} : успех")
     public void test23() {
 
         /*
@@ -1772,7 +1781,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1795,7 +1805,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -1846,7 +1857,6 @@ public class UserAdminControllerTest {
          * Проверяем, что аккаунт удален.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     baseUrl + "/api/user",
@@ -1881,7 +1891,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(24)
     @DirtiesContext
-    @DisplayName("Тестируем удаление обычного пользователя по плохому идентификатору")
+    @DisplayName("Тестируем DELETE /api/admin/users/{id} с некорректным id : ошибка 404 не найдено")
     public void test24() {
 
         /*
@@ -1894,7 +1904,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1913,7 +1924,6 @@ public class UserAdminControllerTest {
 
         String userId = UUID.randomUUID().toString();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}",
@@ -1949,7 +1959,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(25)
     @DirtiesContext
-    @DisplayName("Тестируем удаление другого администратора")
+    @DisplayName("Тестируем DELETE /api/admin/users/{id} с id администратора : ошибка 422 необрабатываемый контент")
     public void test25() {
 
         /*
@@ -1962,7 +1972,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -1985,7 +1996,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -2021,7 +2033,6 @@ public class UserAdminControllerTest {
          * Пытаемся удалить администратора
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}",
@@ -2057,7 +2068,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(26)
     @DirtiesContext
-    @DisplayName("Тестируем удаление себя же")
+    @DisplayName("Тестируем DELETE /api/admin/users/{id} с id своим же : ошибка 422 необрабатываемый контент")
     public void test26() {
 
         /*
@@ -2070,7 +2081,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -2121,7 +2133,6 @@ public class UserAdminControllerTest {
          * Проверяем, что аккаунт удален.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     baseUrl + "/api/user",
@@ -2156,7 +2167,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(27)
     @DirtiesContext
-    @DisplayName("Тестируем назначение новой роли")
+    @DisplayName("Тестируем PATCH /api/admin/users/{id}/grant : успех")
     public void test27() {
 
         /*
@@ -2169,7 +2180,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -2192,7 +2204,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -2228,7 +2241,6 @@ public class UserAdminControllerTest {
          * Проверяем, что у пользователя нет роли администратора.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl,
@@ -2287,7 +2299,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login3),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response5);
         assertNotNull(response5.getStatusCode());
         assertEquals(HttpStatus.OK, response5.getStatusCode());
@@ -2319,7 +2332,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(28)
     @DirtiesContext
-    @DisplayName("Тестируем назначение новой роли по имени")
+    @DisplayName("Тестируем PATCH /api/admin/users/{id}/grant/{roleName} : успех")
     public void test28() {
 
         /*
@@ -2332,7 +2345,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -2355,7 +2369,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -2391,7 +2406,6 @@ public class UserAdminControllerTest {
          * Проверяем, что у пользователя нет роли администратора.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl,
@@ -2449,7 +2463,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login3),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response5);
         assertNotNull(response5.getStatusCode());
         assertEquals(HttpStatus.OK, response5.getStatusCode());
@@ -2481,7 +2496,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(29)
     @DirtiesContext
-    @DisplayName("Тестируем идемпотентность назначения новой роли")
+    @DisplayName("Тестируем PATCH /api/admin/users/{id}/grant/{roleName} с roleName уже есть : успех")
     public void test29() {
 
         /*
@@ -2494,7 +2509,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -2517,7 +2533,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -2569,7 +2586,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(30)
     @DirtiesContext
-    @DisplayName("Тестируем множественное назначение ролей")
+    @DisplayName("Тестируем PATCH /api/admin/users/{id}/grant с несколькими ролями : успех")
     public void test30() {
 
         /*
@@ -2582,7 +2599,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -2605,7 +2623,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -2641,7 +2660,6 @@ public class UserAdminControllerTest {
          * Проверяем, что у пользователя нет роли администратора.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl,
@@ -2732,7 +2750,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(31)
     @DirtiesContext
-    @DisplayName("Тестируем назначение новой роли с плохим пользователем")
+    @DisplayName("Тестируем PATCH /api/admin/users/{id}/grant с некорректным id : ошибка 404 не найдено")
     public void test31() {
 
         /*
@@ -2745,7 +2763,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -2765,7 +2784,6 @@ public class UserAdminControllerTest {
         String userId = UUID.randomUUID().toString();
         RoleCollection roles = RoleCollection.of("ROLE_ADMIN");
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}/grant",
@@ -2801,7 +2819,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(32)
     @DirtiesContext
-    @DisplayName("Тестируем назначение плохой роли")
+    @DisplayName("Тестируем PATCH /api/admin/users/{id}/grant/{roleName} с некорректным roleName : ошибка 404 не найдено")
     public void test32() {
 
         /*
@@ -2814,7 +2832,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -2837,7 +2856,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -2873,7 +2893,6 @@ public class UserAdminControllerTest {
          * Пытаемся назначить плохую роль.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}/grant/{name}",
@@ -2910,7 +2929,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(33)
     @DirtiesContext
-    @DisplayName("Тестируем удаление роли у пользователя")
+    @DisplayName("Тестируем DELETE /api/admin/users/{id}/revoke : успех")
     public void test33() {
 
         /*
@@ -2923,7 +2942,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -2962,7 +2982,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response3);
         assertNotNull(response3.getStatusCode());
         assertEquals(HttpStatus.OK, response3.getStatusCode());
@@ -3031,7 +3052,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(34)
     @DirtiesContext
-    @DisplayName("Тестируем удаление роли у пользователя по имени")
+    @DisplayName("Тестируем DELETE /api/admin/users/{id}/revoke/{roleName} : успех")
     public void test34() {
 
         /*
@@ -3044,7 +3065,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -3083,7 +3105,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response3);
         assertNotNull(response3.getStatusCode());
         assertEquals(HttpStatus.OK, response3.getStatusCode());
@@ -3151,7 +3174,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(35)
     @DirtiesContext
-    @DisplayName("Тестируем удаление роли у плохого пользователя")
+    @DisplayName("Тестируем DELETE /api/admin/users/{id}/revoke c некорректным id : ошибка 404 не найдено")
     public void test35() {
 
         /*
@@ -3164,7 +3187,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -3203,7 +3227,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response3);
         assertNotNull(response3.getStatusCode());
         assertEquals(HttpStatus.OK, response3.getStatusCode());
@@ -3257,7 +3282,6 @@ public class UserAdminControllerTest {
 
         String badUserId = UUID.randomUUID().toString();
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}/revoke/{name}",
@@ -3294,7 +3318,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(36)
     @DirtiesContext
-    @DisplayName("Тестируем удаление плохой роли пользователя")
+    @DisplayName("Тестируем DELETE /api/admin/users/{id}/revoke/{roleName} c некорректным roleName : ошибка 404 не найдено")
     public void test36() {
 
         /*
@@ -3307,7 +3331,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -3330,7 +3355,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -3366,7 +3392,6 @@ public class UserAdminControllerTest {
          * Отбираем у пользователя несуществующую роль.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}/revoke/{name}",
@@ -3403,7 +3428,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(37)
     @DirtiesContext
-    @DisplayName("Тестируем удаление роли у администратора")
+    @DisplayName("Тестируем DELETE /api/admin/users/{id}/revoke c id администратора : ошибка 422 необрабатываемый контент")
     public void test37() {
 
         /*
@@ -3416,7 +3441,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -3439,7 +3465,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response3);
         assertNotNull(response3.getStatusCode());
         assertEquals(HttpStatus.OK, response3.getStatusCode());
@@ -3475,7 +3502,6 @@ public class UserAdminControllerTest {
          * Пытаемся удалить роль у администратора.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}/revoke/{name}",
@@ -3512,7 +3538,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(38)
     @DirtiesContext
-    @DisplayName("Тестируем удаление роли у себя же")
+    @DisplayName("Тестируем DELETE /api/admin/users/{id}/revoke c id своим же : ошибка 422 необрабатываемый контент")
     public void test38() {
 
         /*
@@ -3525,7 +3551,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -3598,7 +3625,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response5);
         assertNotNull(response5.getStatusCode());
         assertEquals(HttpStatus.OK, response5.getStatusCode());
@@ -3615,7 +3643,6 @@ public class UserAdminControllerTest {
          * Проверяем, что администратор теперь не имеет роль администратора.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl,
@@ -3651,7 +3678,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(39)
     @DirtiesContext
-    @DisplayName("Тестируем удаление роли пользователя у пользователя")
+    @DisplayName("Тестируем DELETE /api/admin/users/{id}/revoke/{roleName} c roleName пользователь : ошибка 422 необрабатываемый контент")
     public void test39() {
 
         /*
@@ -3664,7 +3691,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -3687,7 +3715,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -3723,7 +3752,6 @@ public class UserAdminControllerTest {
          * Пытаемся отобрать у пользователя роль пользователя.
          * */
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     apiUrl + "/{id}/revoke/{name}",
@@ -3760,7 +3788,7 @@ public class UserAdminControllerTest {
     @Test
     @Order(40)
     @DirtiesContext
-    @DisplayName("Тестируем идемпотентность удаления роли у пользователя")
+    @DisplayName("Тестируем DELETE /api/admin/users/{id}/revoke/{roleName} c roleName уже есть : успех")
     public void test40() {
 
         /*
@@ -3773,7 +3801,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -3796,7 +3825,8 @@ public class UserAdminControllerTest {
                 baseUrl + "/auth/login",
                 HttpMethod.POST,
                 new HttpEntity<>(login2),
-                JwtResponse.class);
+                JwtResponse.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());

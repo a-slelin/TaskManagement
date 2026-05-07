@@ -21,10 +21,10 @@ import java.net.URI;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = "/api/projects",
         produces = {"application/json", "application/xml", "application/yaml"},
         consumes = {"application/json", "application/xml", "application/yaml"})
-@RequiredArgsConstructor
 public class ProjectController {
 
     private final ProjectService service;
@@ -32,34 +32,38 @@ public class ProjectController {
     private final TaskService taskService;
 
     @GetMapping(consumes = "*/*")
-    public SheetDto<ProjectRD> getProjects(@AuthenticationPrincipal Jwt jwt,
-                                           @PageableDefault(sort = "name") Pageable pageable) {
-        return service.getUserProjects(extractUserId(jwt), pageable);
+    public SheetDto<ProjectRD> getProjects(@PageableDefault(sort = "name") Pageable pageable,
+                                           @AuthenticationPrincipal Jwt jwt) {
+        UUID user = extractUserId(jwt);
+        return service.getUserProjects(user, pageable);
     }
 
     @GetMapping(path = "/{project}", consumes = "*/*")
-    public ProjectRD getProject(@AuthenticationPrincipal Jwt jwt,
-                                @PathVariable Long project) {
-        return service.getUserProject(extractUserId(jwt), project);
+    public ProjectRD getProject(@PathVariable Long project,
+                                @AuthenticationPrincipal Jwt jwt) {
+        UUID user = extractUserId(jwt);
+        return service.getUserProject(user, project);
     }
 
     @GetMapping(path = "/{project}/tasks", consumes = "*/*")
-    public SheetDto<TaskRD> getProjectTasks(@AuthenticationPrincipal Jwt jwt,
+    public SheetDto<TaskRD> getProjectTasks(@PathVariable Long project,
                                             @PageableDefault(sort = "title") Pageable pageable,
-                                            @PathVariable Long project) {
-        return service.getUserProjectTasks(extractUserId(jwt), project, pageable);
+                                            @AuthenticationPrincipal Jwt jwt) {
+        UUID user = extractUserId(jwt);
+        return service.getUserProjectTasks(user, project, pageable);
     }
 
     @PostMapping({"/search", "/filter"})
-    public SheetDto<ProjectRD> searchProjects(@AuthenticationPrincipal Jwt jwt,
+    public SheetDto<ProjectRD> searchProjects(@RequestBody FilterChain filters,
                                               @PageableDefault(sort = "name") Pageable pageable,
-                                              @RequestBody FilterChain filters) {
-        return service.searchUserProjects(extractUserId(jwt), filters, pageable);
+                                              @AuthenticationPrincipal Jwt jwt) {
+        UUID user = extractUserId(jwt);
+        return service.searchUserProjects(user, filters, pageable);
     }
 
     @PostMapping
-    public ResponseEntity<ProjectRD> createProject(@AuthenticationPrincipal Jwt jwt,
-                                                   @RequestBody ProjectWD newProject) {
+    public ResponseEntity<ProjectRD> createProject(@RequestBody ProjectWD newProject,
+                                                   @AuthenticationPrincipal Jwt jwt) {
         UUID user = extractUserId(jwt);
 
         ProjectRD savedProject = service.createUserProject(user, newProject);
@@ -74,9 +78,9 @@ public class ProjectController {
     }
 
     @PostMapping("/{project}/tasks")
-    public ResponseEntity<TaskRD> createTask(@AuthenticationPrincipal Jwt jwt,
-                                             @PathVariable Long project,
-                                             @RequestBody TaskWD newTask) {
+    public ResponseEntity<TaskRD> createTask(@PathVariable Long project,
+                                             @RequestBody TaskWD newTask,
+                                             @AuthenticationPrincipal Jwt jwt) {
         UUID user = extractUserId(jwt);
 
         TaskRD savedTask = taskService.createUserTask(user, project, newTask);
@@ -91,45 +95,40 @@ public class ProjectController {
     }
 
     @PutMapping("/{project}")
-    public ProjectRD updateProject(@AuthenticationPrincipal Jwt jwt,
-                                   @PathVariable Long project,
-                                   @RequestBody ProjectWD updProject) {
-        return service.updateUserProject(extractUserId(jwt), project, updProject);
+    public ProjectRD updateProject(@PathVariable Long project,
+                                   @RequestBody ProjectWD updProject,
+                                   @AuthenticationPrincipal Jwt jwt) {
+        UUID user = extractUserId(jwt);
+        return service.updateUserProject(user, project, updProject);
     }
 
     @PatchMapping("/{project}")
-    public ProjectRD patchProject(@AuthenticationPrincipal Jwt jwt,
-                                  @PathVariable Long project,
-                                  @RequestBody ProjectWD pthProject) {
-        return service.patchUserProject(extractUserId(jwt), project, pthProject);
+    public ProjectRD patchProject(@PathVariable Long project,
+                                  @RequestBody ProjectWD pthProject,
+                                  @AuthenticationPrincipal Jwt jwt) {
+        UUID user = extractUserId(jwt);
+        return service.patchUserProject(user, project, pthProject);
     }
 
     @DeleteMapping(consumes = "*/*", produces = "*/*")
     public ResponseEntity<Void> deleteProjects(@AuthenticationPrincipal Jwt jwt) {
         UUID user = extractUserId(jwt);
-
         service.deleteUserProjects(user);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping(path = "/{project}",
-            consumes = "*/*",
-            produces = "*/*")
-    public ResponseEntity<Void> deleteProject(@AuthenticationPrincipal Jwt jwt,
-                                              @PathVariable Long project) {
+    @DeleteMapping(path = "/{project}", consumes = "*/*", produces = "*/*")
+    public ResponseEntity<Void> deleteProject(@PathVariable Long project,
+                                              @AuthenticationPrincipal Jwt jwt) {
         UUID user = extractUserId(jwt);
-
         service.deleteUserProject(user, project);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping(path = "/{project}/tasks",
-            consumes = "*/*",
-            produces = "*/*")
-    public ResponseEntity<Void> deleteProjectTasks(@AuthenticationPrincipal Jwt jwt,
-                                                   @PathVariable Long project) {
+    @DeleteMapping(path = "/{project}/tasks", consumes = "*/*", produces = "*/*")
+    public ResponseEntity<Void> deleteProjectTasks(@PathVariable Long project,
+                                                   @AuthenticationPrincipal Jwt jwt) {
         UUID user = extractUserId(jwt);
-
         service.deleteUserProjectTasks(user, project);
         return ResponseEntity.noContent().build();
     }

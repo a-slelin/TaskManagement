@@ -15,12 +15,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 @RestController
-@RequestMapping(
-        value = "/api/admin/roles",
-        consumes = {"application/json", "application/xml", "application/yaml"},
-        produces = {"application/json", "application/xml", "application/yaml"}
-)
 @RequiredArgsConstructor
+@RequestMapping(value = "/api/admin/roles",
+        consumes = {"application/json", "application/xml", "application/yaml"},
+        produces = {"application/json", "application/xml", "application/yaml"})
 public class RolesController {
 
     private final RolesService service;
@@ -40,7 +38,7 @@ public class RolesController {
         return service.getRoleByName(role);
     }
 
-    @PostMapping("/search")
+    @PostMapping({"/search", "/filter"})
     public SheetDto<RoleRD> searchRoles(@RequestBody FilterChain filters,
                                         @PageableDefault(sort = "name") Pageable pageable) {
         return service.searchRoles(filters, pageable);

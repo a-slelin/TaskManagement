@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ActiveProfiles("test")
-@DisplayName("Тест приветственной страницы")
+@DisplayName("Тестируем WelcomeController")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class WelcomePageControllerTest {
 
@@ -34,13 +34,15 @@ public class WelcomePageControllerTest {
     }
 
     @Test
-    @DisplayName("Открываем стартовую страницу...")
+    @DisplayName("Тестируем GET / : успех")
     public void testWelcomePage() {
+
         ResponseEntity<String> response = rest.exchange(
                 baseUrl,
                 HttpMethod.GET,
                 null,
-                String.class);
+                String.class
+        );
         assertNotNull(response);
         assertNotNull(response.getStatusCode());
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -52,7 +54,8 @@ public class WelcomePageControllerTest {
                 baseUrl + "/",
                 HttpMethod.GET,
                 null,
-                String.class);
+                String.class
+        );
         assertNotNull(response2);
         assertNotNull(response2.getStatusCode());
         assertEquals(HttpStatus.OK, response2.getStatusCode());

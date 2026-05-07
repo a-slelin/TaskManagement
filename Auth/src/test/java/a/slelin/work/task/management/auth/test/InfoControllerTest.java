@@ -20,10 +20,11 @@ import static org.assertj.core.api.Fail.fail;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
+@DisplayName("Тестируем InfoController")
+@SuppressWarnings("CatchMayIgnoreException")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@DisplayName("Тест контроллера, отвечающего за базовую информацию")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class InfoControllerTest {
 
     @Autowired
@@ -42,8 +43,9 @@ public class InfoControllerTest {
     @Test
     @Order(1)
     @DirtiesContext
-    @DisplayName("Неавторизованный пользователь может обращаться к информации")
+    @DisplayName("Тестируем GET /help с неавторизованным пользователем : успех")
     public void test1() {
+
         ResponseEntity<Map<String, Object>> response = rest.exchange(
                 baseUrl + "/help",
                 HttpMethod.GET,
@@ -59,7 +61,7 @@ public class InfoControllerTest {
     @Test
     @Order(2)
     @DirtiesContext
-    @DisplayName("Пользователь может обращаться к информации")
+    @DisplayName("Тестируем GET /help с авторизованным пользователем : успех")
     public void test2() {
 
         LoginRequest login = new LoginRequest("alex_petrov", "password");
@@ -97,7 +99,7 @@ public class InfoControllerTest {
     @Test
     @Order(3)
     @DirtiesContext
-    @DisplayName("Администратор может обращаться к информации")
+    @DisplayName("Тестируем GET /help с администратором : успех")
     public void test3() {
 
         LoginRequest login = new LoginRequest("admin", "password");
@@ -135,8 +137,9 @@ public class InfoControllerTest {
     @Test
     @Order(4)
     @DirtiesContext
-    @DisplayName("Тестируем /help")
+    @DisplayName("Тестируем GET /help : успех")
     public void test4() {
+
         ResponseEntity<Map<String, Object>> response = rest.exchange(
                 baseUrl + "/help",
                 HttpMethod.GET,
@@ -171,8 +174,9 @@ public class InfoControllerTest {
     @Test
     @Order(5)
     @DirtiesContext
-    @DisplayName("Тестируем /info")
+    @DisplayName("Тестируем GET /info : успех")
     public void test5() {
+
         ResponseEntity<Map<String, Object>> response = rest.exchange(
                 baseUrl + "/info",
                 HttpMethod.GET,
@@ -207,8 +211,9 @@ public class InfoControllerTest {
     @Test
     @Order(6)
     @DirtiesContext
-    @DisplayName("Тестируем /api")
+    @DisplayName("Тестируем GET /api : успех")
     public void test6() {
+
         ResponseEntity<Map<String, Object>> response = rest.exchange(
                 baseUrl + "/api",
                 HttpMethod.GET,
@@ -243,8 +248,9 @@ public class InfoControllerTest {
     @Test
     @Order(7)
     @DirtiesContext
-    @DisplayName("Тестируем /api/help")
+    @DisplayName("Тестируем GET /api/help : успех")
     public void test7() {
+
         ResponseEntity<Map<String, Object>> response = rest.exchange(
                 baseUrl + "/api/help",
                 HttpMethod.GET,
@@ -279,8 +285,9 @@ public class InfoControllerTest {
     @Test
     @Order(8)
     @DirtiesContext
-    @DisplayName("Тестируем /api/info")
+    @DisplayName("Тестируем GET /api/info : успех")
     public void test8() {
+
         ResponseEntity<Map<String, Object>> response = rest.exchange(
                 baseUrl + "/api/info",
                 HttpMethod.GET,
@@ -315,8 +322,9 @@ public class InfoControllerTest {
     @Test
     @Order(9)
     @DirtiesContext
-    @DisplayName("Тестируем /auth")
+    @DisplayName("Тестируем GET /auth : успех")
     public void test9() {
+
         ResponseEntity<Map<String, Object>> response = rest.exchange(
                 baseUrl + "/auth",
                 HttpMethod.GET,
@@ -351,8 +359,9 @@ public class InfoControllerTest {
     @Test
     @Order(10)
     @DirtiesContext
-    @DisplayName("Тестируем /auth/help")
+    @DisplayName("Тестируем GET /auth/help : успех")
     public void test10() {
+
         ResponseEntity<Map<String, Object>> response = rest.exchange(
                 baseUrl + "/auth/help",
                 HttpMethod.GET,
@@ -387,8 +396,9 @@ public class InfoControllerTest {
     @Test
     @Order(11)
     @DirtiesContext
-    @DisplayName("Тестируем /auth/info")
+    @DisplayName("Тестируем GET /auth/info : успех")
     public void test11() {
+
         ResponseEntity<Map<String, Object>> response = rest.exchange(
                 baseUrl + "/auth/info",
                 HttpMethod.GET,
@@ -423,7 +433,7 @@ public class InfoControllerTest {
     @Test
     @Order(12)
     @DirtiesContext
-    @DisplayName("Тестируем /api/admin")
+    @DisplayName("Тестируем GET /api/admin : успех")
     public void test12() {
 
         LoginRequest login = new LoginRequest("admin", "password");
@@ -480,7 +490,7 @@ public class InfoControllerTest {
     @Test
     @Order(13)
     @DirtiesContext
-    @DisplayName("Тестируем /api/admin/help")
+    @DisplayName("Тестируем GET /api/admin/help : успех")
     public void test13() {
 
         LoginRequest login = new LoginRequest("admin", "password");
@@ -537,7 +547,7 @@ public class InfoControllerTest {
     @Test
     @Order(14)
     @DirtiesContext
-    @DisplayName("Тестируем /api/admin/info")
+    @DisplayName("Тестируем GET /api/admin/info : успех")
     public void test14() {
 
         LoginRequest login = new LoginRequest("admin", "password");
@@ -594,10 +604,9 @@ public class InfoControllerTest {
     @Test
     @Order(15)
     @DirtiesContext
-    @DisplayName("Неавторизованный пользователь не имеет доступ к админской информации")
+    @DisplayName("Тестируем GET /api/admin с неавторизованным пользователем : ошибка 401 неавторизован")
     public void test15() {
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     baseUrl + "/api/admin",
@@ -633,7 +642,7 @@ public class InfoControllerTest {
     @Test
     @Order(16)
     @DirtiesContext
-    @DisplayName("Обычный пользователь не имеет доступ к админской информации")
+    @DisplayName("Тестируем GET /api/admin с авторизованным пользователем : ошибка 403 запрещено")
     public void test16() {
 
         LoginRequest login = new LoginRequest("alex_petrov", "password");
@@ -656,7 +665,6 @@ public class InfoControllerTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtResponse.accessToken());
 
-        //noinspection CatchMayIgnoreException
         try {
             rest.exchange(
                     baseUrl + "/api/admin",

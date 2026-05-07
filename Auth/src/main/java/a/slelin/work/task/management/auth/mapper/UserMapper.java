@@ -21,8 +21,8 @@ public abstract class UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "refreshTokens", ignore = true)
-    @Mapping(target = "password", qualifiedByName = "getPassword")
     @Mapping(target = "gender", qualifiedByName = "getGender")
+    @Mapping(target = "password", qualifiedByName = "getPassword")
     public abstract User toEntity(UserWD user);
 
     @Named("getGender")

@@ -16,55 +16,57 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(value = "/api/tasks",
         produces = {"application/json", "application/xml", "application/yaml"},
         consumes = {"application/json", "application/xml", "application/yaml"})
-@RequiredArgsConstructor
 public class TaskController {
 
     private final TaskService service;
 
     @GetMapping(path = "/{task}", consumes = "*/*")
-    public TaskRD getTask(@AuthenticationPrincipal Jwt jwt,
-                          @PathVariable Long task) {
-        return service.getUserTask(extractUserId(jwt), task);
+    public TaskRD getTask(@PathVariable Long task,
+                          @AuthenticationPrincipal Jwt jwt) {
+        UUID user = extractUserId(jwt);
+        return service.getUserTask(user, task);
     }
 
     @PostMapping({"/search", "/filter"})
-    public SheetDto<TaskRD> search(@AuthenticationPrincipal Jwt jwt,
+    public SheetDto<TaskRD> search(@RequestBody FilterChain filters,
                                    @PageableDefault(sort = "title") Pageable pageable,
-                                   @RequestBody FilterChain filters) {
-        return service.searchUserTasks(extractUserId(jwt), filters, pageable);
+                                   @AuthenticationPrincipal Jwt jwt) {
+        UUID user = extractUserId(jwt);
+        return service.searchUserTasks(user, filters, pageable);
     }
 
     @PutMapping(path = "/{task}")
-    public TaskRD updateTask(@AuthenticationPrincipal Jwt jwt,
-                             @PathVariable Long task,
-                             @RequestBody TaskWD updTask) {
-        return service.updateUserTask(extractUserId(jwt), task, updTask);
+    public TaskRD updateTask(@PathVariable Long task,
+                             @RequestBody TaskWD updTask,
+                             @AuthenticationPrincipal Jwt jwt) {
+        UUID user = extractUserId(jwt);
+        return service.updateUserTask(user, task, updTask);
     }
 
     @PatchMapping(path = "/{task}")
-    public TaskRD patchTask(@AuthenticationPrincipal Jwt jwt,
-                            @PathVariable Long task,
-                            @RequestBody TaskWD pthTask) {
-        return service.patchUserTask(extractUserId(jwt), task, pthTask);
+    public TaskRD patchTask(@PathVariable Long task,
+                            @RequestBody TaskWD pthTask,
+                            @AuthenticationPrincipal Jwt jwt) {
+        UUID user = extractUserId(jwt);
+        return service.patchUserTask(user, task, pthTask);
     }
 
     @PatchMapping(path = "/{task}/project/{newProject}", consumes = "*/*")
-    public TaskRD setProject(@AuthenticationPrincipal Jwt jwt,
-                             @PathVariable Long task,
-                             @PathVariable Long newProject) {
-        return service.drawToProject(extractUserId(jwt), newProject, task);
+    public TaskRD setProject(@PathVariable Long task,
+                             @PathVariable Long newProject,
+                             @AuthenticationPrincipal Jwt jwt) {
+        UUID user = extractUserId(jwt);
+        return service.drawToProject(user, newProject, task);
     }
 
-    @DeleteMapping(path = "/{task}",
-            consumes = "*/*",
-            produces = "*/*")
-    public ResponseEntity<Void> deleteTask(@AuthenticationPrincipal Jwt jwt,
-                                           @PathVariable Long task) {
+    @DeleteMapping(path = "/{task}", consumes = "*/*", produces = "*/*")
+    public ResponseEntity<Void> deleteTask(@PathVariable Long task,
+                                           @AuthenticationPrincipal Jwt jwt) {
         UUID user = extractUserId(jwt);
-
         service.deleteUserTask(user, task);
         return ResponseEntity.noContent().build();
     }
