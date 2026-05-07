@@ -5,12 +5,12 @@
     <parent>
         <groupId>a.slelin.work</groupId>
         <artifactId>task.management</artifactId>
-        <version>6.1-SNAPSHOT</version>
+        <version>6.1</version>
     </parent>
 
     <groupId>a.slelin.work.task.management</groupId>
     <artifactId>auth</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <packaging>jar</packaging>
 
@@ -123,7 +123,7 @@
         <dependency>
             <groupId>a.slelin.work.task.management</groupId>
             <artifactId>core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
 
     </dependencies>
