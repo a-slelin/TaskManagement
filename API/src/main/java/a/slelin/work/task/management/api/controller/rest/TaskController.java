@@ -51,11 +51,11 @@ public class TaskController {
         return service.patchUserTask(extractUserId(jwt), task, pthTask);
     }
 
-    @PostMapping(path = "/{task}/project/{newProject}", consumes = "*/*")
+    @PatchMapping(path = "/{task}/project/{newProject}", consumes = "*/*")
     public TaskRD setProject(@AuthenticationPrincipal Jwt jwt,
                              @PathVariable Long task,
                              @PathVariable Long newProject) {
-        return service.drawToProject(extractUserId(jwt), task, newProject);
+        return service.drawToProject(extractUserId(jwt), newProject, task);
     }
 
     @DeleteMapping(path = "/{task}",

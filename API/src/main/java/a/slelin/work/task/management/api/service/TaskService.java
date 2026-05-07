@@ -57,7 +57,7 @@ public class TaskService {
     public SheetDto<TaskRD> searchUserTasks(@NotNull @Valid UUID user,
                                             @NotNull @Valid FilterChain filters,
                                             @NotNull @Valid Pageable pageable) {
-        filters.add(Filter.of("project.user_id", Operation.EQ, user));
+        filters.add(Filter.of("project.user", Operation.EQ, user));
         Specification<Task> specification = FilterUtil.toSpecification(filters);
 
         return SheetDto.of(repository.findAll(specification, pageable), mapper::toDto);

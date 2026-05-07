@@ -118,4 +118,68 @@ VALUES ('Создание модели задач',
         'begin',
         (SELECT id FROM project WHERE name = 'Система управления задачами'));
 
+INSERT INTO task (title, description, status, project_id)
+VALUES ('Спроектировать очередь событий',
+        'Определить схему сообщений для уведомлений: email, push, sms. Интеграция с RabbitMQ.',
+        'begin',
+        (SELECT id FROM project WHERE name = 'Разработка микросервиса уведомлений')),
+
+       ('Реализовать адаптер для Email',
+        'Подключить SMTP-провайдера (SendGrid / AWS SES) с шаблонами писем',
+        'in_progress',
+        (SELECT id FROM project WHERE name = 'Разработка микросервиса уведомлений'));
+
+INSERT INTO task (title, description, status, project_id)
+VALUES ('Проектирование базы данных LMS',
+        'Таблицы: пользователи, курсы, уроки, тесты, прогресс учеников',
+        'end',
+        (SELECT id FROM project WHERE name = 'Платформа для онлайн-обучения')),
+
+       ('Разработка видеоплеера с субтитрами',
+        'Встроить HTML5-плеер с поддержкой VTT субтитров и отслеживанием просмотра',
+        'in_progress',
+        (SELECT id FROM project WHERE name = 'Платформа для онлайн-обучения'));
+
+INSERT INTO task (title, description, status, project_id)
+VALUES ('Настройка NLP-модели для распознавания интентов',
+        'Обучить модель классифицировать обращения клиентов (проблемы с интернетом, оплата, перезагрузка оборудования)',
+        'in_progress',
+        (SELECT id FROM project WHERE name = 'Чат-бот для техподдержки интернет-провайдера')),
+
+       ('Интеграция с Telegram и Viber',
+        'Подключить бота к мессенджерам, настроить webhook-уведомления',
+        'begin',
+        (SELECT id FROM project WHERE name = 'Чат-бот для техподдержки интернет-провайдера')),
+
+       ('Создание базы знаний с часто задаваемыми вопросами',
+        'Собрать и структурировать FAQ, написать скрипты ответов',
+        'end',
+        (SELECT id FROM project WHERE name = 'Чат-бот для техподдержки интернет-провайдера')),
+
+       ('Логирование диалогов и аналитика',
+        'Сохранять историю чатов, настроить дашборд для операторов',
+        'on_hold',
+        (SELECT id FROM project WHERE name = 'Чат-бот для техподдержки интернет-провайдера'));
+
+INSERT INTO task (title, description, status, project_id)
+VALUES ('Реализация аутентификации и ролей',
+        'Добавить JWT-аутентификацию, разграничить доступ: админ, менеджер, пользователь',
+        'end',
+        (SELECT id FROM project WHERE name = 'CRM для управления задачами и клиентами (TaskFlow)')),
+
+       ('Разработка доски задач (Kanban)',
+        'Сделать интерфейс с колонками ToDo, In Progress, Done, перетаскивание карточек',
+        'in_progress',
+        (SELECT id FROM project WHERE name = 'CRM для управления задачами и клиентами (TaskFlow)')),
+
+       ('Создание воронки продаж',
+        'Этапы: новый контакт, переговоры, выставление счета, закрытие сделки',
+        'begin',
+        (SELECT id FROM project WHERE name = 'CRM для управления задачами и клиентами (TaskFlow)')),
+
+       ('Настройка отчетов и дашбордов',
+        'Графики по количеству задач, эффективности сотрудников, конверсии сделок',
+        'on_hold',
+        (SELECT id FROM project WHERE name = 'CRM для управления задачами и клиентами (TaskFlow)'));
+
 --rollback DELETE FROM task;

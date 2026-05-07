@@ -46,6 +46,20 @@ public class TestConfig {
     }
 
     @Bean
+    public String ekaterinaToken() {
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        SecretKey key = Keys.hmacShaKeyFor(keyBytes);
+
+        return Jwts.builder()
+                .subject("5a53277c-487f-4ef8-bd7e-c1256de14785")
+                .claim("roles", List.of("ROLE_USER"))
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 900000))
+                .signWith(key)
+                .compact();
+    }
+
+    @Bean
     public String adminToken() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
         SecretKey key = Keys.hmacShaKeyFor(keyBytes);
