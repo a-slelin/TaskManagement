@@ -44,7 +44,7 @@
 **<span style="color: green;">25</span>**. В качестве **<span style="color: yellow;">IDE</span>** при разработке
 использовалась 🤖 **<span style="color: yellow;">IntelliJ IDEA Community Edition</span>** (2026.1.1). Также, стоит
 учесть, что большая часть приложения использует фреймворки **<span style="color: green;">Spring Framework 7</span>**
-(7.0.5) 🍃 и **<span style="color: green;">Spring Boot 4</span>** (4.0.5) 🍃. Также используются сторонние библиотеки,
+(7.0.7) 🍃 и **<span style="color: green;">Spring Boot 4</span>** (4.0.6) 🍃. Также используются сторонние библиотеки,
 с которыми подробно можно ознакомиться в файле [**pom.xml**](pom.xml).
 
 **2)** Для сборки 🔨 приложений используется **<span style="color: green;">Apache Maven</span>** (3.9.9).

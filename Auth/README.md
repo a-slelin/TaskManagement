@@ -13,12 +13,12 @@
 
 * **<span style="color: green;">User</span>** 🧒 - пользователь;
 * **<span style="color: green;">Token</span>** 🔑 - токен обновления;
-* **<span style="color: green;">Role</span>** 💡- роль.
+* **<span style="color: green;">Role</span>** 💡- роль;
 * **<span style="color: green;">Login</span>** 👋 - запрос на логин;
 * **<span style="color: green;">Jwt</span>** 🌈 - jwt-токены;
 * **<span style="color: green;">RoleCollection</span>** 💾 - коллекция ролей;
 * **<span style="color: green;">Page</span>** 📜 - страница;
-* **<span style="color: green;">Filters</span>** 🔎 - фильтры;
+* **<span style="color: green;">Filters</span>** 🔎 - фильтры.
 
 ### Как работать с пользователем?
 
@@ -45,8 +45,8 @@
 
 Возможные варианты для **gender**:
 
-* **male** 🧑: мужчина.
-* **female** 👧: женщина
+* **male** 🧑: мужчина;
+* **female** 👧: женщина.
 
 ### Как работать с токенами?
 
@@ -260,7 +260,7 @@ GET auth/refresh
 * <span style="color: purple;">Ожидаемые параметры</span> 📊: не ожидается.
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
-* <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">409</span> CONFLICT**.
+* <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">200</span> OK**.
 
 ```http request
@@ -271,7 +271,7 @@ GET auth/logout
 * <span style="color: purple;">Ожидаемые параметры</span> 📊: не ожидается.
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
-* <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">409</span> CONFLICT**.
+* <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">204</span> NO CONTENT**.
 
 ```http request
@@ -282,7 +282,7 @@ GET auth/logout/all
 * <span style="color: purple;">Ожидаемые параметры</span> 📊: не ожидается.
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
-* <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">409</span> CONFLICT**.
+* <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">204</span> NO CONTENT**.
 
 ```http request
@@ -294,14 +294,14 @@ POST auth/login
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: логин.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: не ожидается.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">400</span> BAD REQUEST**,
-  **<span style="color: orange;">409</span> CONFLICT**.
+  **<span style="color: orange;">401</span> UNAUTHORIZED**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">200</span> OK**.
 
 ```http request
 POST auth/register
 ```
 
-* <span style="color: yellow;">Операция</span> 🚀: создаёт новый пользователя и возвращает jwt-токены.
+* <span style="color: yellow;">Операция</span> 🚀: создаёт нового пользователя и возвращает jwt-токены.
 * <span style="color: purple;">Ожидаемые параметры</span> 📊: не ожидается.
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: пользователь.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: не ожидается.
@@ -318,8 +318,7 @@ GET api/user
 * <span style="color: purple;">Ожидаемые параметры</span> 📊: не ожидается.
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
-* <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**,
-  **<span style="color: orange;">404</span> NOT FOUND**.
+* <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">200</span> OK**.
 
 ```http request
@@ -331,7 +330,7 @@ PATCH api/user
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: пользователь.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">400</span> BAD REQUEST**,
-  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">409</span> CONFLICT**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">200</span> OK**.
 
 ```http request
@@ -342,8 +341,7 @@ DELETE api/user
 * <span style="color: purple;">Ожидаемые параметры</span> 📊: не ожидается.
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
-* <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">400</span> BAD REQUEST**,
-  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">404</span> NOT FOUND**.
+* <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">204</span> NO CONTENT**.
 
 ### API для администратора системы
@@ -411,7 +409,8 @@ POST api/admin/roles
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: роль.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">400</span> BAD REQUEST**,
-  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">403</span> FORBIDDEN**.
+  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">403</span> FORBIDDEN**,
+  **<span style="color: orange;">409</span> CONFLICT**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">201</span> CREATED**.
 
 ```http request
@@ -424,7 +423,8 @@ PUT api/admin/roles/{id}
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">400</span> BAD REQUEST**,
   **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">403</span> FORBIDDEN**,
-  **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">404</span> NOT FOUND**, **<span style="color: orange;">409</span> CONFLICT**,
+  **<span style="color: orange;">422</span> UNPROCESSABLE ENTITY**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">200</span> OK**.
 
 ```http request
@@ -437,7 +437,8 @@ PATCH api/admin/roles/{id}
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">400</span> BAD REQUEST**,
   **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">403</span> FORBIDDEN**,
-  **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">404</span> NOT FOUND**, **<span style="color: orange;">409</span> CONFLICT**,
+  **<span style="color: orange;">422</span> UNPROCESSABLE ENTITY**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">200</span> OK**.
 
 ```http request
@@ -449,7 +450,8 @@ DELETE api/admin/roles/{id}
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**,
-  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**,
+  **<span style="color: orange;">422</span> UNPROCESSABLE ENTITY**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">204</span> NO CONTENT**.
 
 #### Токены
@@ -506,18 +508,6 @@ GET api/admin/tokens/search
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">200</span> OK**.
 
 ```http request
-DELETE api/admin/tokens
-```
-
-* <span style="color: yellow;">Операция</span> 🚀: удаляет все токены.
-* <span style="color: purple;">Ожидаемые параметры</span> 📊: не ожидается.
-* <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
-* <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
-* <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**,
-  **<span style="color: orange;">403</span> FORBIDDEN**.
-* <span style="color: green;">Результат</span> ✅: **<span style="color: green;">204</span> NO CONTENT**.
-
-```http request
 DELETE api/admin/tokens/{id}
 ```
 
@@ -526,19 +516,21 @@ DELETE api/admin/tokens/{id}
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**,
-  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**,
+  **<span style="color: orange;">422</span> UNPROCESSABLE ENTITY**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">204</span> NO CONTENT**.
 
 ```http request
 DELETE api/admin/tokens/user/{user_id}
 ```
 
-* <span style="color: yellow;">Операция</span> 🚀: удаляет все токен пользователя по идентификатору.
+* <span style="color: yellow;">Операция</span> 🚀: удаляет все токены пользователя по идентификатору.
 * <span style="color: purple;">Ожидаемые параметры</span> 📊: не ожидается.
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**,
-  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**,
+  **<span style="color: orange;">422</span> UNPROCESSABLE ENTITY**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">204</span> NO CONTENT**.
 
 #### Пользователи
@@ -604,7 +596,8 @@ POST api/admin/users;
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: пользователь.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">400</span> BAD REQUEST**,
-  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">403</span> FORBIDDEN**.
+  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">403</span> FORBIDDEN**,
+  **<span style="color: orange;">409</span> CONFLICT**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">201</span> CREATED**.
 
 ```http request
@@ -617,7 +610,8 @@ PATCH api/admin/users/{id};
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">400</span> BAD REQUEST**,
   **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">403</span> FORBIDDEN**,
-  **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">404</span> NOT FOUND**, **<span style="color: orange;">409</span> CONFLICT**,
+  **<span style="color: orange;">422</span> UNPROCESSABLE ENTITY**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">200</span> OK**.
 
 ```http request
@@ -629,7 +623,8 @@ DELETE api/admin/users/{id};
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**,
-  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**,
+  **<span style="color: orange;">422</span> UNPROCESSABLE ENTITY**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">204</span> NO CONTENT**.
 
 ```http request
@@ -667,7 +662,8 @@ PATCH api/admin/users/{id}/revoke;
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">400</span> BAD REQUEST**,
   **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">403</span> FORBIDDEN**,
-  **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">404</span> NOT FOUND**,
+  **<span style="color: orange;">422</span> UNPROCESSABLE ENTITY**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">204</span> NO CONTENT**.
 
 ```http request
@@ -679,7 +675,8 @@ PATCH api/admin/users/{user_id}/revoke/{role_name};
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**,
-  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**,
+  **<span style="color: orange;">422</span> UNPROCESSABLE ENTITY**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">204</span> NO CONTENT**.
 
 ## Запуск
@@ -700,7 +697,7 @@ cd TaskManagement/Core;
 mvn clean install;
 
 # Переходим в папку Auth;
-cd ../TaskManagement/Auth;
+cd ../Auth;
 
 # Собираем проект в jar-файл, минуя тесты;
 mvn clean package -DskipTests;
@@ -760,7 +757,7 @@ docker compose down;
 сущность. Под слово "кто" можно понимать UUID-идентификатор пользователя. Данное улучшение может быть необходимо для
 работы администраторов.
 
-**2)** Описать документацию с помощью javadoc. Однозначно будет полезно для развивающихся проектов, особенно, если
+**2)** Описать документацию с помощью Javadoc. Однозначно будет полезно для развивающихся проектов, особенно, если
 разработка начнётся в команде.
 
 **3)** Продумать вариант пересмотра модели и добавления сущности вроде "Аккаунт".

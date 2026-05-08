@@ -200,7 +200,7 @@ GET api/projects/{id}
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**,
-  **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">200</span> OK**.
 
 ```http request
@@ -214,7 +214,7 @@ GET api/projects/{id}/tasks
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**,
-  **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">200</span> OK**.
 
 ```http request
@@ -222,7 +222,7 @@ POST api/projects/search
 ```
 
 * <span style="color: yellow;">Операция</span> 🚀: возвращает список проектов пользователя по фильтру, а также информацию
-  о странице
+  о странице.
 * <span style="color: purple;">Ожидаемые параметры</span> 📊: **page** (0) - номер страницы, **size** (10) - размер
   страницы, **sort** (name) - сортировка.
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: фильтр.
@@ -241,7 +241,7 @@ POST api/projects
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: проект.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">400</span> BAD REQUEST**,
-  **<span style="color: orange;">401</span> UNAUTHORIZED**.
+  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">409</span> CONFLICT**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">201</span> CREATED**.
 
 ```http request
@@ -254,7 +254,8 @@ POST api/projects/{id}/tasks
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: задача.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">400</span> BAD REQUEST**,
-  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">403</span> FORBIDDEN**,
+  **<span style="color: orange;">404</span> NOT FOUND**, **<span style="color: orange;">409</span> CONFLICT**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">201</span> CREATED**.
 
 ```http request
@@ -266,7 +267,8 @@ PUT api/projects/{id}
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: проект.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">400</span> BAD REQUEST**,
-  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">403</span> FORBIDDEN**,
+  **<span style="color: orange;">404</span> NOT FOUND**, **<span style="color: orange;">409</span> CONFLICT**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">200</span> OK**.
 
 ```http request
@@ -278,7 +280,8 @@ PATCH api/projects/{id}
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: проект.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">400</span> BAD REQUEST**,
-  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">403</span> FORBIDDEN**,
+  **<span style="color: orange;">404</span> NOT FOUND**, **<span style="color: orange;">409</span> CONFLICT**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">200</span> OK**.
 
 ```http request
@@ -301,7 +304,7 @@ DELETE api/projects/{id}
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**,
-  **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">204</span> NO CONTENT**.
 
 ```http request
@@ -313,7 +316,7 @@ DELETE api/projects/{id}/tasks
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**,
-  **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">204</span> NO CONTENT**.
 
 ### API для задач
@@ -327,7 +330,7 @@ GET api/tasks/{id}
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**,
-  **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">200</span> OK**.
 
 ```http request
@@ -353,7 +356,8 @@ PUT api/tasks/{id}
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: задача.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">400</span> BAD REQUEST**,
-  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">403</span> FORBIDDEN**,
+  **<span style="color: orange;">404</span> NOT FOUND**, **<span style="color: orange;">409</span> CONFLICT**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">200</span> OK**.
 
 ```http request
@@ -365,11 +369,12 @@ PATCH api/tasks/{id}
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: задача.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">400</span> BAD REQUEST**,
-  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">401</span> UNAUTHORIZED**, **<span style="color: orange;">403</span> FORBIDDEN**,
+  **<span style="color: orange;">404</span> NOT FOUND**, **<span style="color: orange;">409</span> CONFLICT**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">200</span> OK**.
 
 ```http request
-POST api/tasks/{task_id}/project/{project_id}
+PATCH api/tasks/{task_id}/project/{project_id}
 ```
 
 * <span style="color: yellow;">Операция</span> 🚀: переносит задачу на другой проект и возвращает её.
@@ -377,7 +382,8 @@ POST api/tasks/{task_id}/project/{project_id}
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**,
-  **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**,
+  **<span style="color: orange;">409</span> CONFLICT**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">200</span> OK**.
 
 ```http request
@@ -389,7 +395,7 @@ DELETE api/tasks/{id}
 * <span style="color: purple;">Ожидаемое тело запроса</span> 🧰: не ожидается.
 * <span style="color: purple;">Ожидаемые заголовки запроса</span> 📰: **Bearer**-токен.
 * <span style="color: orange;">Предсказуемые ошибки</span> ⛔: **<span style="color: orange;">401</span> UNAUTHORIZED**,
-  **<span style="color: orange;">404</span> NOT FOUND**.
+  **<span style="color: orange;">403</span> FORBIDDEN**, **<span style="color: orange;">404</span> NOT FOUND**.
 * <span style="color: green;">Результат</span> ✅: **<span style="color: green;">204</span> NO CONTENT**.
 
 ## Запуск
@@ -410,7 +416,7 @@ cd TaskManagement/Core;
 mvn clean install;
 
 # Переходим в папку API;
-cd ../TaskManagement/API;
+cd ../API;
 
 # Собираем проект в jar-файл, минуя тесты;
 mvn clean package -DskipTests;
@@ -468,7 +474,7 @@ docker compose down;
 сущность. Под слово "кто" можно понимать UUID-идентификатор пользователя. Данное улучшение может быть необходимо для
 работы администраторов.
 
-**2)** Описать документацию с помощью javadoc. Однозначно будет полезно для развивающихся проектов, особенно, если
+**2)** Описать документацию с помощью Javadoc. Однозначно будет полезно для развивающихся проектов, особенно, если
 разработка начнётся в команде.
 
 **3)** Добавить кэш в виде Redis, для улучшения производительности.
