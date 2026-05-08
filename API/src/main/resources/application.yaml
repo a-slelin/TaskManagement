@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: Task Management API Server
+    version: 1.0
+
+  profiles:
+    active: prod

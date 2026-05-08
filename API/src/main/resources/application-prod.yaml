@@ -1,0 +1,75 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  main:
+    banner-mode: off
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}
+    username: ${DB_USER_NAME}
+    password: ${DB_USER_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 30000
+      pool-name: AuthHikariPool
+
+  jpa:
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        show_sql: false
+        use_sql_comments: false
+        hbm2ddl:
+          auto: validate
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    database: postgresql
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    drop-first: false
+    enabled: true
+    contexts: prod
+    default-schema: public
+
+server:
+  port: ${APP_PORT:8080}
+  shutdown: graceful
+
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 20
+    max-http-form-post-size: 2MB
+    connection-timeout: 20000
+
+jwt:
+  secret: ${JWT_SECRET}
+
+logging:
+  file:
+    name: ${LOG_PATH:logs}/api-service.log
+
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: ERROR
+    a.slelin.work.task.management: INFO
+
+  logback:
+    rollingpolicy:
+      file-name-pattern: ${logging.file.name}.%d{yyyy-MM-dd}.%i.gz
+      max-file-size: 10MB
+      max-history: 15
+      total-size-cap: 1GB
+      clean-history-on-start: false
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %highlight(%-5level) %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/APIDB
+    username: api_user
+    password: password
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: false
+        hbm2ddl:
+          auto: validate
+    open-in-view: true
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    drop-first: true
+    enabled: true
+    contexts: dev
+
+jwt:
+  secret: w09t+tz+nZbsonRtmo9qfv4zVfpeyoc7u+36DSQ5QnkLoCk+88fPmvBhtdKR/0HYhZpEs9It5j2DSGb+vupKvg==

@@ -1,0 +1,21 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/AUTHDB
+    username: auth_user
+    password: password
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    drop-first: true
+    enabled: true
+    contexts: dev
+
+server:
+  port: 8081
+
+jwt:
+  secret: w09t+tz+nZbsonRtmo9qfv4zVfpeyoc7u+36DSQ5QnkLoCk+88fPmvBhtdKR/0HYhZpEs9It5j2DSGb+vupKvg==

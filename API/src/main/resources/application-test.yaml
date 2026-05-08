@@ -1,0 +1,30 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    url: jdbc:h2:mem:TaskManagement;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: admin
+    password: admin
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        hbm2ddl:
+          auto: validate
+    open-in-view: true
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    enabled: true
+    drop-first: true
+    contexts: test
+
+jwt:
+  secret: FwJAWeXDnVbY9ZSV7VsBIp616bKUMy46Tc1ZrzkLT0Kn48HR78f+o2fbcRmkjR6IkiqNyMtLdU9987b7grHr0w==
+
+server:
+  port: 8080
